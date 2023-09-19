@@ -3,16 +3,23 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import time
+from .services import OrdenServ
 
-#pagina de inicio o home, ""
+#RECORDAR QUE ESTE ES EL WORKSPACE/ORDENES, SE DEBE CAMBIAR A FUTURO
+@login_required
 def home(request):
-    return render(request, 'home.html',{})
+    lista_ordenes = OrdenServ.getAll()
+    return render(request, 'home.html',{'ordenes':lista_ordenes})
+
+@login_required
+def orden_individual(request,pk):
+    orden = OrdenServ.get()
+    return render(request, 'orden')
 
 #pagina dashboard "/workspace/"
 @login_required
 def ordenes(request):
     return render(request, 'workspace.html',{})
-
 
 #pagina para produtos "/productos"
 @login_required
@@ -38,10 +45,14 @@ def clientes(request):
 def almacenes(request):
     return render(request, "almacenes.html",{})
 
+@login_required
+def almacen(request, pk):
+    pass
+
 
 #Inicio de sesion, si hay una sesion abierta se envia al workspace, caso contrario a la pagina de inicio
 def login_user(request):
-    if request.emthod == 'POST':
+    if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request,username=username, password=password)
@@ -50,14 +61,14 @@ def login_user(request):
             messages.success(request, "has iniciado sesión correctamente.")
         else:
             messages.error(request, "Usuario o contraseña incorrectos")
-    if request.user_is_authenticated:
+    if request.user.is_authenticated:
         return redirect('home')
     return render(request, 'login.html', {})
 
 #Terminar sesión
 def logout_user(request):
     logout(request)
-    messages.succes(request, "Te has desconectado correctamente")
+    messages.success(request, "Te has desconectado correctamente")
     return redirect('home')
 
 #manejo de errores 404 custom
