@@ -8,10 +8,10 @@ urlpatterns = [
     path('login/', views.login_user, name="login"),
     path('logout/', views.logout_user, name="logout"),
     
-    #path('/perfil/%nombre%', views.perfil_usuario, name='perfil'),
+    #path('/perfil/<string:nombre>', views.perfil_usuario, name='perfil'),
 
-    path('workspace/Ordenes/', views.ordenes, name='ordenes'),
-    path('workspace/orden/<int:pk>', views.orden, name="ordenIndividual"),
+    path('workspace/ordenes/', views.ordenes, name='ordenes'),
+    path('workspace/orden/<int:pk>', views.orden_individual, name="ordenIndividual"),
     #path('workspace/ordenes/insertar', views.ordenes_insertar, name="ordenes_insertar"),
     #path('workspace/ordenes/modificar/%id%', views.ordenes_modificar, name="ordenes_modificar"),
     #path('workspace/ordenes/eliminar/%id%', views.ordenes_eliminar, name="ordenes_eliminar"),
@@ -34,9 +34,10 @@ urlpatterns = [
     path('workspace/inventario/historial', views.historial_inventario, name="historial_inventario"),
 
     path('workspace/almacenes/', views.almacenes, name='almacenes'),
-    #path('workspace/almacenes/insertar', views.almacenes_insertar, name="almacenes_insertar"),
-    #path('workspace/almacenes/modificar/%id%', views.almacenes_modificar, name="almacenes_modificar"),
-    #path('workspace/almacenes/eliminar/%id%', views.almacenes_eliminar, name="almacenes_eliminar"),
+    #path('workspace/almacen/<int:pk>', views.almacen_individual, name='almacenIndividual'),
+    path('workspace/almacen/insertar', views.almacen_insertar, name="almacen_insertar"),
+    path('workspace/almacen/modificar/<int:pk>', views.almacen_modificar, name="almacen_modificar"),
+    path('workspace/almacen/eliminar/<int:pk>', views.almacen_eliminar, name="almacen_eliminar"),
     
 ]
 
