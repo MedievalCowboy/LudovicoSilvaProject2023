@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block styles%}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+    {% endblock%}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Proveedores</h1>
+
+     <!-- Opciones -->
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+        <div class="form-check" style="margin-right:20px;">
+            <input type="checkbox" class="form-check-input mr-2" id="seleccionar-todo">
+            <label class="form-check-label small" for="seleccionar-todo">Seleccionar Todo</label>
+        </div>
+        <div class="mr-3">
+            <a href="#" id="crear-nuevo" class="btn btn-sm btn-primary mb-3">Crear Nuevo</a>
+        </div>
+    </div>
+</div>
+
+<div style="overflow-x: auto; white-space: nowrap;">
+    <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center"></th>
+                <th class="text-center py-0">ID</th>
+                <th class="text-center py-0">Nombre</th>
+                <th class="text-center py-0">Correo</th>
+                <th class="text-center py-0">Tlf</th>
+                <th class="text-center py-0">Nota</th>
+                <th class="text-center py-0">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+                <td class="text-center p-0"><input type="checkbox" class="seleccionar-elemento" data-id="{{ proveedor.id_proveedor }}"></td>
+                <td class="text-center py-0 align-middle">{{ proveedor.id_proveedor }}</td>
+                <td class="text-center py-0 align-middle">{{ proveedor.nombre_proveedor|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle">{{ proveedor.correo|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle">{{ proveedor.tlf_proveedor|default:"N/A" }}</td>
+                <td class="text-center py-0">
+                    <button class="btn btn-link ver-nota" data-bs-toggle="collapse" data-bs-target="#nota-{{ proveedor.id_proveedor }}">Ver Nota</button>
+                    <div class="collapse" id="nota-{{ proveedor.id_proveedor }}">
+                        {{ proveedor.nota_proveedor|default:"N/A" }}
+                    </div>
+                </td>
+                <td class="text-center py-0 align-middle" style="white-space: nowrap;">
+                    <button class="btn btn-info btn-sm editar" data-id="{{ proveedor.id_proveedor }}">Editar</button>
+                    <button class="btn btn-danger btn-sm eliminar" data-id="{{ proveedor.id_proveedor }}">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+   
+
+</div>
+
+
+<!-- Modal para Crear/Editar -->
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Editar Proveedor</h4>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="elemento-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="elemento-id" name="elemento_id" value="">
+                    <div class="form-group">
+                        <label for="elemento-nombre">Nombre:</label>
+                        <input type="text" class="form-control" id="elemento-nombre" name="nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="elemento-correo">Correo:</label>
+                        <input type="email" class="form-control" id="elemento-correo" name="correo">
+                    </div>
+                    <div class="form-group">
+                        <label for="elemento-tlf">Teléfono:</label>
+                        <input type="tel" class="form-control" id="elemento-tlf" name="telefono">
+                    </div>
+                    <div class="form-group">
+                        <label for="elemento-nota">Nota:</label>
+                        <textarea class="form-control" id="elemento-nota" name="nota"></textarea>
+                    </div>
+                </form>
+            </div>
+            
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="confirmar-guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="confirmarEliminarModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirmar Eliminación</h4>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button> <!-- Agrega este botón -->
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este elemento?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmar-eliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
+<!-- Librería JS de HTML5 export (botones de exportación) -->
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+
+
+<script>
+
+$(document).ready(function() {
+
+
+    // Inicializar DataTables
+    $('#miTabla').DataTable({
+        paging: true, // Habilitar paginación
+        pageLength: 20, // Número de filas por página
+        searching: true, // Habilitar la función de búsqueda
+        dom: 'Bfrtip', // Habilitar los botones de exportación
+        buttons: [
+        {
+            extend: 'excel',
+            text: '<i class="bi bi-file-excel"></i> Exportar a Excel',
+            className: 'btn btn-success',
+            exportOptions: {
+                columns: [1, 2, 3, 4] // Especifica las columnas a exportar (excluye la columna de opciones)
+            },
+            
+        },
+        {
+            extend: 'pdf',
+            text: '<i class="bi bi-file-pdf"></i> Exportar a PDF',
+            className: 'btn btn-danger',
+            exportOptions: {
+                columns: [1, 2, 3, 4] // Especifica las columnas a exportar (excluye la columna de opciones)
+            },
+            title: 'PROVEEDORES',
+            customize: function(doc) {
+                // Obtén la fecha actual en formato 'dd/mm/yyyy'
+                var currentDate = new Date().toLocaleDateString('es-ES');
+                
+                // Agrega la fecha como subtítulo
+                doc.content.push({
+                    text: 'Fecha: ' + currentDate, // Texto del subtítulo
+                    fontSize: 10, // Tamaño de fuente del subtítulo
+                    alignment: 'center', // Alineación del subtítulo
+                    margin: [0, 5, 0, 10] // Márgenes del subtítulo (arriba, derecha, abajo, izquierda)
+                });
+ 
+                // Centrar la información en la hoja
+                var rowCount = doc.content[1].table.body.length;
+                for (var i = 0; i < rowCount; i++) {
+                    doc.content[1].table.body[i].forEach(function(cell, j) {
+                        cell.alignment = 'center';
+                    });
+                }
+            },
+        },
+        {
+            extend: 'csv',
+            text: '<i class="bi bi-file-earmark-spreadsheet"></i> Exportar a CSV',
+            className: 'btn btn-info',
+            exportOptions: {
+                columns: [1, 2, 3, 4] // Especifica las columnas a exportar (excluye la columna de opciones)
+            }
+        },
+        {
+            extend: 'print',
+            text: '<i class="bi bi-printer"></i> Imprimir',
+            className: 'btn btn-primary',
+            exportOptions: {
+                columns: [1, 2, 3, 4] // Especifica las columnas a exportar (excluye la columna de opciones)
+            }
+        },
+        ],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',// Cargar traducción al español
+        },
+        
+    });
+
+
+    // Abrir el modal para crear un nuevo elemento
+    $("#crear-nuevo").click(function() {
+        $("#elemento-id").val("");
+        $("#elemento-nombre").val("");
+        $(".modal-title").text("Crear Nuevo Elemento");
+        $("#myModal").modal("show");
+    });
+
+    // Abrir el modal para editar un elemento
+    $(".editar").click(function() {
+        var elementoId = $(this).data("id");
+        console.log("ID ENCONTRADA: "+ elementoId)
+        $.ajax({
+            url: "/workspace/proveedor/modificar/" + elementoId,
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                $("#elemento-id").val(response.id);
+                $("#elemento-nombre").val(response.nombre);
+                $("#elemento-correo").val(response.correo);
+                $("#elemento-tlf").val(response.tlf);
+                $("#elemento-nota").val(response.nota);
+                $(".modal-title").text("Editar Elemento");
+                $("#myModal").modal("show");
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+
+    // Enviar formulario para crear/editar elemento
+    $("#confirmar-guardar").click(function(e) {
+        e.preventDefault();
+        var elementoId = $("#elemento-id").val();
+        var nombre = $("#elemento-nombre").val();
+        var correo_proveedor = $("#elemento-correo").val();
+        var tlf_proveedor = $("#elemento-tlf").val();
+        var nota_proveedor = $("#elemento-nota").val();
+        
+        $.ajax({
+            url: "/workspace/proveedor/insertar",
+            type: "POST",
+            data: {
+                id_proveedor: elementoId,
+                nombre_proveedor: nombre,
+                correo_proveedor:correo_proveedor,
+                tlf_proveedor: tlf_proveedor,
+                nota_proveedor:nota_proveedor,
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+            },
+            dataType: "json",
+            success: function(response) {
+                $("#myModal").modal("hide");
+                // Actualizar la tabla después de crear/editar
+                location.reload();
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+
+    // Abrir el modal de confirmación de eliminación
+    $(".eliminar").click(function() {
+        var elementoId = $(this).data("id");
+        $("#confirmar-eliminar").attr("data-id", elementoId); // Guardar el ID en el botón de confirmación
+        $("#confirmarEliminarModal").modal("show");
+    });
+
+    // Cuando se confirma la eliminación desde el modal
+    $("#confirmar-eliminar").click(function() {
+        var elementoId = $(this).data("id");
+        $.ajax({
+            url: "/workspace/proveedor/eliminar/" + elementoId,
+            type: "POST",
+            data: {
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+            },
+            dataType: "json",
+            success: function(response) {
+                // Actualizar la tabla después de eliminar
+                location.reload();
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+        $("#confirmarEliminarModal").modal("hide"); // Ocultar el modal de confirmación
+    });
+    // Manejar el botón "Seleccionar Todo"
+    $("#seleccionar-todo").click(function() {
+        var isChecked = $(this).prop("checked");
+        $(".seleccionar-elemento").prop("checked", isChecked);
+    });
+
+});
+</script>
+
+
+{% endblock %}

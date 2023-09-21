@@ -4,18 +4,20 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import time
-from .services import OrdenServ
-from .models import Almacen
+from .models import Almacen, Orden, Proveedor
 
 #RECORDAR QUE ESTE ES EL WORKSPACE/ORDENES, SE DEBE CAMBIAR A FUTURO
 @login_required
 def home(request):
-    lista_ordenes = OrdenServ.getAll()
+    lista_ordenes = Orden.objects.all()
     return render(request, 'home.html',{'ordenes':lista_ordenes})
 
+######################################################################################
+######################################################################################
+#SERVICIOS RELACIONADOS CON ORDENES
 @login_required
 def orden_individual(request,pk):
-    orden = OrdenServ.get()
+    orden = Orden.objects.get(pk=pk)
     return render(request, 'orden')
 
 #pagina dashboard "/workspace/"
@@ -23,26 +25,89 @@ def orden_individual(request,pk):
 def ordenes(request):
     return render(request, 'workspace.html',{})
 
-#pagina para produtos "/productos"
+######################################################################################
+######################################################################################
+
+#SERVICIOS RELACIONADOS CON PRODUCTOS E INVENTARIO
 @login_required
 def inventario(request):
     return render(request, "inventario.html",{})
+
+
 
 @login_required
 def historial_inventario(request):
     return render(request, "historial_inventario.html",{})
 
-#pagina para proveedores "/proveedores"
+######################################################################################
+######################################################################################
+
+#SERVICIOS RELACIONADOS CON PROVEEDOR
 @login_required
 def proveedores(request):
-    return render(request, "proveedores.html",{})
+    proveedores_lista = Proveedor.objects.all()
+    total_lista = len(proveedores_lista)
+    context = {'proveedores':proveedores_lista,
+               'total': total_lista,}
+    return render(request, "proveedores.html",context)
 
-#pagina para clientes "/clientes"
+@login_required
+def proveedor_modificar(request, pk):
+    proveedor = Proveedor.objects.get(pk=pk)
+    data = {
+        'id': proveedor.id_proveedor,
+        'nombre': proveedor.nombre_proveedor,
+        'correo': proveedor.correo,
+        'tlf': proveedor.tlf_proveedor,
+        'nota': proveedor.nota_proveedor,
+    }
+    return JsonResponse(data)
+
+@login_required
+def proveedor_insertar(request):
+    if request.method == 'POST':
+        id_proveedor = request.POST.get('id_proveedor')
+        nombre_proveedor = request.POST.get('nombre_proveedor')
+        correo = request.POST.get('correo_proveedor')
+        tlf_proveedor = request.POST.get('tlf_proveedor')
+        nota_proveedor= request.POST.get('nota_proveedor')
+
+        if id_proveedor:
+            proveedor = Proveedor.objects.get(pk=id_proveedor)
+            proveedor.nombre_proveedor = nombre_proveedor
+            proveedor.correo = correo
+            proveedor.tlf_proveedor = tlf_proveedor
+            proveedor.nota_proveedor = nota_proveedor
+            proveedor.save()
+        else:
+            proveedor = Proveedor.objects.create(nombre_proveedor=nombre_proveedor,
+                                                 correo=correo,
+                                                 tlf_proveedor=tlf_proveedor,
+                                                 nota_proveedor=nota_proveedor)
+        data = {'mensaje': 'Proveedor guardado exitosamente.'}
+        return JsonResponse(data)
+
+@login_required
+def proveedor_eliminar(request, pk):
+    if request.method == 'POST':
+        proveedor = get_object_or_404(Proveedor, pk=pk)
+        proveedor.delete()
+        data = {'mensaje': 'Proveedor eliminado exitosamente.'}
+        return JsonResponse(data)
+    
+######################################################################################
+######################################################################################
+
+#SERVICIOS RELACIONADOS CON CLIENTES
 @login_required
 def clientes(request):
     return render(request, "clientes.html",{})
 
-#pagina para clientes "/almacenes"
+######################################################################################
+######################################################################################
+
+
+#SERVICIOS RELACIONADOS CON ALMACEN
 @login_required
 def almacenes(request):
     almacenes_lista = Almacen.objects.all()
@@ -51,20 +116,16 @@ def almacenes(request):
                'total': total_lista,}
     return render(request, "almacenes.html",context)
 
-#@login_required
-#def almacen_individual(request, pk):
-#    almacen_record = Almacen.objects.get(id_almacen=pk)
-#    context = {'almacen':almacen_record}
-#   return render(request,"almacen.html", context)
-
+@login_required
 def almacen_modificar(request, pk):
-    almacen = get_object_or_404(Almacen, pk=pk)
+    almacen = Almacen.objects.get(pk=pk)
     data = {
         'id': almacen.id_almacen,
         'nombre': almacen.nombre_almacen
     }
     return JsonResponse(data)
 
+@login_required
 def almacen_insertar(request):
     if request.method == 'POST':
         id_almacen = request.POST.get('id_almacen')
@@ -78,6 +139,7 @@ def almacen_insertar(request):
         data = {'mensaje': 'Almacen guardado exitosamente.'}
         return JsonResponse(data)
 
+@login_required
 def almacen_eliminar(request, pk):
     if request.method == 'POST':
         almacen = get_object_or_404(Almacen, pk=pk)
@@ -85,8 +147,10 @@ def almacen_eliminar(request, pk):
         data = {'mensaje': 'Almacen eliminado exitosamente.'}
         return JsonResponse(data)
 
+######################################################################################
+######################################################################################
 
-#Inicio de sesion, si hay una sesion abierta se envia al workspace, caso contrario a la pagina de inicio
+#SERVICIOS RELACIONADOS CON SESIONES DE USUARIOS
 def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -106,6 +170,9 @@ def logout_user(request):
     logout(request)
     messages.success(request, "Te has desconectado correctamente")
     return redirect('home')
+
+######################################################################################
+######################################################################################
 
 #manejo de errores 404 custom
 def custom_404(request, exception):

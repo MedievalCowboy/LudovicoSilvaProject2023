@@ -15,11 +15,11 @@ urlpatterns = [
     #path('workspace/ordenes/insertar', views.ordenes_insertar, name="ordenes_insertar"),
     #path('workspace/ordenes/modificar/%id%', views.ordenes_modificar, name="ordenes_modificar"),
     #path('workspace/ordenes/eliminar/%id%', views.ordenes_eliminar, name="ordenes_eliminar"),
-
+    
     path('workspace/proveedores/', views.proveedores, name='proveedores'),
-    #path('workspace/proveedores/insertar', views.proveedores_insertar, name="proveedores_insertar"),
-    #path('workspace/proveedores/modificar/%id%', views.proveedores_modificar, name="proveedores_modificar"),
-    #path('workspace/proveedores/eliminar/%id%', views.proveedores_eliminar, name="proveedores_eliminar"),
+    path('workspace/proveedor/insertar', views.proveedor_insertar, name="proveedor_insertar"),
+    path('workspace/proveedor/modificar/<int:pk>', views.proveedor_modificar, name="proveedor_modificar"),
+    path('workspace/proveedor/eliminar/<int:pk>', views.proveedor_eliminar, name="proveedor_eliminar"),
     
     path('workspace/clientes/', views.clientes, name='clientes'),
     #path('workspace/clientes/insertar', views.clientes_insertar, name="clientes_insertar"),
@@ -34,7 +34,6 @@ urlpatterns = [
     path('workspace/inventario/historial', views.historial_inventario, name="historial_inventario"),
 
     path('workspace/almacenes/', views.almacenes, name='almacenes'),
-    #path('workspace/almacen/<int:pk>', views.almacen_individual, name='almacenIndividual'),
     path('workspace/almacen/insertar', views.almacen_insertar, name="almacen_insertar"),
     path('workspace/almacen/modificar/<int:pk>', views.almacen_modificar, name="almacen_modificar"),
     path('workspace/almacen/eliminar/<int:pk>', views.almacen_eliminar, name="almacen_eliminar"),

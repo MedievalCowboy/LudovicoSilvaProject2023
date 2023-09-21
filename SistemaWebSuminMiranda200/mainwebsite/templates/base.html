@@ -3,9 +3,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'bsicons/bs-icons-1.10.5/font/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'thirdparty/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'thirdparty/bsicons/bs-icons-1.10.5/font/bootstrap-icons.css' %}">
+    {% block styles%}
+    {% endblock%}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{{titulo_web}}</title>
     
 </head>
@@ -30,12 +33,14 @@
     </div>
     
     </script>
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'thirdparty/js/bootstrap.bundle.min.js' %}"></script>
     <script>
         setTimeout(function () {
             // Closing the alert
             $('#alert').alert('close');
         }, 5000);
     </script>
+    {% block scripts %}
+    {% endblock %}
 </body>
 </html>
