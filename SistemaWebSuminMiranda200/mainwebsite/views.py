@@ -3,14 +3,17 @@ from django.http import JsonResponse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 import time
 from .models import Almacen, Orden, Proveedor
 
-#RECORDAR QUE ESTE ES EL WORKSPACE/ORDENES, SE DEBE CAMBIAR A FUTURO
-@login_required
-def home(request):
-    lista_ordenes = Orden.objects.all()
-    return render(request, 'home.html',{'ordenes':lista_ordenes})
+
+from .forms import OrdenForm, OrdenProductoForm
+
+def portal_principal(request):
+    return render(request, 'index.html')
+
+
 
 ######################################################################################
 ######################################################################################
@@ -18,12 +21,39 @@ def home(request):
 @login_required
 def orden_individual(request,pk):
     orden = Orden.objects.get(pk=pk)
-    return render(request, 'orden')
+    return render(request, 'orden.html')
 
-#pagina dashboard "/workspace/"
+#pagina dashboard "workspace/ordenes/"
 @login_required
 def ordenes(request):
-    return render(request, 'workspace.html',{})
+    lista_ordenes = Orden.objects.all()
+    return render(request, 'ordenes.html',{'ordenes':lista_ordenes})
+
+@login_required
+def orden_insertar(request):
+    if request.method == 'POST':
+        form = OrdenForm(request.POST)
+        if form.is_valid():
+            orden = form.save()
+            pk_orden = orden.pk
+            url = reverse('orden_insertar2', kwargs={'pk': pk_orden})
+            return redirect(url)
+    else:
+        form = OrdenForm()
+
+    return render(request, 'orden_insertar.html', {'form': form})
+
+
+@login_required
+def orden_insertar_2(request,pk):
+    if request.method == 'POST':
+        form = OrdenProductoForm(request.POST, pk=pk)
+        if form.is_valid():
+            form.save()
+            return redirect("ordenes")
+    else:
+        form = OrdenProductoForm(pk=pk)
+    return render(request, 'orden_insertar2.html', {'form':form})
 
 ######################################################################################
 ######################################################################################
@@ -162,14 +192,14 @@ def login_user(request):
         else:
             messages.error(request, "Usuario o contraseña incorrectos")
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('ordenes')
     return render(request, 'login.html', {})
 
 #Terminar sesión
 def logout_user(request):
     logout(request)
     messages.success(request, "Te has desconectado correctamente")
-    return redirect('home')
+    return redirect('ordenes')
 
 ######################################################################################
 ######################################################################################

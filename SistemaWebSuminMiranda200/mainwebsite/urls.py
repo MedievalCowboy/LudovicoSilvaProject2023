@@ -3,7 +3,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('workspace', views.home, name="home"),
+
+    path('', views.portal_principal, name="portalPrincipal"),
 
     path('login/', views.login_user, name="login"),
     path('logout/', views.logout_user, name="logout"),
@@ -12,7 +13,8 @@ urlpatterns = [
 
     path('workspace/ordenes/', views.ordenes, name='ordenes'),
     path('workspace/orden/<int:pk>', views.orden_individual, name="ordenIndividual"),
-    #path('workspace/ordenes/insertar', views.ordenes_insertar, name="ordenes_insertar"),
+    path('workspace/orden/insertar', views.orden_insertar, name="ordenInsertar"),
+    path('workspace/orden/insertar-2/<int:pk>', views.orden_insertar_2, name="orden_insertar2"),
     #path('workspace/ordenes/modificar/%id%', views.ordenes_modificar, name="ordenes_modificar"),
     #path('workspace/ordenes/eliminar/%id%', views.ordenes_eliminar, name="ordenes_eliminar"),
     

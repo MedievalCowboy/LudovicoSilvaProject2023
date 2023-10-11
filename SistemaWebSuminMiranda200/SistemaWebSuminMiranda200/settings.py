@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from django.contrib import messages
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -114,6 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -124,7 +126,7 @@ USE_TZ = True
 
 #CONFIGURACION DE SESIONES
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL='/home/'
+LOGIN_REDIRECT_URL='/ordenes/'
 LOGOUT_REDIRECT_URL=''
 SESSION_COOKIE_AGE=3600
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False

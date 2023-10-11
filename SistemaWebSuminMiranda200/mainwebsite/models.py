@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+
+
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
@@ -9,6 +11,8 @@ class Cliente(models.Model):
     direccion = models.TextField(blank=True)
     telefono = models.CharField(max_length=12, blank=True)
     rif = models.CharField(max_length=15, blank=True)
+    def __str__(self):
+        return(f"{self.id_cliente} : {self.nombre_cliente}")
 
 class Proveedor(models.Model):
     id_proveedor = models.AutoField(primary_key=True)
@@ -17,6 +21,8 @@ class Proveedor(models.Model):
     correo = models.CharField(max_length=150, blank=True)
     tlf_proveedor = models.CharField(max_length=12, blank = True)
     nota_proveedor = models.TextField(blank = True)
+    def __str__(self):
+        return(f"{self.id_proveedor} : {self.nombre_proveedor}")
 
 
 class Almacen(models.Model):
@@ -32,7 +38,8 @@ class Destino(models.Model):
     creado_en = models.DateField(auto_now_add=True)
     nombre_destino = models.CharField(max_length=200)
     ciudad = models.TextField()
-
+    def __str__(self):
+        return(f"{self.id_destino} : {self.ciudad} - {self.nombre_destino}")
 
 class Inventario(models.Model):
     id_producto = models.AutoField(primary_key=True)
@@ -49,6 +56,8 @@ class Inventario(models.Model):
     id_destino = models.ManyToManyField(Destino, through='Prod_Dest')
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     id_almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    def __str__(self):
+        return(f"{self.id_producto} : {self.nombre_producto}- ({self.cant_disponible})")
 
 
 class Registro_inventario(models.Model):
@@ -75,24 +84,23 @@ class Orden(models.Model):
     estado = models.CharField(max_length=20)
     num_factura = models.CharField(max_length=40)
     desc_requisicion = models.CharField(max_length=20)
-    fecha_requisicion = models.DateField()
-    fecha_entrega = models.DateField()
+    fecha_requisicion = models.DateField(blank=True)
+    fecha_entrega = models.DateField(blank=True)
     solicitado = models.CharField(max_length=25)
     tlf_solicitado = models.CharField(max_length=12)
-    fecha_ult_mod = models.DateField()
+    fecha_ult_mod = models.DateField(auto_now_add=True)
     num_lote = models.CharField(max_length=20)
     id_cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    id_producto = models.ManyToManyField(Inventario, through='Orden_prod')
     id_destino = models.ForeignKey(Destino, on_delete=models.CASCADE)
     id_usuario = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
     def __str__(self):
         return(f"id:{self.id_orden}-numOrden:{self.num_orden}-desc:{self.desc_requisicion}")
 
-class Orden_Prod(models.Model):
+class Orden_Producto(models.Model):
     creado_en = models.DateField(auto_now_add=True)
     cantidad = models.IntegerField()
-    precio_unit = models.DecimalField
+    precio_unit = models.DecimalField(max_digits=9, decimal_places=3, default=0.0)
     empaque = models.CharField(max_length=15)
-    id_inventario = models.ForeignKey(Inventario,on_delete=models.DO_NOTHING)
-    id_orden = models.ForeignKey(Orden, on_delete=models.DO_NOTHING)
+    producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
+    id_orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
     # Relaciones
