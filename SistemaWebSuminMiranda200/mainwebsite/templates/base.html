@@ -40,6 +40,37 @@
             // Closing the alert
             $('#alert').alert('close');
         }, 5000);
+
+        
+        let inactivityTimer;
+        const inactivityThreshold = 3600000;  // 1 hora en milisegundos
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(logoutUser, inactivityThreshold);
+        }
+
+        function logoutUser() {
+            // Envía una solicitud al servidor para cerrar la sesión
+            fetch('/logout/')  // Reemplaza '/logout/' con la URL de la vista de cierre de sesión de Django.
+            .then(response => {
+                if (response.ok) {
+                    alert('Tu sesión ha sido cerrada debido a inactividad.');
+                    // Redirige al usuario a la página de inicio de sesión o realiza la acción de cierre de sesión.
+                    window.location.href = '/login/';  // Reemplaza '/login/' con la URL de inicio de sesión.
+                } else {
+                    console.error('Error al cerrar la sesión:', response.status);
+                }
+            })
+            .catch(error => {
+                console.error('Error al cerrar la sesión:', error);
+            });
+        }
+
+        // Detectar actividad
+        document.addEventListener('mousemove', resetInactivityTimer);
+        document.addEventListener('keydown', resetInactivityTimer);
+    
     </script>
     {% block scripts %}
     {% endblock %}

@@ -12,12 +12,15 @@ urlpatterns = [
     #path('/perfil/<string:nombre>', views.perfil_usuario, name='perfil'),
 
     path('workspace/ordenes/', views.ordenes, name='ordenes'),
-    path('workspace/orden/<int:pk>', views.orden_individual, name="ordenIndividual"),
-    path('workspace/orden/insertar', views.orden_insertar, name="ordenInsertar"),
-    path('workspace/orden/insertar-2/<int:pk>', views.orden_insertar_2, name="orden_insertar2"),
-    #path('workspace/ordenes/modificar/%id%', views.ordenes_modificar, name="ordenes_modificar"),
-    #path('workspace/ordenes/eliminar/%id%', views.ordenes_eliminar, name="ordenes_eliminar"),
-    
+    path('workspace/orden/insertar', views.orden_insertar, name="orden_insertar"),
+    path('workspace/orden/insertar-2/<int:pk>', views.orden_insertar_2, name="orden_insertar2"), #ORDEN_PROD INSERT
+    path('workspace/orden/modificar/<int:pk>', views.orden_modificar, name="orden_modificar"),
+    path('workspace/orden/eliminar/<int:pk>', views.orden_eliminar, name="orden_eliminar"),
+
+    path('workspace/orden_prod/listar/<int:pk>', views.orden_prod_listar, name="orden_prod_listar"),
+    path('workspace/orden_prod/eliminar/<int:pk>', views.orden_prod_eliminar, name="orden_prod_eliminar"),
+    path('workspace/orden_prod/modificar/<int:pk>', views.orden_prod_modificar, name="orden_prod_modificar"),
+
     path('workspace/proveedores/', views.proveedores, name='proveedores'),
     path('workspace/proveedor/insertar', views.proveedor_insertar, name="proveedor_insertar"),
     path('workspace/proveedor/modificar/<int:pk>', views.proveedor_modificar, name="proveedor_modificar"),

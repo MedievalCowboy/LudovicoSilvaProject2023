@@ -1,36 +1,56 @@
 from django import forms
 from .models import Orden, Orden_Producto
+import re
+
+
+
 
 class OrdenForm(forms.ModelForm):
+
+    # Definir las opciones para el campo "Estado"
+    ESTADO_CHOICES = (
+        ('En espera', 'En espera'),
+        ('Finalizado', 'Finalizado'),
+        ('Tramitando', 'Tramitando'),
+    )
+
     class Meta:
         model = Orden
         fields = '__all__'
+        exclude = ('id_usuario',)
 
-    # Personalización de etiquetas
-    labels = {
-        'num_orden': 'Número de Orden',
-        'fecha_emision': 'Fecha de Emisión',
-        'estado': 'Estado',
-        'num_factura': 'Número de Factura',
-        'desc_requisicion': 'Descripción de la Requisición',
-        'fecha_requisicion': 'Fecha de Requisición',
-        'fecha_entrega': 'Fecha de Entrega',
-        'solicitado': 'Solicitado por',
-        'tlf_solicitado': 'Teléfono del Solicitado',
-        'fecha_ult_mod': 'Fecha de Última Modificación',
-        'num_lote': 'Número de Lote',
-        'id_cliente': 'Cliente',
-        'id_destino': 'Destino',
-        'id_usuario': 'Usuario',
-    }
+       # Personalización de campos de fecha
+    fecha_emision = forms.DateField(
+        label='Fecha de Emisión',
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    fecha_requisicion = forms.DateField(
+        label='Fecha de Requisición',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    fecha_entrega = forms.DateField(
+        label='Fecha de Entrega',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    estado = forms.ChoiceField(choices=ESTADO_CHOICES, label='Estado')
 
-    # Personalización de widgets para campos de fecha
-    widgets = {
-        'fecha_emision': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
-        'fecha_requisicion': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
-        'fecha_entrega': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
-        'fecha_ult_mod': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
-    }
+    tlf_solicitado = forms.CharField(
+        label='Teléfono Solicitado',
+        max_length=12,
+        required=False  # Si no quieres que sea obligatorio
+    )
+
+    
+
+    def clean_tlf_solicitado(self):
+        tlf_solicitado = self.cleaned_data['tlf_solicitado']
+        if not re.match(r'^\d{11}$', tlf_solicitado):
+            raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
+        return tlf_solicitado
+
+
 
 class OrdenProductoForm(forms.ModelForm):
     class Meta:
@@ -40,7 +60,7 @@ class OrdenProductoForm(forms.ModelForm):
         pk = kwargs.pop('pk',None)
         super(OrdenProductoForm,self).__init__(*args,**kwargs)
         if pk:
-            print("FUNCIONANDOOOOO")
+            
             self.fields['id_orden'].initial = pk
             #self.fields['id_orden'].widget = forms.HiddenInput()
             self.fields['id_orden'].disabled = True

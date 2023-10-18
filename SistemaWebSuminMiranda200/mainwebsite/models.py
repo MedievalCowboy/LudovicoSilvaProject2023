@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 
 
@@ -53,7 +54,7 @@ class Inventario(models.Model):
     cant_max = models.IntegerField()
     fecha_ult_mod_inv = models.DateField()
     nota = models.TextField(blank= True)
-    id_destino = models.ManyToManyField(Destino, through='Prod_Dest')
+
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     id_almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     def __str__(self):
@@ -70,6 +71,7 @@ class Registro_inventario(models.Model):
     id_producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
 
 class Prod_Dest(models.Model):
+    id_prod_dest = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
     id_producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
     id_destino = models.ForeignKey(Destino, on_delete=models.CASCADE)
@@ -80,14 +82,14 @@ class Orden(models.Model):
     id_orden = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
     num_orden = models.IntegerField()
-    fecha_emision = models.DateField()
+    fecha_emision = models.DateField(blank=True, null= True)
     estado = models.CharField(max_length=20)
     num_factura = models.CharField(max_length=40)
     desc_requisicion = models.CharField(max_length=20)
-    fecha_requisicion = models.DateField(blank=True)
-    fecha_entrega = models.DateField(blank=True)
+    fecha_requisicion = models.DateField(blank=True, null= True)
+    fecha_entrega = models.DateField(blank=True, null= True)
     solicitado = models.CharField(max_length=25)
-    tlf_solicitado = models.CharField(max_length=12)
+    tlf_solicitado = models.CharField(max_length=12, blank=True)
     fecha_ult_mod = models.DateField(auto_now_add=True)
     num_lote = models.CharField(max_length=20)
     id_cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
@@ -97,10 +99,11 @@ class Orden(models.Model):
         return(f"id:{self.id_orden}-numOrden:{self.num_orden}-desc:{self.desc_requisicion}")
 
 class Orden_Producto(models.Model):
+    id_orden_prod = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
     cantidad = models.IntegerField()
     precio_unit = models.DecimalField(max_digits=9, decimal_places=3, default=0.0)
-    empaque = models.CharField(max_length=15)
+    empaque = models.CharField(max_length=20)
     producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
     id_orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
     # Relaciones

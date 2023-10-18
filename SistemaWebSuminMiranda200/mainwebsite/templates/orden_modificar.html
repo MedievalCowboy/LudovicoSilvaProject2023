@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+
+{% block content %}
+
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+         
+        <div class="mr-3" style="margin-right:5px;">
+            <a href="{% url 'ordenes' %}" class="btn btn-sm btn-warning mb-3">&lt; Volver</a>
+        </div>
+    </div>
+    
+</div>
+
+
+<div class=" container p-4">
+    <h1>Modificar Orden</h1>
+    <form  method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-primary text-center " type="submit">Guardar y Continuar</button>
+        <a class="btn btn-warning" href="{% url 'ordenes' %}"> Cancelar </a>
+    </form>
+</div>
+
+
+{% endblock %}

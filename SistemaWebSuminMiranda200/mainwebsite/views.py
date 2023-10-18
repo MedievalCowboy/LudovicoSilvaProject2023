@@ -1,59 +1,126 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
+from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-import time
-from .models import Almacen, Orden, Proveedor
+from .models import Almacen, Orden, Proveedor, Orden_Producto
+from django.db.models import Count
 
 
 from .forms import OrdenForm, OrdenProductoForm
 
 def portal_principal(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html', {'titulo_web':'Suministros Miranda 200 C.A'})
 
 
 
 ######################################################################################
 ######################################################################################
 #SERVICIOS RELACIONADOS CON ORDENES
-@login_required
-def orden_individual(request,pk):
-    orden = Orden.objects.get(pk=pk)
-    return render(request, 'orden.html')
 
 #pagina dashboard "workspace/ordenes/"
 @login_required
 def ordenes(request):
-    lista_ordenes = Orden.objects.all()
-    return render(request, 'ordenes.html',{'ordenes':lista_ordenes})
+    lista_ordenes = Orden.objects.annotate(num_productos=Count('orden_producto'))
+    return render(request, 'ordenes.html',{'ordenes':lista_ordenes, 'titulo_web':'Ordenes - SM200SYS'})
 
 @login_required
 def orden_insertar(request):
     if request.method == 'POST':
         form = OrdenForm(request.POST)
-        if form.is_valid():
-            orden = form.save()
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            orden = form.save(commit=False)
+            orden.id_usuario = request.user
+            orden.save()
+            return redirect('ordenes')
+
+        if request.POST.get('guardar_e_insertar_producto' ) and form.is_valid() :
+            orden = form.save(commit=False)
+            orden.id_usuario = request.user
+            orden.save()
             pk_orden = orden.pk
             url = reverse('orden_insertar2', kwargs={'pk': pk_orden})
             return redirect(url)
+        
+        if request.POST.get('guardar_y_crear_otra_orden') and form.is_valid():
+            orden = form.save(commit=False)
+            orden.id_usuario = request.user
+            orden.save()
+            form = OrdenForm()
+            
     else:
         form = OrdenForm()
 
-    return render(request, 'orden_insertar.html', {'form': form})
+    return render(request, 'orden_insertar.html', {'form': form, 'titulo_web':'Insertar Orden - SM200SYS'})
 
 
 @login_required
-def orden_insertar_2(request,pk):
+def orden_insertar_2(request, pk):
     if request.method == 'POST':
         form = OrdenProductoForm(request.POST, pk=pk)
-        if form.is_valid():
+
+        if request.POST.get("guardar_y_regresar") and form.is_valid():
+            print("orden_insertar_2 CASO 1")
             form.save()
-            return redirect("ordenes")
+            return redirect('ordenes') 
+
+        elif request.POST.get("guardar_y_crear_otro") and form.is_valid():
+            print("orden_insertar_2 CASO 2")
+            form.save()
+            # Limpia el formulario para crear otro
+            form = OrdenProductoForm(pk=pk)
+
     else:
         form = OrdenProductoForm(pk=pk)
-    return render(request, 'orden_insertar2.html', {'form':form})
+
+    return render(request, 'orden_insertar2.html', {'form': form, 'titulo_web': 'Insertar Orden - SM200SYS'})
+
+
+@login_required
+def orden_modificar(request,pk):
+    orden = get_object_or_404(Orden, pk=pk)
+
+    if request.method == "POST":
+        form = OrdenForm(request.POST, instance=orden)
+        if form.is_valid():
+            form.save()
+            return redirect('ordenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+    else:
+        form = OrdenForm(instance=orden)
+
+    return render(request, 'orden_modificar.html', {'form': form, 'titulo_web': 'Modificar Orden - SM200SYS'})
+
+@login_required
+def orden_eliminar(request, pk):
+    orden = get_object_or_404(Orden, pk=pk)
+    orden_productos = Orden_Producto.objects.filter(id_orden=orden)
+    if request.method == 'POST':
+        orden_productos.delete()
+        orden.delete()
+        data = {'mensaje': 'Orden eliminada exitosamente.'}
+        return JsonResponse(data)
+
+
+#Orden_Producto relacionados
+
+@login_required
+def orden_prod_listar(request, pk):
+    orden = get_object_or_404(Orden, pk=pk)
+    orden_prod_elements = Orden_Producto.objects.filter(id_orden=orden)
+
+    return render(request, 'orden_prod_list.html', {'id_orden':orden.id_orden,'num_orden': orden.num_orden, 'orden_prod_list': orden_prod_elements})
+
+@login_required
+def orden_prod_eliminar(request, pk):
+    orden_prod = get_object_or_404(Orden_Producto, pk=pk)
+    if request.method == 'POST':
+        orden_prod.delete()
+        data = {'mensaje': 'Orden eliminada exitosamente.'}
+        return JsonResponse(data)
+
+def orden_prod_modificar(request, pk):
+    pass
 
 ######################################################################################
 ######################################################################################
@@ -199,7 +266,8 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, "Te has desconectado correctamente")
-    return redirect('ordenes')
+    #return redirect('ordenes')
+    return HttpResponseRedirect(reverse('login')) 
 
 ######################################################################################
 ######################################################################################
@@ -207,3 +275,4 @@ def logout_user(request):
 #manejo de errores 404 custom
 def custom_404(request, exception):
     return render(request, 'error_404.html', status=404)
+

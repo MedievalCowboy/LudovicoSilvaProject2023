@@ -1,12 +1,31 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %} 
 {% load static %}
 
 {% block content %}
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+         
+        <div class="mr-3" style="margin-right:5px;">
+            <a href="{% url 'ordenes' %}" class="btn btn-sm btn-warning mb-3">&lt; Volver</a>
+        </div>
+    </div>
+    
+</div>
+<div class=" container p-4">
+    <h1>Insertar nueva Orden</h1>
+    <form  method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div style="margin-top:5px;">
+            <button class="btn btn-primary text-center" name="guardar_y_regresar" type="submit" value="True">Guardar y Salir</button>
+            <button class="btn btn-primary text-center" name="guardar_e_insertar_producto" type="submit" value="True">Guardar y añadir Producto</button>
+            <button class="btn btn-primary text-center" name="guardar_y_crear_otra_orden" type="submit" value="True">Guardar y Crear otra Orden</button>
+            <a class="btn btn-warning" href="{% url 'ordenes' %}"> Cancelar </a>
+        </div>
+        
+    </form>
+</div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar y Continuar</button>
-</form>
 
 {% endblock %}
