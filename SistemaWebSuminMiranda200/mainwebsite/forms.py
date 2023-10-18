@@ -41,9 +41,6 @@ class OrdenForm(forms.ModelForm):
         max_length=12,
         required=False  # Si no quieres que sea obligatorio
     )
-
-    
-
     def clean_tlf_solicitado(self):
         tlf_solicitado = self.cleaned_data['tlf_solicitado']
         if not re.match(r'^\d{11}$', tlf_solicitado):
@@ -51,16 +48,16 @@ class OrdenForm(forms.ModelForm):
         return tlf_solicitado
 
 
-
 class OrdenProductoForm(forms.ModelForm):
     class Meta:
         model = Orden_Producto
-        fields = ['id_orden', 'cantidad', 'precio_unit','empaque', 'producto', ]
+        fields = ["id_orden", "producto", "cantidad", "precio_unit", "empaque"]
+        
     def __init__(self, *args, **kwargs):
-        pk = kwargs.pop('pk',None)
-        super(OrdenProductoForm,self).__init__(*args,**kwargs)
+        pk = kwargs.pop('pk', None)
+        super(OrdenProductoForm, self).__init__(*args, **kwargs)
         if pk:
-            
             self.fields['id_orden'].initial = pk
-            #self.fields['id_orden'].widget = forms.HiddenInput()
-            self.fields['id_orden'].disabled = True
+
+        # Establecer el campo 'id_orden' como no editable
+        self.fields['id_orden'].disabled = True

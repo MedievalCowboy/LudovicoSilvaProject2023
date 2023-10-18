@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 {% load crispy_forms_tags %} 
 {% load static %}
 
@@ -6,8 +6,8 @@
 
 <div class="row mb-3">
     <div class="col-md-6 d-flex align-items-center">
-        <div class="mr-3" style="margin-right:5px;">
-            <a href="{% url 'ordenes' %}" class="btn btn-sm btn-warning mb-3">&lt; Volver</a>
+        <div class="mr-3" style="margin-right:5px; margin-top:20px;">
+            <a href="{% url 'ordenes' %}" class="btn btn-sm btn-warning mb-3"><i class="bi bi-arrow-left-circle"></i> Volver</a>
         </div>
     </div>
     
@@ -17,9 +17,9 @@
 <form method="post">
     {% csrf_token %}
     {{ form|crispy }}
-    <button class="btn btn-primary" type="submit" name="guardar_y_regresar" value="True">Guardar y Regresar</button>
-    <button class="btn btn-success" type="submit" name="guardar_y_crear_otro" value="True">Guardar y Crear Otro</button>
-    <a class="btn btn-warning" href="{% url 'ordenes' %}"> Cancelar </a>
+    <button class="btn btn-primary" type="submit" name="guardar_y_regresar" value="True"><i class="bi bi-plus-square"></i> Guardar y Regresar</button>
+    <button class="btn btn-success" type="submit" name="guardar_y_crear_otro" value="True"><i class="bi bi-plus-square"></i> Guardar y Crear Otro</button>
+    <a class="btn btn-warning" href="{% url 'ordenes' %}"><i class="bi bi-x-square"></i> Cancelar </a>
 </form>
 </div>
 {% endblock %}

@@ -1,9 +1,29 @@
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/messages.css' %}">
+{% endblock %}
+
 {% if messages %}
-{% for message in messages %}
-    <div id="alert" class="alert {{message.tags}} alert-dismissible fade show" style="position:fixed; bottom: 0px; right: 0px; width: 30vw; z-index:9999; border-radius:0px" role="alert">
-        <strong>[Mensaje de Sistema]</strong>{{message}}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div id="messages-container">
+        {% for message in messages %}
+            <div class="alert custom-alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button onclick="closeAlert(this)" type="button" class="close-button" data-dismiss="alert" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
     </div>
-           
-{% endfor %}
 {% endif %}
+
+{% block scripts %}
+<script>
+    function closeAlert(button) {
+        var alert = button.parentElement;
+        alert.style.display = 'none';
+    }
+</script>
+
+{% endblock %}
+

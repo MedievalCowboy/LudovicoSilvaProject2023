@@ -10,6 +10,11 @@ from django.db.models import Count
 
 from .forms import OrdenForm, OrdenProductoForm
 
+def pruebas(request):
+    return render(request, 'base2.html', {'titulo_web':'pruebabaaaa'})
+
+
+
 def portal_principal(request):
     return render(request, 'index.html', {'titulo_web':'Suministros Miranda 200 C.A'})
 
@@ -33,6 +38,7 @@ def orden_insertar(request):
             orden = form.save(commit=False)
             orden.id_usuario = request.user
             orden.save()
+            messages.success(request, "La orden se creó exitosamente.")
             return redirect('ordenes')
 
         if request.POST.get('guardar_e_insertar_producto' ) and form.is_valid() :
@@ -41,12 +47,14 @@ def orden_insertar(request):
             orden.save()
             pk_orden = orden.pk
             url = reverse('orden_insertar2', kwargs={'pk': pk_orden})
+            messages.success(request, "La orden se creó exitosamente.")
             return redirect(url)
         
         if request.POST.get('guardar_y_crear_otra_orden') and form.is_valid():
             orden = form.save(commit=False)
             orden.id_usuario = request.user
             orden.save()
+            messages.success(request, "La orden se creó exitosamente.")
             form = OrdenForm()
             
     else:
@@ -63,12 +71,14 @@ def orden_insertar_2(request, pk):
         if request.POST.get("guardar_y_regresar") and form.is_valid():
             print("orden_insertar_2 CASO 1")
             form.save()
+            messages.success(request, "Se registró el producto a la orden exitosamente.")
             return redirect('ordenes') 
 
         elif request.POST.get("guardar_y_crear_otro") and form.is_valid():
             print("orden_insertar_2 CASO 2")
             form.save()
             # Limpia el formulario para crear otro
+            messages.success(request, "Se registró el producto a la orden exitosamente.")
             form = OrdenProductoForm(pk=pk)
 
     else:
@@ -85,12 +95,15 @@ def orden_modificar(request,pk):
         form = OrdenForm(request.POST, instance=orden)
         if form.is_valid():
             form.save()
+            messages.success(request, "Se modificó la orden exitosamente.")
             return redirect('ordenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
     else:
         form = OrdenForm(instance=orden)
 
     return render(request, 'orden_modificar.html', {'form': form, 'titulo_web': 'Modificar Orden - SM200SYS'})
 
+#Esto esta conectado con ajax
 @login_required
 def orden_eliminar(request, pk):
     orden = get_object_or_404(Orden, pk=pk)
@@ -99,10 +112,13 @@ def orden_eliminar(request, pk):
         orden_productos.delete()
         orden.delete()
         data = {'mensaje': 'Orden eliminada exitosamente.'}
+        messages.success(request, "Se Eliminó la orden exitosamente.")
         return JsonResponse(data)
 
 
-#Orden_Producto relacionados
+######################################################################################
+######################################################################################
+#SERVICIOS RELACIONADOS CON ORDEN_PRODUCTO
 
 @login_required
 def orden_prod_listar(request, pk):
@@ -111,6 +127,7 @@ def orden_prod_listar(request, pk):
 
     return render(request, 'orden_prod_list.html', {'id_orden':orden.id_orden,'num_orden': orden.num_orden, 'orden_prod_list': orden_prod_elements})
 
+#Esto esta conectado con ajax
 @login_required
 def orden_prod_eliminar(request, pk):
     orden_prod = get_object_or_404(Orden_Producto, pk=pk)
@@ -119,8 +136,27 @@ def orden_prod_eliminar(request, pk):
         data = {'mensaje': 'Orden eliminada exitosamente.'}
         return JsonResponse(data)
 
-def orden_prod_modificar(request, pk):
-    pass
+def orden_prod_modificar(request, orden_pk, orprod_pk):
+    orden_prod = get_object_or_404(Orden_Producto, pk=orprod_pk)
+    orden = get_object_or_404(Orden,pk = orden_pk)
+    if request.method == 'POST':
+        form = OrdenProductoForm(request.POST, instance = orden_prod)
+        if form.is_valid():
+            form.save()
+            #ESTO NO ES SEGURO REVISARRRRRRRRRRRRRRRRRRRRRRRRRRR
+            url = reverse('orden_prod_listar', kwargs={'pk': orden_pk})
+            return redirect(url)
+    else:
+        form = OrdenProductoForm(instance = orden_prod)
+
+    context = {'titulo_web':'Modificar Productos de Orden - SM200SYS',
+               'form':form,
+               'orden_id':orden_pk,
+               'orden_num':orden.num_orden,}
+    
+    return render(request, 'orden_prod_mod.html',context)
+        
+    
 
 ######################################################################################
 ######################################################################################

@@ -1,46 +1,104 @@
-{% load static %}
 
+{% load static %}
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <title>Iniciar sesión</title>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Login - Suministros Miranda 200</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/sum4.png' %}" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link rel="stylesheet" href="{% static 'thirdparty/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'thirdparty/bsicons/bs-icons-1.10.5/font/bootstrap-icons.css' %}">
+
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
 </head>
+
 <body>
-     {% include 'message_holder.html' %}
-    
-    <div class="global-container ">
+
+  <main>
+    <div class="container">
         {% include 'message_holder.html' %}
-        <div class="card login-form">
-        <div class="card-body">
-            <h3 class="card-title text-center">Inicia sesión</h3>
-            <div class="card-text">
-                <!--
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">Incorrect username or password.</div> -->
-                <form method="POST" action="{% url 'login' %}">
+
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-5 d-flex flex-column align-items-center justify-content-center">
+
+              <div class="d-flex justify-content-center py-3">
+                  <img src="{% static 'img/sum3.png' %}" alt="">
+                  <span class="d-none d-lg-block"></span>
+              </div>
+
+              <div class="card mb-3">
+
+                <div class="card-body">
+
+                  <div class="pt-2 pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Bienvenido</h5>
+                    <p class="text-center small">Introduce tu Usuario y Contraseña</p>
+                  </div>
+
+                  <form method="POST" action="{% url 'login' %}" class="row g-3 needs-validation" >
                     {% csrf_token %}
-                    <!-- to error: add class "has-danger" -->
-                    <div class="form-group">
-                        <label for="usernameInput">Usuario</label>
-                        <input type="text" name="username" class="form-control form-control-sm" id="usernameInput" placeholder="Nombre de usuario" required>
+                    <div class="col-12">
+                      <label for="usernameInput" class="form-label">Usuario</label>
+                      <div class="input-group has-validation">
+                        <input type="text" name="username" class="form-control" id="usernameInput" placeholder="Contraseña de usuario" required>
+                        <div class="invalid-feedback">Por favor Ingresa tu Usuario.</div>
+                      </div>
                     </div>
-                    <div class="form-group">
-                        <label for="passwordInput">Contraseña</label>
-                        <a href="#" style="float:right;font-size:12px;">¿Contraseña olvidada?</a>
-                        <input type="password" name="password" class="form-control form-control-sm" id="passwordInput" placeholder="Contraseña de usuario" required>
+
+                    <div class="col-12">
+                      <label for="passwordInput" class="form-label">Contraseña</label>
+                      <input type="password" name="password" class="form-control" id="passwordInput" required>
+                      <div class="invalid-feedback">Por favor Ingresa tu Contraseña.</div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block col-md-6 offset-md-3">Entrar</button>
+
+                    <div class="col-12">
+                      <button class="btn btn-danger w-100" type="submit">Ingresar</button>
+                    </div>
                     
-                    <div class="sign-up">
-                        ¿No tienes cuenta? Crea una <a href="#">aquí</a>
-                    </div>
-                </form>
+                  </form>
+
+                </div>
+              </div>
+
             </div>
+          </div>
         </div>
+
+      </section>
+
     </div>
-    </div>
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+  </main><!-- End #main -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+
+  <script src="{% static 'thirdparty/js/bootstrap.bundle.min.js' %}"></script>
+
+
+  <!-- Template Main JS File -->
+  <script src="js/main.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+
 </body>
+
 </html>

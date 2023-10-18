@@ -11,6 +11,8 @@ urlpatterns = [
     
     #path('/perfil/<string:nombre>', views.perfil_usuario, name='perfil'),
 
+    path('pruebas/', views.pruebas, name="pruebas"),
+
     path('workspace/ordenes/', views.ordenes, name='ordenes'),
     path('workspace/orden/insertar', views.orden_insertar, name="orden_insertar"),
     path('workspace/orden/insertar-2/<int:pk>', views.orden_insertar_2, name="orden_insertar2"), #ORDEN_PROD INSERT
@@ -19,7 +21,7 @@ urlpatterns = [
 
     path('workspace/orden_prod/listar/<int:pk>', views.orden_prod_listar, name="orden_prod_listar"),
     path('workspace/orden_prod/eliminar/<int:pk>', views.orden_prod_eliminar, name="orden_prod_eliminar"),
-    path('workspace/orden_prod/modificar/<int:pk>', views.orden_prod_modificar, name="orden_prod_modificar"),
+    path('workspace/orden_prod/modificar/<int:orden_pk>/<int:orprod_pk>', views.orden_prod_modificar, name="orden_prod_modificar"),
 
     path('workspace/proveedores/', views.proveedores, name='proveedores'),
     path('workspace/proveedor/insertar', views.proveedor_insertar, name="proveedor_insertar"),
