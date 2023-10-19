@@ -1,5 +1,6 @@
 from django import forms
-from .models import Orden, Orden_Producto
+from .models import Orden, Orden_Producto, Inventario, Producto
+from django.utils import timezone
 import re
 
 
@@ -9,9 +10,9 @@ class OrdenForm(forms.ModelForm):
 
     # Definir las opciones para el campo "Estado"
     ESTADO_CHOICES = (
-        ('En espera', 'En espera'),
-        ('Finalizado', 'Finalizado'),
+        ('Por aprobar', 'Por aprobar'),
         ('Tramitando', 'Tramitando'),
+        ('Finalizado', 'Finalizado'),
     )
 
     class Meta:
@@ -61,3 +62,55 @@ class OrdenProductoForm(forms.ModelForm):
 
         # Establecer el campo 'id_orden' como no editable
         self.fields['id_orden'].disabled = True
+
+
+from django import forms
+from .models import Inventario
+
+class InventarioForm(forms.ModelForm):
+    class Meta:
+        model = Inventario
+        fields = ['producto','precio_unit_ref','cant_inicial','cant_disponible', 'id_almacen', 'nota']
+        
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        cant_inicial = cleaned_data.get('cant_inicial')
+        cant_disponible = cleaned_data.get('cant_disponible')
+        producto = cleaned_data.get('producto')
+
+        if self.instance.pk and cant_disponible > cant_inicial:
+            raise forms.ValidationError("La cantidad disponible no puede ser mayor que la inicial.")
+
+        if cant_inicial < producto.cant_min or cant_inicial > producto.cant_max:
+            raise forms.ValidationError("La cantidad inicial debe estar dentro de los límites max-min del producto.")
+
+    def save(self, commit=True):
+        instance = super(InventarioForm, self).save(commit=False)
+        instance.fecha_ult_mod_inv = timezone.now()
+        if not self.instance.pk:
+            instance.cant_disponible = instance.cant_inicial
+        if commit:
+            instance.save()
+        return instance
+    
+    def __init__(self, *args, **kwargs):
+        super(InventarioForm, self).__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields.pop('cant_disponible',None)
+
+
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        cant_min = cleaned_data.get('cant_min')
+        cant_max = cleaned_data.get('cant_max')
+
+
+        if cant_max <= cant_min:
+            raise forms.ValidationError("La cantidad máxima debe ser mayor que la cantidad mínima.")

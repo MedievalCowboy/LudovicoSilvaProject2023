@@ -7,7 +7,7 @@
     <div class="col-md-6 d-flex align-items-center">
          
         <div class="mr-3" style="margin-right:5px; margin-top:20px;">
-            <a href="{% url 'ordenes' %}" class="btn btn-sm btn-warning mb-3"><i class="bi bi-arrow-left-circle"></i> Volver</a>
+            <a href="{% url 'ordenes' %}" class="btn btn-sm btn-warning mb-3"><i class="bi bi-arrow-left-circle"></i> Ir al listado de ordenes</a>
         </div>
     </div>
     
@@ -19,8 +19,8 @@
         {{ form|crispy }}
         <div style="margin-top:5px;">
             <button class="btn btn-primary text-center" name="guardar_y_regresar" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y Salir</button>
-            <button class="btn btn-primary text-center" name="guardar_e_insertar_producto" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y añadir Producto</button>
-            <button class="btn btn-primary text-center" name="guardar_y_crear_otra_orden" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y Crear otra Orden</button>
+            <button class="btn btn-info text-center" name="guardar_e_insertar_producto" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y añadir Producto a la orden</button>
+            <button class="btn btn-success text-center" name="guardar_y_crear_otra_orden" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y Crear otra Orden</button>
             <a class="btn btn-warning" href="{% url 'ordenes' %}"> <i class="bi bi-x-square"></i> Cancelar </a>
         </div>
         

@@ -4,11 +4,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Almacen, Orden, Proveedor, Orden_Producto
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto
 from django.db.models import Count
 
 
-from .forms import OrdenForm, OrdenProductoForm
+from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm
 
 def pruebas(request):
     return render(request, 'base2.html', {'titulo_web':'pruebabaaaa'})
@@ -125,7 +125,13 @@ def orden_prod_listar(request, pk):
     orden = get_object_or_404(Orden, pk=pk)
     orden_prod_elements = Orden_Producto.objects.filter(id_orden=orden)
 
-    return render(request, 'orden_prod_list.html', {'id_orden':orden.id_orden,'num_orden': orden.num_orden, 'orden_prod_list': orden_prod_elements})
+
+    context={'id_orden':orden.id_orden,
+             'num_orden': orden.num_orden, 
+             'orden_prod_list': orden_prod_elements,
+             'titulo_web':'Productos en la orden '+ str(orden.num_orden)  ,}
+
+    return render(request, 'orden_prod_list.html', context)
 
 #Esto esta conectado con ajax
 @login_required
@@ -163,14 +169,116 @@ def orden_prod_modificar(request, orden_pk, orprod_pk):
 
 #SERVICIOS RELACIONADOS CON PRODUCTOS E INVENTARIO
 @login_required
-def inventario(request):
-    return render(request, "inventario.html",{})
+def inventario_lista(request):
+    inventario_list = Inventario.objects.all()
+
+    context = {'inventario':inventario_list,
+               'titulo_web':'Inventario - SM200SYS'}
+    return render(request, "inventario.html",context)
+
+@login_required
+def inventario_insertar(request):
+    if request.method == 'POST':
+        form = InventarioForm(request.POST)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            inv_element = form.save(commit=False)
+            inv_element.save()
+            messages.success(request, "El inventario se añadío exitosamente.")
+            return redirect('inventario')
+        
+        if request.POST.get('guardar_y_crear_otro') and form.is_valid():
+            inv_element = form.save(commit=False)
+            inv_element.save()
+            messages.success(request, "El inventario se añadío exitosamente.")
+            form = InventarioForm()
+            
+    else:
+        form = InventarioForm()
+
+    return render(request, 'inventario_insertar.html', {'form': form, 'titulo_web':'Insertar Elemento en Inventario - SM200SYS'})
+
+@login_required
+def inventario_modificar(request, pk):
+    inv_element = get_object_or_404(Inventario, pk=pk)
+
+    if request.method == "POST":
+        form = InventarioForm(request.POST, instance=inv_element)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Se modificó el elemento de inventario con exito.")
+            return redirect('inventario')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
+    else:
+        form = InventarioForm(instance=inv_element)
+
+    return render(request, 'inventario_modificar.html', {'form': form, 'titulo_web': 'Modificar Elemento en Inventario - SM200SYS'})
+
+
+@login_required
+def inventario_eliminar(request, pk):
+    inv_element = get_object_or_404(Inventario, pk=pk)
+    if request.method == 'POST':
+        inv_element.delete()
+        data = {'mensaje': 'Elemento de inventario eliminado exitosamente.'}
+        messages.success(request, "Se Eliminó el producto elemento de inventario exitosamente.")
+        return JsonResponse(data)
 
 
 
 @login_required
-def historial_inventario(request):
-    return render(request, "historial_inventario.html",{})
+def producto_lista(request):
+    producto_list = Producto.objects.all()
+
+    context = {'productos':producto_list,
+               'titulo_web':"Productos - SM200SYS",}
+    return render(request, "productos.html", context)
+
+
+@login_required
+def producto_insertar(request):
+    if request.method == 'POST':
+        form = ProductoForm(request.POST)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            producto = form.save(commit=False)
+            producto.save()
+            messages.success(request, "El producto se creó exitosamente.")
+            return redirect('productos')
+        
+        if request.POST.get('guardar_y_crear_otro_producto') and form.is_valid():
+            producto = form.save(commit=False)
+            producto.save()
+            messages.success(request, "El producto se creó exitosamente.")
+            form = ProductoForm()
+            
+    else:
+        form = ProductoForm()
+
+    return render(request, 'producto_insertar.html', {'form': form, 'titulo_web':'Insertar Producto - SM200SYS'})
+
+@login_required
+def producto_modificar(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+
+    if request.method == "POST":
+        form = ProductoForm(request.POST, instance=producto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Se modificó el producto exitosamente.")
+            return redirect('productos')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
+    else:
+        form = ProductoForm(instance=producto)
+
+    return render(request, 'producto_modificar.html', {'form': form, 'titulo_web': 'Modificar Producto - SM200SYS'})
+
+@login_required
+def producto_eliminar(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        producto.delete()
+        data = {'mensaje': 'Producto eliminado exitosamente.'}
+        messages.success(request, "Se Eliminó el producto exitosamente.")
+        return JsonResponse(data)
 
 ######################################################################################
 ######################################################################################

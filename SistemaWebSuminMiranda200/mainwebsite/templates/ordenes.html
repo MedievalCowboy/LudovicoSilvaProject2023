@@ -46,7 +46,17 @@
                 <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ orden.id_orden }}"></td>
                 
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ orden.num_orden }}</td>
-                <td class="text-center py-0 align-middle">{{ orden.estado|default:"N/A" }}</td>
+                <td 
+                class="text-center py-0 align-middle 
+                {% if orden.estado == 'Por aprobar' %} bg-secondary 
+                {% elif orden.estado == 'Tramitando' %} bg-warning 
+                {% elif orden.estado == 'Finalizado' %} bg-success 
+                {% endif %}">
+                <i class="bi {% if orden.estado == 'Por aprobar' %} bi-dash-circle-dotted
+                {% elif orden.estado == 'Tramitando' %} bi-hourglass-split
+                {% elif orden.estado == 'Finalizado' %} bi-award
+                {% endif %}"></i> {{ orden.estado|default:"N/A" }}
+                </td>
                 <td class="text-center py-0 align-middle">{{ orden.fecha_emision|default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle">{{ orden.id_cliente|default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle">{{ orden.id_destino|default:"N/A" }}</td>

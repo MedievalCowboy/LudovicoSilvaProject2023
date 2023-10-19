@@ -31,42 +31,65 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#inventario-aside" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-box2"></i><span>Inventario</span><i class="bi bi-chevron-down ms-auto"></i>
+         <i class="bi bi-boxes"></i> <span>Inventario - WIP</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="inventario-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#">
+            <a href="{% url 'inventario' %}">
               <i class="bi bi-circle"></i><span>General</span>
             </a>
           </li>
           <li>
             <a href="Almacenes.php">
-              <i class="bi bi-circle"></i><span>Almacenes</span>
+              <i class="bi bi-circle"></i><span>Almacenes - WIP</span>
             </a>
           </li>
-          <li>
-            <a href="Almacenes.php">
-              <i class="bi bi-circle"></i><span>Proveedores</span>
-            </a>
-          </li>
+
         </ul>
       </li>
       
       <!-- End Tables Nav -->
 
-       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#clientes-aside" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-briefcase-fill"></i><span>Clientes</span><i class="bi bi-chevron-down ms-auto"></i>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#productos-aside" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-box2 "></i> <span>Productos - WIP</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="clientes-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+        <ul id="productos-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="crear-producto.php">
+            <a href="{% url 'productos' %}">
               <i class="bi bi-circle"></i><span>Listado</span>
             </a>
           </li>
           <li>
-            <a href="entradas.php">
+            <a href="{% url 'producto_insertar' %}">
               <i class="bi bi-circle"></i><span>Crear</span>
+            </a>
+          </li>
+          <li>
+            <a href="Almacenes.php">
+              <i class="bi bi-circle"></i><span>Proveedores - WIP</span>
+            </a>
+          </li>
+          
+        </ul>
+      </li> 
+
+
+
+       <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#clientes-aside" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-briefcase-fill"></i><span>Clientes - WIP</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="clientes-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="crear-producto.php">
+              <i class="bi bi-circle"></i><span>Listado - WIP</span>
+            </a>
+          </li>
+          <li>
+            <a href="entradas.php">
+              <i class="bi bi-circle"></i><span>Crear - WIP</span>
             </a>
           </li>
           
@@ -76,17 +99,17 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#destinos-aside" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-truck"></i><span>Destinos</span><i class="bi bi-chevron-down ms-auto"></i>
+          <i class="bi bi-truck"></i><span>Destinos - WIP</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="destinos-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
             <a href="crear-producto.php">
-              <i class="bi bi-circle"></i><span>Listado</span>
+              <i class="bi bi-circle"></i><span>Listado - WIP</span>
             </a>
           </li>
           <li>
             <a href="entradas.php">
-              <i class="bi bi-circle"></i><span>Crear</span>
+              <i class="bi bi-circle"></i><span>Crear - WIP</span>
             </a>
           </li>
           
@@ -99,7 +122,7 @@
       <li class="nav-item">
         <a class="nav-link collapsed" href="users-profile.html">
           <i class="bi bi-person"></i>
-          <span>Perfil</span>
+          <span>Perfil - WIP</span>
         </a>
       </li><!-- End Profile Page Nav -->
 

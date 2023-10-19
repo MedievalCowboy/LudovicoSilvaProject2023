@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
+from django.utils import timezone
+
 
 
 
@@ -42,33 +43,39 @@ class Destino(models.Model):
     def __str__(self):
         return(f"{self.id_destino} : {self.ciudad} - {self.nombre_destino}")
 
-class Inventario(models.Model):
+class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
+    cod_producto = models.CharField(max_length=10, blank=True)
     nombre_producto = models.CharField(max_length=200)
     descripcion_prod = models.TextField(blank=True)
-    cod_producto = models.CharField(max_length=10, blank=True)
-    precio_unit_ref = models.DecimalField(max_digits=9, decimal_places=3)
-    cant_disponible = models.IntegerField()
-    cant_min = models.IntegerField()
-    cant_max = models.IntegerField()
-    fecha_ult_mod_inv = models.DateField()
-    nota = models.TextField(blank= True)
-
-    id_proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
-    id_almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    cant_min = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
+    cant_max = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
+    id_proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
     def __str__(self):
-        return(f"{self.id_producto} : {self.nombre_producto}- ({self.cant_disponible})")
+        return(f"{self.cod_producto}-{self.nombre_producto}({self.cant_max};{self.cant_min})")
 
+class Inventario(models.Model):
+    id_inventario = models.AutoField(primary_key=True)
+    creado_en = models.DateField(auto_now_add=True)
+    precio_unit_ref = models.DecimalField(max_digits=9, decimal_places=3)
+    cant_disponible = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
+    cant_inicial = models.PositiveIntegerField(default=0)
+    fecha_ult_mod_inv = models.DateField(default=timezone.now)  # Se establece la fecha por defecto
+    producto = models.ForeignKey(Producto, on_delete=models.DO_NOTHING)
+    nota = models.TextField(blank=True)
+    id_almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"{self.id_inventario} : {self.producto.nombre_producto}- ({self.cant_disponible})"
 
 class Registro_inventario(models.Model):
     id_registro = models.AutoField(primary_key=True)
-    creado_en = models.DateField(auto_now_add=True)
     desc_accion = models.CharField(max_length=150)
     tipo_accion = models.CharField(max_length=150)
     fecha_accion = models.DateField(auto_now_add=True)
-    cantidad = models.IntegerField()
-    id_producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
+    cantidad_accion = models.PositiveIntegerField()
+    id_inventario = models.ForeignKey(Inventario, on_delete=models.CASCADE)
 
 class Prod_Dest(models.Model):
     id_prod_dest = models.AutoField(primary_key=True)
@@ -92,8 +99,8 @@ class Orden(models.Model):
     tlf_solicitado = models.CharField(max_length=12, blank=True)
     fecha_ult_mod = models.DateField(auto_now_add=True)
     num_lote = models.CharField(max_length=20)
-    id_cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    id_destino = models.ForeignKey(Destino, on_delete=models.CASCADE)
+    id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null = True)
+    id_destino = models.ForeignKey(Destino, on_delete=models.SET_NULL, null = True)
     id_usuario = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
     def __str__(self):
         return(f"id:{self.id_orden}-numOrden:{self.num_orden}-desc:{self.desc_requisicion}")
@@ -104,6 +111,6 @@ class Orden_Producto(models.Model):
     cantidad = models.IntegerField()
     precio_unit = models.DecimalField(max_digits=9, decimal_places=3, default=0.0)
     empaque = models.CharField(max_length=20)
-    producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True)
     id_orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
     # Relaciones
