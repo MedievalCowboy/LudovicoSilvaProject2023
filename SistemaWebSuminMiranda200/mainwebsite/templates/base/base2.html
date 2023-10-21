@@ -30,11 +30,11 @@
 </head>
 
 <body>
-    {% include 'header2.html' %}
-    {% include 'aside2.html' %}
+    {% include 'base/header2.html' %}
+    {% include 'base/aside2.html' %}
     
     <main id="main" class="main">
-        {% include 'message_holder.html' %}
+        {% include 'base/message_holder.html' %}
 
         <div class="pagetitle">
           <h1>{{titulo_page}}</h1>
@@ -70,7 +70,7 @@
 
 
 
-    {% include 'footer2.html' %}
+    {% include 'base/footer2.html' %}
   <script src="{% static 'thirdparty/js/bootstrap.bundle.min.js' %}"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="{% static 'js/main.js' %}"></script>

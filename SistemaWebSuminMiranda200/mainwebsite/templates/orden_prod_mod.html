@@ -1,4 +1,4 @@
-{% extends "base2.html" %}
+{% extends "base/base2.html" %}
 {% load crispy_forms_tags %} 
 {% load static %}
 
@@ -16,7 +16,6 @@
 
 
 <div class=" container p-4">
-    <h1>Modificar un Producto en de Orden #{{orden_num}}</h1>
     <form  method="post">
         {% csrf_token %}
         {{ form|crispy }}

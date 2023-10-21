@@ -4,10 +4,9 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino
 from django.db.models import Count
 
-
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm
 
 def pruebas(request):
@@ -101,7 +100,12 @@ def orden_modificar(request,pk):
     else:
         form = OrdenForm(instance=orden)
 
-    return render(request, 'orden_modificar.html', {'form': form, 'titulo_web': 'Modificar Orden - SM200SYS'})
+    context = {'form': form, 
+               'titulo_web': 'Modificar Orden - SM200SYS',
+               'volver_a':'ordenes',
+               'titulo_page':'Modificar Orden'}
+
+    return render(request, 'base/base_modificar.html', context)
 
 #Esto esta conectado con ajax
 @login_required
@@ -160,7 +164,9 @@ def orden_prod_modificar(request, orden_pk, orprod_pk):
     context = {'titulo_web':'Modificar Productos de Orden - SM200SYS',
                'form':form,
                'orden_id':orden_pk,
-               'orden_num':orden.num_orden,}
+               'orden_num':orden.num_orden,
+               'titulo_page':'Modificar Productos de Orden #'+str(orden.num_orden),
+               }
     
     return render(request, 'orden_prod_mod.html',context)
         
@@ -213,7 +219,11 @@ def inventario_modificar(request, pk):
     else:
         form = InventarioForm(instance=inv_element)
 
-    return render(request, 'inventario_modificar.html', {'form': form, 'titulo_web': 'Modificar Elemento en Inventario - SM200SYS'})
+    context= {'form': form, 
+              'titulo_web': 'Modificar Elemento en Inventario - SM200SYS',
+              'titulo_page':'Modificar elemento de inventario',
+              'volver_a':'inventario'}
+    return render(request, 'base/base_modificar.html', context)
 
 
 @login_required
@@ -271,7 +281,11 @@ def producto_modificar(request, pk):
     else:
         form = ProductoForm(instance=producto)
 
-    return render(request, 'producto_modificar.html', {'form': form, 'titulo_web': 'Modificar Producto - SM200SYS'})
+    context= {'form': form, 
+              'titulo_web': 'Modificar Producto - SM200SYS',
+              'titulo_page':'Modificar Producto',
+              'volver_a':'productos'}
+    return render(request, 'base/base_modificar.html', context)
 
 @login_required
 def producto_eliminar(request, pk):
@@ -303,13 +317,17 @@ def proveedor_modificar(request, pk):
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
             form.save()
-            messages.ubfi(request, "Se modificó el proveedor exitosamente.")
+            messages.info(request, "Se modificó el proveedor exitosamente.")
             return redirect('proveedores')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
 
     else:
         form = ProveedorForm(instance=proveedor)
 
-    return render(request, 'proveedor_modificar.html', {'form': form, 'titulo_web': 'Modificar Proveedor - SM200SYS'})
+    context = {'form': form, 
+               'titulo_web': 'Modificar Proveedor - SM200SYS',
+               'titulo_page':'Modificar Proveedor',
+               'volver_a':'proveedores'}
+    return render(request, 'base/base_modificar.html', context)
 
 @login_required
 def proveedor_insertar(request):
@@ -417,7 +435,11 @@ def destino_modificar(request, pk):
     else:
         form = DestinoForm(instance=destino)
 
-    return render(request, 'destino_modificar.html', {'form': form, 'titulo_web': 'Modificar Destino - SM200SYS'})
+    context = {'form': form, 
+               'titulo_web': 'Modificar Destino - SM200SYS',
+               'titulo_page':'Modificar Destino',
+               'volver_a':'destinos'}
+    return render(request, 'base/base_modificar.html', context)
 
 @login_required
 def destino_insertar(request):
