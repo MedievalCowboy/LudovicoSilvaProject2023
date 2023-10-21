@@ -82,7 +82,7 @@ $(document).ready(function() {
     $("#confirmar-eliminar").click(function() {
         var elementoId = $(this).data("id");
         $.ajax({
-            url: "/workspace/proveedor/eliminar/" + elementoId,
+            url: "/workspace/destino/eliminar/" + elementoId,
             type: "POST",
             data: {
                 csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()

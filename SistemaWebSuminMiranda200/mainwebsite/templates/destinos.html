@@ -10,7 +10,7 @@
 {% block content %} <!-- block 1-->
 
 <div class="container container-sm">
-    <h1>Proveedores</h1>
+    <h1>Destinos</h1>
 
      <!-- Opciones -->
 <div class="row mb-3">
@@ -20,7 +20,7 @@
             <label class="form-check-label small" for="seleccionar-todo">Seleccionar Todo</label>
         </div>
         <div class="mr-3">
-            <a href="{% url 'proveedor_insertar' %}" id="crear-nuevo" class="btn btn-sm btn-primary mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
+            <a href="{% url 'destino_insertar' %}" id="crear-nuevo" class="btn btn-sm btn-primary mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
         </div>
     </div>
 </div>
@@ -33,27 +33,25 @@
     
                 <th class="text-center py-0">ID</th>
                 <th class="text-center py-0">NOMBRE</th>
-                <th class="text-center py-0">CORREO</th>
-                <th class="text-center py-0">TELEFONO</th>
-                <th class="text-center py-0">NOTA</th>
+                <th class="text-center py-0">CIUDAD</th>
+                <th class="text-center py-0">REL. PROD.</th>
                 <th class="text-center py-0">OPCIONES</th>
             </tr>
         </thead>
         <tbody>
-            {% for proveedor in proveedores %}
+            {% for destino in destinos %}
             <tr>
-                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ proveedor.id_proveedor }}"></td>
+                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ destino.id_destino }}"></td>
                 
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ proveedor.id_proveedor}}</td>
-                <td class="text-center py-0 align-middle">{{ proveedor.nombre_proveedor|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ proveedor.correo |default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ proveedor.tlf_proveedor|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ proveedor.nota_proveedor|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ destino.id_destino}}</td>
+                <td class="text-center py-0 align-middle">{{ destino.nombre_destino|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle">{{ destino.ciudad |default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle"><span class="badge bg-secondary">WIP</span></td>
                 
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
-                    <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'proveedor_modificar' proveedor.id_proveedor %}"><i class="bi bi-pen"></i> Editar</a></button>
+                    <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'destino_modificar' destino.id_destino %}"><i class="bi bi-pen"></i> Editar</a></button>
                     
-                    <button class="btn btn-danger btn-sm eliminar" data-id="{{ proveedor.id_proveedor }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                    <button class="btn btn-danger btn-sm eliminar" data-id="{{ destino.id_destino }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
                 </td>
                 
             </tr>
@@ -77,7 +75,7 @@
                 <button type="button" class="close" style="border:none;" data-bs-dismiss="modal">&times;</button> <!-- Agrega este botón -->
             </div>
             <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar este proveedor definitivamente?</p>
+                <p>¿Estás seguro de que deseas eliminar este destino definitivamente?</p>
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             </div>
             <div class="modal-footer">
@@ -104,5 +102,5 @@
 <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
 
 
-<script src="{% static 'js/proveedores.js' %}"></script>
+<script src="{% static 'js/destinos.js' %}"></script>
 {% endblock %}

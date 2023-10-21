@@ -1,5 +1,5 @@
 from django import forms
-from .models import Orden, Orden_Producto, Inventario, Producto
+from .models import Orden, Orden_Producto, Inventario, Producto, Proveedor, Almacen, Destino
 from django.utils import timezone
 import re
 
@@ -114,3 +114,14 @@ class ProductoForm(forms.ModelForm):
 
         if cant_max <= cant_min:
             raise forms.ValidationError("La cantidad máxima debe ser mayor que la cantidad mínima.")
+        
+
+class ProveedorForm(forms.ModelForm):
+    class Meta:
+        model = Proveedor
+        fields = '__all__'
+
+class DestinoForm(forms.ModelForm):
+    class Meta:
+        model = Destino
+        fields='__all__'

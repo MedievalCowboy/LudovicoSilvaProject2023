@@ -1,0 +1,30 @@
+{% extends "base2.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+         
+        <div class="mr-3" style="margin-right:5px; margin-top:20px;">
+            <a href="{% url 'proveedores' %}" class="btn btn-sm btn-warning mb-3"><i class="bi bi-arrow-left-circle"></i> Ir al listado de proveedores</a>
+        </div>
+    </div>
+    
+</div>
+<div class=" container p-4">
+    <h1>Insertar nuevo proveedor</h1>
+    <form  method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div style="margin-top:5px;">
+            <button class="btn btn-primary text-center" name="guardar_y_regresar" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y Salir</button>
+            <button class="btn btn-primary text-center" name="guardar_y_crear_otro" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y Crear otro proveedor</button>
+            <a class="btn btn-warning" href="{% url 'proveedores' %}"> <i class="bi bi-x-square"></i> Cancelar </a>
+        </div>
+        
+    </form>
+</div>
+
+
+{% endblock %}

@@ -11,7 +11,7 @@ class Cliente(models.Model):
     creado_en = models.DateField(auto_now_add=True)
     nombre_cliente = models.CharField(max_length=200)
     direccion = models.TextField(blank=True)
-    telefono = models.CharField(max_length=12, blank=True)
+    telefono = models.CharField(max_length=12, blank=True, null=True)
     rif = models.CharField(max_length=15, blank=True)
     def __str__(self):
         return(f"{self.id_cliente} : {self.nombre_cliente}")
@@ -21,7 +21,7 @@ class Proveedor(models.Model):
     creado_en = models.DateField(auto_now_add=True)
     nombre_proveedor = models.CharField(max_length=200)
     correo = models.CharField(max_length=150, blank=True)
-    tlf_proveedor = models.CharField(max_length=12, blank = True)
+    tlf_proveedor = models.CharField(max_length=12, blank = True, null=True)
     nota_proveedor = models.TextField(blank = True)
     def __str__(self):
         return(f"{self.id_proveedor} : {self.nombre_proveedor}")
@@ -96,7 +96,7 @@ class Orden(models.Model):
     fecha_requisicion = models.DateField(blank=True, null= True)
     fecha_entrega = models.DateField(blank=True, null= True)
     solicitado = models.CharField(max_length=25)
-    tlf_solicitado = models.CharField(max_length=12, blank=True)
+    tlf_solicitado = models.CharField(max_length=12, blank=True, null=True)
     fecha_ult_mod = models.DateField(auto_now_add=True)
     num_lote = models.CharField(max_length=20)
     id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null = True)

@@ -29,9 +29,9 @@ urlpatterns = [
     path('workspace/proveedor/eliminar/<int:pk>', views.proveedor_eliminar, name="proveedor_eliminar"),
     
     path('workspace/clientes/', views.clientes, name='clientes'),
-    #path('workspace/clientes/insertar', views.clientes_insertar, name="clientes_insertar"),
-    #path('workspace/clientes/modificar/%id%', views.clientes_modificar, name="clientes_modificar"),
-    #path('workspace/clientes/eliminar/%id%', views.clientes_eliminar, name="clientes_eliminar"),
+    path('workspace/cliente/insertar', views.cliente_insertar, name="cliente_insertar"),
+    path('workspace/cliente/modificar/<int:pk>', views.cliente_modificar, name="cliente_modificar"),
+    path('workspace/cliente/eliminar/<int:pk>', views.cliente_eliminar, name="cliente_eliminar"),
 
     path('workspace/inventario/', views.inventario_lista, name='inventario'),
     path('workspace/inventario/insertar', views.inventario_insertar, name="inventario_insertar"),
@@ -43,6 +43,10 @@ urlpatterns = [
     path('workspace/producto/modificar/<int:pk>', views.producto_modificar, name="producto_modificar"),
     path('workspace/producto/eliminar/<int:pk>', views.producto_eliminar, name="producto_eliminar"),
 
+    path('workspace/destinos/', views.destino_lista, name='destinos'),
+    path('workspace/destino/insertar', views.destino_insertar, name="destino_insertar"),
+    path('workspace/destino/modificar/<int:pk>', views.destino_modificar, name="destino_modificar"),
+    path('workspace/destino/eliminar/<int:pk>', views.destino_eliminar, name="destino_eliminar"),
 
     path('workspace/almacenes/', views.almacenes, name='almacenes'),
     path('workspace/almacen/insertar', views.almacen_insertar, name="almacen_insertar"),

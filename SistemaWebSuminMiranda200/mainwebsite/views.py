@@ -4,11 +4,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino
 from django.db.models import Count
 
 
-from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm
+from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm
 
 def pruebas(request):
     return render(request, 'base2.html', {'titulo_web':'pruebabaaaa'})
@@ -95,7 +95,7 @@ def orden_modificar(request,pk):
         form = OrdenForm(request.POST, instance=orden)
         if form.is_valid():
             form.save()
-            messages.success(request, "Se modificó la orden exitosamente.")
+            messages.info(request, "Se modificó la orden exitosamente.")
             return redirect('ordenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
 
     else:
@@ -112,7 +112,7 @@ def orden_eliminar(request, pk):
         orden_productos.delete()
         orden.delete()
         data = {'mensaje': 'Orden eliminada exitosamente.'}
-        messages.success(request, "Se Eliminó la orden exitosamente.")
+        messages.warning(request, "Se Eliminó la orden exitosamente.")
         return JsonResponse(data)
 
 
@@ -140,6 +140,7 @@ def orden_prod_eliminar(request, pk):
     if request.method == 'POST':
         orden_prod.delete()
         data = {'mensaje': 'Orden eliminada exitosamente.'}
+        messages.warning(request, "Se Eliminó la relación del producto con la orden exitosamente.")
         return JsonResponse(data)
 
 def orden_prod_modificar(request, orden_pk, orprod_pk):
@@ -151,6 +152,7 @@ def orden_prod_modificar(request, orden_pk, orprod_pk):
             form.save()
             #ESTO NO ES SEGURO REVISARRRRRRRRRRRRRRRRRRRRRRRRRRR
             url = reverse('orden_prod_listar', kwargs={'pk': orden_pk})
+            messages.info(request, "Se modificó la relación del producto con la orden exitosamente.")
             return redirect(url)
     else:
         form = OrdenProductoForm(instance = orden_prod)
@@ -205,7 +207,7 @@ def inventario_modificar(request, pk):
         form = InventarioForm(request.POST, instance=inv_element)
         if form.is_valid():
             form.save()
-            messages.success(request, "Se modificó el elemento de inventario con exito.")
+            messages.info(request, "Se modificó el elemento de inventario con exito.")
             return redirect('inventario')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
 
     else:
@@ -220,7 +222,7 @@ def inventario_eliminar(request, pk):
     if request.method == 'POST':
         inv_element.delete()
         data = {'mensaje': 'Elemento de inventario eliminado exitosamente.'}
-        messages.success(request, "Se Eliminó el producto elemento de inventario exitosamente.")
+        messages.warning(request, "Se Eliminó el producto elemento de inventario exitosamente.")
         return JsonResponse(data)
 
 
@@ -263,7 +265,7 @@ def producto_modificar(request, pk):
         form = ProductoForm(request.POST, instance=producto)
         if form.is_valid():
             form.save()
-            messages.success(request, "Se modificó el producto exitosamente.")
+            messages.info(request, "Se modificó el producto exitosamente.")
             return redirect('productos')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
 
     else:
@@ -277,13 +279,14 @@ def producto_eliminar(request, pk):
     if request.method == 'POST':
         producto.delete()
         data = {'mensaje': 'Producto eliminado exitosamente.'}
-        messages.success(request, "Se Eliminó el producto exitosamente.")
+        messages.warning(request, "Se Eliminó el producto exitosamente.")
         return JsonResponse(data)
 
 ######################################################################################
 ######################################################################################
 
 #SERVICIOS RELACIONADOS CON PROVEEDOR
+
 @login_required
 def proveedores(request):
     proveedores_lista = Proveedor.objects.all()
@@ -294,39 +297,40 @@ def proveedores(request):
 
 @login_required
 def proveedor_modificar(request, pk):
-    proveedor = Proveedor.objects.get(pk=pk)
-    data = {
-        'id': proveedor.id_proveedor,
-        'nombre': proveedor.nombre_proveedor,
-        'correo': proveedor.correo,
-        'tlf': proveedor.tlf_proveedor,
-        'nota': proveedor.nota_proveedor,
-    }
-    return JsonResponse(data)
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+
+    if request.method == "POST":
+        form = ProveedorForm(request.POST, instance=proveedor)
+        if form.is_valid():
+            form.save()
+            messages.ubfi(request, "Se modificó el proveedor exitosamente.")
+            return redirect('proveedores')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
+    else:
+        form = ProveedorForm(instance=proveedor)
+
+    return render(request, 'proveedor_modificar.html', {'form': form, 'titulo_web': 'Modificar Proveedor - SM200SYS'})
 
 @login_required
 def proveedor_insertar(request):
     if request.method == 'POST':
-        id_proveedor = request.POST.get('id_proveedor')
-        nombre_proveedor = request.POST.get('nombre_proveedor')
-        correo = request.POST.get('correo_proveedor')
-        tlf_proveedor = request.POST.get('tlf_proveedor')
-        nota_proveedor= request.POST.get('nota_proveedor')
-
-        if id_proveedor:
-            proveedor = Proveedor.objects.get(pk=id_proveedor)
-            proveedor.nombre_proveedor = nombre_proveedor
-            proveedor.correo = correo
-            proveedor.tlf_proveedor = tlf_proveedor
-            proveedor.nota_proveedor = nota_proveedor
+        form = ProveedorForm(request.POST)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            proveedor = form.save(commit=False)
             proveedor.save()
-        else:
-            proveedor = Proveedor.objects.create(nombre_proveedor=nombre_proveedor,
-                                                 correo=correo,
-                                                 tlf_proveedor=tlf_proveedor,
-                                                 nota_proveedor=nota_proveedor)
-        data = {'mensaje': 'Proveedor guardado exitosamente.'}
-        return JsonResponse(data)
+            messages.success(request, "El proveedor se creó exitosamente.")
+            return redirect('proveedores')
+        
+        if request.POST.get('guardar_y_crear_otro') and form.is_valid():
+            proveedor = form.save(commit=False)
+            proveedor.save()
+            messages.success(request, "El proveedor se creó exitosamente.")
+            form = ProveedorForm()
+            
+    else:
+        form = ProveedorForm()
+
+    return render(request, 'proveedor_insertar.html', {'form': form, 'titulo_web':'Insertar Proveedor - SM200SYS'})
 
 @login_required
 def proveedor_eliminar(request, pk):
@@ -334,6 +338,8 @@ def proveedor_eliminar(request, pk):
         proveedor = get_object_or_404(Proveedor, pk=pk)
         proveedor.delete()
         data = {'mensaje': 'Proveedor eliminado exitosamente.'}
+
+        messages.warning(request, "Se eliminó el proveedor exitosamente.")
         return JsonResponse(data)
     
 ######################################################################################
@@ -342,7 +348,16 @@ def proveedor_eliminar(request, pk):
 #SERVICIOS RELACIONADOS CON CLIENTES
 @login_required
 def clientes(request):
-    return render(request, "clientes.html",{})
+    pass
+
+def cliente_insertar(request):
+    pass
+
+def cliente_modificar(request, pk):
+    pass
+
+def cliente_eliminar(request,pk):
+    pass
 
 ######################################################################################
 ######################################################################################
@@ -352,33 +367,18 @@ def clientes(request):
 @login_required
 def almacenes(request):
     almacenes_lista = Almacen.objects.all()
-    total_lista = len(almacenes_lista)
+
     context = {'almacenes':almacenes_lista,
-               'total': total_lista,}
+               'titulo_web':'Almacenes - SM200SYS'}
     return render(request, "almacenes.html",context)
 
 @login_required
 def almacen_modificar(request, pk):
-    almacen = Almacen.objects.get(pk=pk)
-    data = {
-        'id': almacen.id_almacen,
-        'nombre': almacen.nombre_almacen
-    }
-    return JsonResponse(data)
+    pass
 
 @login_required
 def almacen_insertar(request):
-    if request.method == 'POST':
-        id_almacen = request.POST.get('id_almacen')
-        nombre_almacen = request.POST.get('nombre_almacen')
-        if id_almacen:
-            almacen = Almacen.objects.get(pk=id_almacen)
-            almacen.nombre_almacen = nombre_almacen
-            almacen.save()
-        else:
-            almacen = Almacen.objects.create(nombre_almacen=nombre_almacen)
-        data = {'mensaje': 'Almacen guardado exitosamente.'}
-        return JsonResponse(data)
+    pass
 
 @login_required
 def almacen_eliminar(request, pk):
@@ -386,7 +386,69 @@ def almacen_eliminar(request, pk):
         almacen = get_object_or_404(Almacen, pk=pk)
         almacen.delete()
         data = {'mensaje': 'Almacen eliminado exitosamente.'}
+        messages.warning(request, "Se eliminó el almacen exitosamente.")
         return JsonResponse(data)
+
+######################################################################################
+######################################################################################
+
+#SERVICIOS RELACIONADOS CON DESTINOS
+
+@login_required
+def destino_lista(request):
+    destinos_list = Destino.objects.all()
+
+    context = {'destinos':destinos_list,
+               'titulo_web':'Destinos - SM200SYS'}
+    
+    return render(request,'destinos.html', context)
+
+@login_required
+def destino_modificar(request, pk):
+    destino = get_object_or_404(Destino, pk=pk)
+
+    if request.method == "POST":
+        form = DestinoForm(request.POST, instance=destino)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "Se modificó el destino exitosamente.")
+            return redirect('destinos')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
+    else:
+        form = DestinoForm(instance=destino)
+
+    return render(request, 'destino_modificar.html', {'form': form, 'titulo_web': 'Modificar Destino - SM200SYS'})
+
+@login_required
+def destino_insertar(request):
+    if request.method == 'POST':
+        form = DestinoForm(request.POST)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            destino = form.save(commit=False)
+            destino.save()
+            messages.success(request, "El destino se creó exitosamente.")
+            return redirect('destinos')
+        
+        if request.POST.get('guardar_y_crear_otro') and form.is_valid():
+            destino = form.save(commit=False)
+            destino.save()
+            messages.success(request, "El destino se creó exitosamente.")
+            form = DestinoForm()
+            
+    else:
+        form = DestinoForm()
+
+    return render(request, 'destino_insertar.html', {'form': form, 'titulo_web':'Insertar Destino - SM200SYS'})
+
+@login_required
+def destino_eliminar(request, pk):
+    if request.method == 'POST':
+        destino = get_object_or_404(Destino, pk=pk)
+        destino.delete()
+        data = {'mensaje': 'Destino eliminado exitosamente.'}
+        messages.warning(request, "Se eliminó el destino exitosamente.")
+        return JsonResponse(data)
+
 
 ######################################################################################
 ######################################################################################
@@ -399,9 +461,9 @@ def login_user(request):
         user = authenticate(request,username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, "has iniciado sesión correctamente.")
+            messages.success(request, "Has iniciado sesión correctamente.")
         else:
-            messages.error(request, "Usuario o contraseña incorrectos")
+            messages.warning(request, "Usuario o contraseña incorrectos.")
     if request.user.is_authenticated:
         return redirect('ordenes')
     return render(request, 'login.html', {})
