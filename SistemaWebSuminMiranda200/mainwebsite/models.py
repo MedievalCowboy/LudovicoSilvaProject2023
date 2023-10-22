@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.translation import gettext as _
+
 
 
 
@@ -82,8 +84,10 @@ class Prod_Dest(models.Model):
     creado_en = models.DateField(auto_now_add=True)
     id_producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
     id_destino = models.ForeignKey(Destino, on_delete=models.CASCADE)
-    consumo_prom_dia = models.DecimalField(max_digits=9, decimal_places=3)
+    consumo_prom_dia = models.DecimalField(max_digits=9, decimal_places=2)
     fecha_ult_sumin = models.DateField()
+    class Meta:
+        unique_together = ('id_destino', 'id_producto')
 
 class Orden(models.Model):
     id_orden = models.AutoField(primary_key=True)

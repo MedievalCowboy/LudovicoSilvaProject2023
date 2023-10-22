@@ -1,0 +1,30 @@
+{% extends "base/base2.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+         
+        <div class="mr-3" style="margin-right:5px; margin-top:20px;">
+            <a href="{% url 'prod_dest_lista' %} " style="width:100vw; max-width:max-content" class="custom-btn custom-btn-sand mb-3"><i class="bi bi-arrow-left-circle"></i> Volver al listado de consumo general productos/destinos</a>
+        </div>
+    </div>
+    
+</div>
+<div class=" container p-4">
+    <h1>Insertar nueva relación de consumo Producto/Destino</h1>
+    <form  method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div style="margin-top:5px;">
+            <button class="custom-btn custom-btn-green btn-sm text-center" name="guardar_y_regresar" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y Salir</button>
+            <button class="custom-btn custom-btn-green btn-sm text-center" name="guardar_y_crear_otro" type="submit" value="True"><i class="bi bi-plus-square"></i> Guardar y Crear otro</button>
+            <a class="custom-btn custom-btn-granada btn-sm" href="{% url 'destinos' %}"> <i class="bi bi-x-square"></i> Cancelar </a>
+        </div>
+        
+    </form>
+</div>
+
+
+{% endblock %}

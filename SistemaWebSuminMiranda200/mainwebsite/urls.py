@@ -48,6 +48,12 @@ urlpatterns = [
     path('workspace/destino/modificar/<int:pk>', views.destino_modificar, name="destino_modificar"),
     path('workspace/destino/eliminar/<int:pk>', views.destino_eliminar, name="destino_eliminar"),
 
+    path('workspace/destinos/consumo', views.prod_dest_lista, name='prod_dest_lista'),
+    path('workspace/destino/<int:pk>/consumo', views.prod_dest_det_dest, name='prod_dest_det_dest'),
+    path('workspace/destino/consumo/insertar', views.prod_dest_insertar, name="prod_dest_insertar"),
+    path('workspace/destinos/consumo/modificar/<int:pk>', views.prod_dest_modificar, name='prod_dest_modificar'),
+    path('workspace/destino/consumo/eliminar/<int:pk>', views.prod_dest_eliminar, name='prod_dest_eliminar'),
+
     path('workspace/almacenes/', views.almacenes, name='almacenes'),
     path('workspace/almacen/insertar', views.almacen_insertar, name="almacen_insertar"),
     path('workspace/almacen/modificar/<int:pk>', views.almacen_modificar, name="almacen_modificar"),

@@ -6,8 +6,8 @@ from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count
 
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino
-from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest
+from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm
 
 def pruebas(request):
     return render(request, 'base2.html', {'titulo_web':'pruebabaaaa'})
@@ -414,11 +414,13 @@ def almacen_eliminar(request, pk):
 
 @login_required
 def destino_lista(request):
-    destinos_list = Destino.objects.all()
+    destinos = Destino.objects.annotate(prod_dest_count=Count('prod_dest'))
+    context = {
+        'destinos': destinos,
+        'titulo_web':'Destinos - SM200SYS'
+    }
 
-    context = {'destinos':destinos_list,
-               'titulo_web':'Destinos - SM200SYS'}
-    
+
     return render(request,'destinos.html', context)
 
 @login_required
@@ -469,6 +471,80 @@ def destino_eliminar(request, pk):
         destino.delete()
         data = {'mensaje': 'Destino eliminado exitosamente.'}
         messages.warning(request, "Se eliminó el destino exitosamente.")
+        return JsonResponse(data)
+
+
+#SERVICIOS RELACIONADOS CON PRODUCTOS x DESTINOS
+
+@login_required
+def prod_dest_lista(request):
+    prod_dest_list = Prod_Dest.objects.all()
+
+    context = {'consumos':prod_dest_list,
+               'titulo_web':'Consumo general de Productos/Destinos - SM200SYS'}
+    
+    return render(request,'prod_dest_consumos.html', context)
+
+@login_required
+def prod_dest_det_dest(request, pk):
+    destino = get_object_or_404(Destino, pk=pk)
+    prod_dest_det_list = Prod_Dest.objects.filter(id_destino=destino)
+
+    context={
+             'listado': prod_dest_det_list,
+             'id_destino':destino.nombre_destino,
+             'titulo_web':'Consumo de productos para el destino '+ destino.nombre_destino  ,}
+    return render(request, 'prod_dest_det_dest.html', context)
+
+@login_required
+def prod_dest_modificar(request,pk):
+    prod_dest = get_object_or_404(Prod_Dest, pk=pk)
+
+    if request.method == "POST":
+        form = ProdDestForm(request.POST, instance=prod_dest)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "Se modificó la relacion entre producto y destino exitosamente.")
+            return redirect('prod_dest_lista')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
+    else:
+        form = ProdDestForm(instance=prod_dest)
+
+    context = {'form': form, 
+               'titulo_web': 'Modificar relación Producto en Destino - SM200SYS',
+               'titulo_page':'Modificar relación Producto en Destino',
+               'volver_a':'prod_dest_lista'}
+    return render(request, 'prod_dest_modificar.html', context)
+
+@login_required
+def prod_dest_insertar(request):
+    if request.method == 'POST':
+        form = ProdDestForm(request.POST)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            prod_dest = form.save(commit=False)
+            prod_dest.save()
+            messages.success(request, "La relación de consumo producto/destino se creó exitosamente.")
+            return redirect('prod_dest_lista')
+        
+        if request.POST.get('guardar_y_crear_otro') and form.is_valid():
+            prod_dest = form.save(commit=False)
+            prod_dest.save()
+            messages.success(request, "La relación de consumo producto/destino se creó exitosamente.")
+            form = ProdDestForm()
+            
+    else:
+        form = ProdDestForm()
+
+    print("llego")
+    return render(request, 'prod_dest_insertar.html', {'form': form, 'titulo_web':'Insertar relación consumo Producto/Destino - SM200SYS'})
+    
+@login_required
+def prod_dest_eliminar(request, pk):
+    if request.method == 'POST':
+        prod_dest = get_object_or_404(Prod_Dest, pk=pk)
+        prod_dest.delete()
+        data = {'mensaje': 'Relación producto destino eliminada exitosamente.'}
+        messages.warning(request, "Relación producto destino eliminada exitosamente.")
         return JsonResponse(data)
 
 

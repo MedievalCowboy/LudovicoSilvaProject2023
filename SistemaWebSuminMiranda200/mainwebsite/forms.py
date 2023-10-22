@@ -1,5 +1,5 @@
 from django import forms
-from .models import Orden, Orden_Producto, Inventario, Producto, Proveedor, Almacen, Destino
+from .models import Orden, Orden_Producto, Inventario, Producto, Proveedor, Almacen, Destino, Prod_Dest
 from django.utils import timezone
 import re
 
@@ -124,4 +124,10 @@ class ProveedorForm(forms.ModelForm):
 class DestinoForm(forms.ModelForm):
     class Meta:
         model = Destino
+        fields='__all__'
+
+
+class ProdDestForm(forms.ModelForm):
+    class Meta:
+        model = Prod_Dest
         fields='__all__'
