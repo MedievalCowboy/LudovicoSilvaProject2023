@@ -232,7 +232,7 @@ def inventario_eliminar(request, pk):
     if request.method == 'POST':
         inv_element.delete()
         data = {'mensaje': 'Elemento de inventario eliminado exitosamente.'}
-        messages.warning(request, "Se Eliminó el producto elemento de inventario exitosamente.")
+        messages.warning(request, "Se Eliminó el elemento de inventario exitosamente.")
         return JsonResponse(data)
 
 
