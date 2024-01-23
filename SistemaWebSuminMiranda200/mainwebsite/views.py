@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.db.models import Count
 
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest
-from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm
+from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm
 
 def pruebas(request):
     return render(request, 'base2.html', {'titulo_web':'pruebabaaaa'})
@@ -366,16 +366,59 @@ def proveedor_eliminar(request, pk):
 #SERVICIOS RELACIONADOS CON CLIENTES
 @login_required
 def clientes(request):
-    pass
+    clientes_lista = clientes.objects.all()
+
+    context = {'clientes':clientes_lista,
+               'titulo_web':'Clientes - SM200SYS'}
+    return render(request, "clientes.html",context)
 
 def cliente_insertar(request):
-    pass
+    if request.method == 'POST':
+        form = ClientesForm(request.POST)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            clientes = form.save(commit=False)
+            clientes.save()
+            messages.success(request, "El cliente se agrego exitosamente.")
+            return redirect('clientes')
+        
+        if request.POST.get('guardar_y_crear_otro') and form.is_valid():
+            clientes = form.save(commit=False)
+            clientes.save()
+            messages.success(request, "El cliente se agrego exitosamente.")
+            form = ProveedorForm()
+            
+    else:
+        form = ClientesForm()
+
+    return render(request, 'clientes_insertar.html', {'form': form, 'titulo_web':'Insertar Cliente - SM200SYS'})
+
 
 def cliente_modificar(request, pk):
-    pass
+    clientes = get_object_or_404(clientes, pk=pk)
+
+    if request.method == "POST":
+        form = ClientesForm(request.POST, instance=clientes)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "Se modificó el cliente exitosamente.")
+            return redirect('clientes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
+    else:
+        form = ClientesForm(instance=clientes)
+
+    context = {'form': form, 
+               'titulo_web': 'Modificar Cliente - SM200SYS',
+               'titulo_page':'Modificar Cliente',
+               'volver_a':'clientes'}
+    return render(request, 'base/base_modificar.html', context)
 
 def cliente_eliminar(request,pk):
-    pass
+    clientes = get_object_or_404(clientes, pk=pk)
+    if request.method == 'POST':
+        clientes.delete()
+        data = {'mensaje': 'Cliente eliminado exitosamente.'}
+        messages.warning(request, "Se Eliminó el cliente exitosamente.")
+        return JsonResponse(data)
 
 ######################################################################################
 ######################################################################################
@@ -392,11 +435,43 @@ def almacenes(request):
 
 @login_required
 def almacen_modificar(request, pk):
-    pass
+    Almacen = get_object_or_404(Almacen, pk=pk)
+
+    if request.method == "POST":
+        form = AlmacenForm(request.POST, instance=Almacen)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "Se modificó el almacen exitosamente.")
+            return redirect('almacenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+
+    else:
+        form = ProveedorForm(instance=almacenes)
+
+    context = {'form': form, 
+               'titulo_web': 'Modificar Almacen - SM200SYS',
+               'titulo_page':'Modificar Almacen',
+               'volver_a':'almacenes'}
+    return render(request, 'base/base_modificar.html', context)
 
 @login_required
 def almacen_insertar(request):
-    pass
+    if request.method == 'POST':
+        form = AlmacenForm(request.POST)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+            Almacen = form.save(commit=False)
+            Almacen.save()
+            messages.success(request, "El almacen se creó exitosamente.")
+            return redirect('almacenes')
+        
+        if request.POST.get('guardar_y_crear_otro') and form.is_valid():
+            Almacen = form.save(commit=False)
+            Almacen.save()
+            messages.success(request, "El almacen se creó exitosamente.")
+            form = AlmacenForm()
+    else: 
+        form = AlmacenForm()
+
+    return render(request, 'almacen_insertar.html', {'form': form, 'titulo_web':'Insertar Almacen - SM200SYS'})
 
 @login_required
 def almacen_eliminar(request, pk):
