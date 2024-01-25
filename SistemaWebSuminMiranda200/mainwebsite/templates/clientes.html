@@ -1,0 +1,108 @@
+{% extends "base/base2.html" %}
+{% load static %}
+
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+{% endblock%}
+
+{% block content %} <!-- block 1-->
+
+<div class="container container-sm">
+    <h1>Clientes</h1>
+
+     <!-- Opciones -->
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+        <div class="form-check" style="margin-right:20px;">
+            <input type="checkbox" class="form-check-input mr-2" id="seleccionar-todo">
+            <label class="form-check-label small" for="seleccionar-todo">Seleccionar Todo</label>
+        </div>
+        <div class="mr-3">
+            <a href="{% url 'cliente_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
+        </div>
+    </div>
+</div>
+
+<div style="overflow-x: auto; white-space: nowrap;">
+    <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
+        <thead class="thead-dark">
+            <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
+                <th class="text-center"></th>
+    
+                <th class="text-center py-0">ID</th>
+                <th class="text-center py-0">NOMBRE</th>
+                <th class="text-center py-0">TLF</th>
+                <th class="text-center py-0">DIR</th>
+                <th class="text-center py-0">RIF</th>
+                <th class="text-center py-0">OPCIONES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ producto.id_producto }}"></td>
+                
+                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ cliente.id_cliente }}</td>
+                <td class="text-center py-0 align-middle">{{ cliente.nombre_cliente|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle">{{ cliente.tlf |default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle">{{ cliente.direccion|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle">{{ cliente.rif|default:"N/A" }}</td>
+                
+                <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                    <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'cliente_modificar' cliente.id_cliente %}"><i class="bi bi-pen"></i> Editar</a></button>
+                    
+                    <button class="btn btn-danger btn-sm eliminar" data-id="{{ cliente.id_cliente }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+</div>
+
+
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="confirmarEliminarModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirmar Eliminación</h4>
+                <button type="button" class="close" style="border:none;" data-bs-dismiss="modal">&times;</button> <!-- Agrega este botón -->
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este producto definitivamente?</p>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-square"></i>  Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmar-eliminar"><i class="bi bi-check-square"></i> Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock content %} <!-- FIN block 1-->
+
+{% block scripts %}
+
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
+<!-- Librería JS de HTML5 export (botones de exportación) -->
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+
+
+<script src="{% static 'js/clientes.js' %}"></script>
+{% endblock %}

@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count
 
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm
 
 def pruebas(request):
@@ -17,6 +17,8 @@ def pruebas(request):
 def portal_principal(request):
     return render(request, 'index.html', {'titulo_web':'Suministros Miranda 200 C.A'})
 
+def mostrar_politicas(request):
+    return render(request, 'politicas.html',{})
 
 
 ######################################################################################
@@ -366,7 +368,7 @@ def proveedor_eliminar(request, pk):
 #SERVICIOS RELACIONADOS CON CLIENTES
 @login_required
 def clientes(request):
-    clientes_lista = clientes.objects.all()
+    clientes_lista = Cliente.objects.all()
 
     context = {'clientes':clientes_lista,
                'titulo_web':'Clientes - SM200SYS'}
@@ -390,11 +392,11 @@ def cliente_insertar(request):
     else:
         form = ClientesForm()
 
-    return render(request, 'clientes_insertar.html', {'form': form, 'titulo_web':'Insertar Cliente - SM200SYS'})
+    return render(request, 'cliente_insertar.html', {'form': form, 'titulo_web':'Insertar Cliente - SM200SYS'})
 
 
 def cliente_modificar(request, pk):
-    clientes = get_object_or_404(clientes, pk=pk)
+    clientes = get_object_or_404(Cliente, pk=pk)
 
     if request.method == "POST":
         form = ClientesForm(request.POST, instance=clientes)
