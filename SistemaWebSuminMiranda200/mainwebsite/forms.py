@@ -4,8 +4,6 @@ from django.utils import timezone
 import re
 
 
-
-
 class OrdenForm(forms.ModelForm):
 
     # Definir las opciones para el campo "Estado"
@@ -64,8 +62,7 @@ class OrdenProductoForm(forms.ModelForm):
         self.fields['id_orden'].disabled = True
 
 
-from django import forms
-from .models import Inventario
+
 
 class InventarioForm(forms.ModelForm):
     class Meta:
@@ -129,6 +126,10 @@ class ProdDestForm(forms.ModelForm):
     class Meta:
         model = Prod_Dest
         fields='__all__'
+    fecha_ult_sumin = forms.DateField(
+        label='Fecha ultimo suministro',
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
 
 class AlmacenForm(forms.ModelForm):
     class Meta: 

@@ -1,138 +1,66 @@
 {% extends "base/base2.html" %}
+{% load static %}
 
-{% block content %}
-<div class="container mt-5">
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+{% endblock%}
+
+{% block content %} <!-- block 1-->
+
+<div class="container container-sm">
     <h1>Almacenes</h1>
-    <!-- Botón para abrir/cerrar filtros -->
-    <button class="btn btn-primary mb-3" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse">Mostrar Filtros</button>
 
-    <!-- Filtros (inicialmente colapsados) -->
-    <div id="filtrosCollapse" class="collapse">
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <label for="filtro1">Filtro 1:</label>
-                <select class="form-control" id="filtro1">
-                    <option value="">Seleccionar</option>
-                    <!-- Opciones del filtro 1 -->
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="filtro2">Filtro 2:</label>
-                <select class="form-control" id="filtro2">
-                    <option value="">Seleccionar</option>
-                    <!-- Opciones del filtro 2 -->
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="filtro3">Filtro 3:</label>
-                <select class="form-control" id="filtro3">
-                    <option value="">Seleccionar</option>
-                    <!-- Opciones del filtro 3 -->
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="buscador">Buscar:</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="buscador" placeholder="Buscar">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="button">Buscar</button>
-                    </div>
-                </div>
-            </div>
+     <!-- Opciones -->
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+        <div class="form-check" style="margin-right:20px;">
+            <input type="checkbox" class="form-check-input mr-2" id="seleccionar-todo">
+            <label class="form-check-label small" for="seleccionar-todo">Seleccionar Todo</label>
+        </div>
+        <div class="mr-3">
+            <a href="{% url 'almacen_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
         </div>
     </div>
-
-
-    <!-- Botones para abrir/cerrar opciones -->
-    <button class="btn btn-primary mb-3" data-bs-toggle="collapse" data-bs-target="#opcionesCollapse">Mostrar Opciones</button>
-
-    <!-- Opciones (inicialmente colapsadas) -->
-    <div id="opcionesCollapse" class="collapse">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="form-check overflow-x">
-                    <input type="checkbox" class="form-check-input" id="seleccionar-todo">
-                    <label class="form-check-label" for="seleccionar-todo">Seleccionar Todo</label>
-                </div>
-                <a href="#" id="crear-nuevo" class="btn btn-primary mb-3">Crear Nuevo</a>
-            </div>
-            <div class="col-md-6">
-                <h6 class="text-md-right">Exportar</h6>
-                <button class="btn btn-success mb-2">Exportar toda la tabla a PDF</button>
-                <button class="btn btn-success mb-2">Exportar seleccionados a PDF</button>
-            </div>
-        </div>
-    </div>
-
-    <div style="overflow-x: auto; white-space: nowrap;">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="text-center"></th>
-                    <th class="text-center">ID</th>
-                    <th class="text-center">Nombre</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for almacen in almacenes %}
-                <tr>
-                    <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ almacen.id_almacen }}"></td>
-                    <td class="text-center">{{ almacen.id_almacen }}</td>
-                    <td class="text-center">{{ almacen.nombre_almacen }}</td>
-                    <td class="text-center" style="overflow-x: auto; white-space: nowrap;">
-                        <button class="btn btn-info editar" data-id="{{ almacen.id_almacen }}">Editar</button>
-                        <button class="btn btn-danger eliminar" data-id="{{ almacen.id_almacen }}">Eliminar</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Sección de Paginación -->
-    <div class="row">
-        <div class="col-md-6">
-            <p>Elementos cargados: {{total}}</p>
-        </div>
-        <div class="col-md-6">
-            <ul class="pagination justify-content-end">
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <!-- Agrega más números de página aquí -->
-            </ul>
-        </div>
-    </div>
-
 </div>
 
-
-<!-- Modal para Crear/Editar -->
-<div class="modal fade" id="myModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Editar Almacen</h4>
-                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="elemento-form">
-                    {% csrf_token %}
-                    <input type="hidden" id="elemento-id" name="elemento_id" value="">
-                    <div class="form-group">
-                        <label for="elemento-nombre">Nombre:</label>
-                        <input type="text" class="form-control" id="elemento-nombre" name="nombre">
-                    </div>
+<div style="overflow-x: auto; white-space: nowrap;">
+    <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
+        <thead class="thead-dark">
+            <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
+                <th class="text-center"></th>
+    
+                <th class="text-center py-0">ID</th>
+                <th class="text-center py-0">NOMBRE</th>
+                <th class="text-center py-0">OPCIONES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for almacen in almacenes %}
+            <tr>
+                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ almacen.id_almacen }}"></td>
+                
+                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ almacen.id_almacen}}</td>
+                <td class="text-center py-0 align-middle">{{ almacen.nombre_almacen|default:"N/A" }}</td>
+                
+                <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                    <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'almacen_modificar' almacen.id_almacen %}"><i class="bi bi-pen"></i> Editar</a></button>
                     
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary" id="confirmar-guardar">Guardar</button>
-            </div>
-        </div>
-    </div>
+                    <button class="btn btn-danger btn-sm eliminar" data-id="{{ almacen.id_almacen }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+
+
+
+</div>
+
+
 
 <!-- Modal de Confirmación de Eliminación -->
 <div class="modal fade" id="confirmarEliminarModal">
@@ -140,108 +68,35 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Confirmar Eliminación</h4>
-                <button type="button" class="close" data-bs-dismiss="modal">&times;</button> <!-- Agrega este botón -->
+                <button type="button" class="close" style="border:none;" data-bs-dismiss="modal">&times;</button> <!-- Agrega este botón -->
             </div>
             <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar este elemento?</p>
+                <p>¿Estás seguro de que deseas eliminar este almacen definitivamente?</p>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmar-eliminar">Eliminar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-square"></i>  Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmar-eliminar"><i class="bi bi-check-square"></i> Eliminar</button>
             </div>
         </div>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script><script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<script>
-$(document).ready(function() {
-    // Abrir el modal para crear un nuevo elemento
-    $("#crear-nuevo").click(function() {
-        $("#elemento-id").val("");
-        $("#elemento-nombre").val("");
-        $(".modal-title").text("Crear Nuevo Elemento");
-        $("#myModal").modal("show");
-    });
 
-    // Abrir el modal para editar un elemento
-    $(".editar").click(function() {
-        var elementoId = $(this).data("id");
-        console.log("ID ENCONTRADA: "+ elementoId)
-        $.ajax({
-            url: "/workspace/almacen/modificar/" + elementoId,
-            type: "GET",
-            dataType: "json",
-            success: function(response) {
-                $("#elemento-id").val(response.id);
-                $("#elemento-nombre").val(response.nombre);
-                $(".modal-title").text("Editar Elemento");
-                $("#myModal").modal("show");
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-    });
 
-    // Enviar formulario para crear/editar elemento
-    $("#confirmar-guardar").click(function(e) {
-        e.preventDefault();
-        var elementoId = $("#elemento-id").val();
-        var nombre = $("#elemento-nombre").val();
-        $.ajax({
-            url: "/workspace/almacen/insertar",
-            type: "POST",
-            data: {
-                id_almacen: elementoId,
-                nombre_almacen: nombre,
-                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
-            },
-            dataType: "json",
-            success: function(response) {
-                $("#myModal").modal("hide");
-                // Actualizar la tabla después de crear/editar
-                location.reload();
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-    });
 
-    // Abrir el modal de confirmación de eliminación
-    $(".eliminar").click(function() {
-        var elementoId = $(this).data("id");
-        $("#confirmar-eliminar").attr("data-id", elementoId); // Guardar el ID en el botón de confirmación
-        $("#confirmarEliminarModal").modal("show");
-    });
+{% endblock content %} <!-- FIN block 1-->
 
-    // Cuando se confirma la eliminación desde el modal
-    $("#confirmar-eliminar").click(function() {
-        var elementoId = $(this).data("id");
-        $.ajax({
-            url: "/workspace/almacen/eliminar/" + elementoId,
-            type: "POST",
-            data: {
-                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
-            },
-            dataType: "json",
-            success: function(response) {
-                // Actualizar la tabla después de eliminar
-                location.reload();
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-        $("#confirmarEliminarModal").modal("hide"); // Ocultar el modal de confirmación
-    });
-    // Manejar el botón "Seleccionar Todo"
-    $("#seleccionar-todo").click(function() {
-        var isChecked = $(this).prop("checked");
-        $(".seleccionar-elemento").prop("checked", isChecked);
-    });
+{% block scripts %}
 
-});
-</script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
+<!-- Librería JS de HTML5 export (botones de exportación) -->
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+
+
+<script src="{% static 'js/almacenes.js' %}"></script>
 {% endblock %}

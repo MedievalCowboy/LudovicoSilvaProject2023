@@ -1,15 +1,25 @@
+{% load static %}
 <!-- Responsive navbar-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container px-5">
-        <a class="navbar-brand" href="{% url 'portalPrincipal' %}">Home</a>
+    <div class="container px-5 d-flex">
+        
+        <!--<a class="navbar-brand" href="{% url 'portalPrincipal' %}">Home</a>
+        -->
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="{% url 'portalPrincipal' %}" class="logo d-flex align-items-center">
+              <img class="img-fluid" src="{% static 'img/sum3-2.png' %}" alt="">
+              <span class="d-none d-lg-block"></span>
+            </a>
+            
+          </div><!-- End Logo -->
+
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="#!">Sobre Nosotros</a></li>
-                <li class="nav-item"><a class="nav-link" href="#!">Contacto</a></li>
-                <li class="nav-item"><a class="nav-link" href="#!">Destinos</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'politicas' %}">Politicas de la empresa</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Acceder</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'portalPrincipal' %}"><i class="bi bi-house-fill"></i> Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'conocenos' %}"><i class="bi bi-person-workspace"></i> Sobre Nosotros</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'politicas' %}"><i class="bi bi-briefcase-fill"></i> Politicas de la empresa </a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="bi bi-caret-down-fill"></i> Acceder</a></li>
             </ul>
         </div>
     </div>

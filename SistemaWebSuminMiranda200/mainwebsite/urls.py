@@ -5,7 +5,8 @@ from . import views
 urlpatterns = [
 
     path('', views.portal_principal, name="portalPrincipal"),
-    path('/politicas', views.mostrar_politicas, name="politicas"),
+    path('politicas/', views.mostrar_politicas, name="politicas"),
+    path('sobre_nosotros/', views.portal_conocenos, name="conocenos"),
 
     path('login/', views.login_user, name="login"),
     path('logout/', views.logout_user, name="logout"),

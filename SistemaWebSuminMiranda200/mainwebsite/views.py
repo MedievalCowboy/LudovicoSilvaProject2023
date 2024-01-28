@@ -1,3 +1,4 @@
+from re import A
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth import login, logout, authenticate
@@ -20,6 +21,8 @@ def portal_principal(request):
 def mostrar_politicas(request):
     return render(request, 'politicas.html',{})
 
+def portal_conocenos(request):
+    return render(request, 'conocenos.html',{})
 
 ######################################################################################
 ######################################################################################
@@ -415,7 +418,7 @@ def cliente_modificar(request, pk):
     return render(request, 'base/base_modificar.html', context)
 
 def cliente_eliminar(request,pk):
-    clientes = get_object_or_404(clientes, pk=pk)
+    clientes = get_object_or_404(Cliente, pk=pk)
     if request.method == 'POST':
         clientes.delete()
         data = {'mensaje': 'Cliente eliminado exitosamente.'}
@@ -437,17 +440,17 @@ def almacenes(request):
 
 @login_required
 def almacen_modificar(request, pk):
-    Almacen = get_object_or_404(Almacen, pk=pk)
+    almacen = get_object_or_404(Almacen, pk=pk)
 
     if request.method == "POST":
-        form = AlmacenForm(request.POST, instance=Almacen)
+        form = AlmacenForm(request.POST, instance=almacen)
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el almacen exitosamente.")
             return redirect('almacenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
 
     else:
-        form = ProveedorForm(instance=almacenes)
+        form = AlmacenForm(instance=almacen)
 
     context = {'form': form, 
                'titulo_web': 'Modificar Almacen - SM200SYS',
@@ -460,14 +463,14 @@ def almacen_insertar(request):
     if request.method == 'POST':
         form = AlmacenForm(request.POST)
         if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
-            Almacen = form.save(commit=False)
-            Almacen.save()
+            almacen = form.save(commit=False)
+            almacen.save()
             messages.success(request, "El almacen se creó exitosamente.")
             return redirect('almacenes')
         
         if request.POST.get('guardar_y_crear_otro') and form.is_valid():
-            Almacen = form.save(commit=False)
-            Almacen.save()
+            almacen = form.save(commit=False)
+            almacen.save()
             messages.success(request, "El almacen se creó exitosamente.")
             form = AlmacenForm()
     else: 
