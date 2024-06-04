@@ -43,7 +43,14 @@
         <tbody>
             {% for orden in ordenes %}
             <tr>
-                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ orden.id_orden }}"></td>
+                <td class="text-center">
+                    <button style="border:none; margin:0; padding:0;" >
+                        <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'orden_detail' orden.id_orden %}">
+                            <i class="bi bi-eye-fill"></i> 
+                                Ver
+                        </a>
+                    </button>
+                </td>
                 
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ orden.num_orden }}</td>
                 <td 

@@ -1,0 +1,238 @@
+{% extends "base/base2.html" %}
+{% load static %}
+
+
+{% block styles %}
+<style>
+body{
+    margin-top:20px;
+    background: #fafae4;
+}
+.card-box {
+    padding: 20px;
+    border-radius: 3px;
+    margin-bottom: 30px;
+    background-color: #fff;
+}
+.thumb-sm {
+    height: 36px;
+    width: 36px;
+}
+
+.task-detail .task-dates li {
+    width: 50%;
+    float: left
+}
+
+.task-detail .task-tags .bootstrap-tagsinput {
+    padding: 0;
+    border: none
+}
+
+.task-detail .assign-team a {
+    display: inline-block;
+    margin: 5px 5px 5px 0
+}
+
+.task-detail .files-list .file-box {
+    display: inline-block;
+    vertical-align: middle;
+    width: 80px;
+    padding: 2px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    background-clip: padding-box
+}
+
+.task-detail .files-list .file-box img {
+    line-height: 70px
+}
+
+.task-detail .files-list .file-box p {
+    width: 100%;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.add-new-plus {
+    height: 32px;
+    text-align: center;
+    width: 32px;
+    display: block;
+    line-height: 32px;
+    color: #98a6ad;
+    font-weight: 700;
+    background-color: #e3eaef;
+    border-radius: 50%
+}
+
+.project-sort-item .form-group {
+    margin-right: 30px
+}
+
+.project-sort-item .form-group:last-of-type {
+    margin-right: 0
+}
+
+.project-box {
+    position: relative
+}
+
+.project-box .badge {
+    position: absolute;
+    right: 20px
+}
+
+.project-box h4 {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    width: 100%;
+    overflow: hidden
+}
+
+.project-box ul li {
+    padding-right: 30px
+}
+
+.project-box .project-members a {
+    margin: 0 0 10px -12px;
+    display: inline-block;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    -webkit-box-shadow: 0 0 24px 0 rgba(0, 0, 0, .06), 0 1px 0 0 rgba(0, 0, 0, .02);
+    box-shadow: 0 0 24px 0 rgba(0, 0, 0, .06), 0 1px 0 0 rgba(0, 0, 0, .02)
+}
+
+.project-box .project-members a:first-of-type {
+    margin-left: 0
+}
+
+.company-card .company-logo {
+    float: left;
+    height: 60px;
+    width: 60px;
+    border-radius: 3px
+}
+
+.company-card .company-detail {
+    margin: 0 0 50px 75px
+}
+.text-muted {
+    color: #98a6ad!important;
+}
+
+p {
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.bootstrap-tagsinput .label-info {
+    background-color: #02c0ce;
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 13px;
+    margin: 3px 1px;
+    border-radius: 3px;
+}
+
+</style>
+{% endblock%}
+
+{% block content %} <!-- block 1-->
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<div class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card-box task-detail">
+                    <div class="media mt-0">
+                        <div class="media-body">
+                            <h5 class="media-heading mb-0 mt-0">Usuario emisor: {{orden.id_usuario}}</h5><span class="badge badge-danger">Urgent</span></div>
+                    </div>
+                    
+                        <div><h4 class="text-decoration-underline m-b-20">Orden #{{orden.num_orden}}</h4>
+                            <span class="fw-bold">Estado de Orden:</span>
+                            <span 
+                            class=" border rounded text-center py-0 align-middle 
+                            {% if orden.estado == 'Por aprobar' %} bg-secondary 
+                            {% elif orden.estado == 'Tramitando' %} bg-warning 
+                            {% elif orden.estado == 'Finalizado' %} bg-success 
+                            {% endif %}">
+                            <i class="bi {% if orden.estado == 'Por aprobar' %} bi-dash-circle-dotted
+                            {% elif orden.estado == 'Tramitando' %} bi-hourglass-split
+                            {% elif orden.estado == 'Finalizado' %} bi-award
+                            {% endif %}"></i> {{ orden.estado|default:"N/A" }}
+                        </span>
+                        </div>
+                        <div class="task-tags mt-4">
+                            <h5 class="">Opciones</h5>
+                            <div class="bootstrap-tagsinput">
+                                <a class="btn tag label label-info" href="{% url 'orden_modificar' orden.id_orden %}">Editar Orden</a>
+                                
+                                <a class="btn tag label label-info" href="{% url 'orden_prod_listar' orden.id_orden %}">Ir a listado de Productos de Orden</a>
+                         
+                                
+                            </div>
+    
+                        </div>
+                        <div class="border rounded my-2">
+                            <p class="fw-bolder">Cliente: {{orden.id_cliente}}.</p>
+                            <p class="fw-bolder">Solicitado por: {{orden.solicitado}} <small class="text-muted">({{orden.tlf_solicitado}})</small>.</p>
+                            <p class="fw-bolder">Destino: {{orden.id_destino}}.</p>
+                            <p class="fw-bolder text-break">Descripción Requisición: {{orden.desc_requisicion}}.</p>
+                        </div>
+                    
+                    <ul class=" list-inline task-dates m-b-0 ">
+                        <li>
+                            <h5 class="m-b-5">Fecha Emisión</h5>
+                            <p>{{orden.fecha_emision|default:"Sin establecer."}}</p>
+                        </li>
+                        <li>
+                            <h5 class="m-b-5">Fecha Requisición</h5>
+                            <p>{{orden.fecha_requisicion|default:"Sin establecer."}}</p>
+                        </li>
+                        <li>
+                            <h5 class="m-b-5">Fecha Entrega</h5>
+                            <p>{{orden.fecha_Entrega|default:"Sin establecer."}}</p>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                    
+                    <div class="assign-team mt-4">
+                        <p class="fw-bolder">Núm. Factura: {{orden.num_factura}}.</p>
+                        <p class="fw-bolder">Núm. Lote: {{orden.num_lote}}.</p>
+                    </div>
+                    
+                </div>
+            </div>
+            <!-- end col -->
+            <div class="col-lg-4">
+                <div class="card-box">
+                    <h4 class="text-decoration-underline fs-5 text-center m-b-30">Productos en esta Orden</h4>
+                    {% for orden_prod in orden_prod_list %}
+                    <div>
+                        <div class="media m-b-20">
+                           
+                            <div class="media-body">
+                                <h5 class="mt-0 text-center">{{orden_prod.producto.nombre_producto|default:'Sin nombre definido.'}}. <small class="text-muted">Cant:{{orden_prod.cantidad}}</small></h5>
+                                <small class="text-muted">Precio/Unidad:{{orden_prod.precio_unit}}</small>
+                                <p class="font-13 fst-italic mb-0"> {{orden_prod.producto.descripcion_prod|default:'Sin Descripción.'}}</p>
+                                <small class="text-muted">Empaque:{{orden_prod.empaque}}</small>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <hr className="hr hr-blurry" />
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- end col -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- container -->
+</div>
+{% endblock %}

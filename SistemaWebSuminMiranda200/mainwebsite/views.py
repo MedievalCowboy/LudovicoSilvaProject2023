@@ -123,6 +123,15 @@ def orden_eliminar(request, pk):
         data = {'mensaje': 'Orden eliminada exitosamente.'}
         messages.warning(request, "Se Eliminó la orden exitosamente.")
         return JsonResponse(data)
+    
+@login_required
+def orden_detail(request, pk):
+    orden  = get_object_or_404(Orden, pk=pk)
+    orden_productos = Orden_Producto.objects.filter(id_orden=orden)
+    
+    context={'orden':orden, 'orden_prod_list':orden_productos, 'titulo_web':'Vista detallada de orden', 'titulo_page':"Detalle de Orden #"+str(orden.num_orden)}
+
+    return render(request, 'orden_detail.html', context)
 
 
 ######################################################################################

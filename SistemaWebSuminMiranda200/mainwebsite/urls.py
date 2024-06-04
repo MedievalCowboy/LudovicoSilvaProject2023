@@ -16,6 +16,7 @@ urlpatterns = [
     path('pruebas/', views.pruebas, name="pruebas"),
 
     path('workspace/ordenes/', views.ordenes, name='ordenes'),
+    path('workspace/orden/<int:pk>', views.orden_detail, name="orden_detail"),
     path('workspace/orden/insertar', views.orden_insertar, name="orden_insertar"),
     path('workspace/orden/insertar-2/<int:pk>', views.orden_insertar_2, name="orden_insertar2"), #ORDEN_PROD INSERT
     path('workspace/orden/modificar/<int:pk>', views.orden_modificar, name="orden_modificar"),
