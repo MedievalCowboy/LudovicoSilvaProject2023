@@ -48,12 +48,13 @@ class Destino(models.Model):
 class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
-    cod_producto = models.CharField(max_length=10, blank=True)
+    cod_producto = models.CharField(max_length=20, blank=True)
     nombre_producto = models.CharField(max_length=200)
     descripcion_prod = models.TextField(blank=True)
     cant_min = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
     cant_max = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
+    prod_image = models.ImageField(blank=True, upload_to='images/', default="")
     def __str__(self):
         return(f"{self.cod_producto}-{self.nombre_producto}({self.cant_max};{self.cant_min})")
 

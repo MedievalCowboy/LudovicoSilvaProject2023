@@ -14,7 +14,7 @@
 </div>
 <div class=" container p-4">
     <h1>Insertar nuevo producto</h1>
-    <form  method="post">
+    <form action="" id="" method="post" enctype='multipart/form-data'>
         {% csrf_token %}
         {{ form|crispy }}
         <div style="margin-top:5px;">

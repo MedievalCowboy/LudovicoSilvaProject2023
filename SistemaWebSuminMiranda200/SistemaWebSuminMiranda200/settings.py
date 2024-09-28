@@ -15,9 +15,15 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from django.contrib import messages
+import environ
+from datetime import timedelta
 
 import pymysql
 pymysql.install_as_MySQLdb()
+
+env = environ.Env()
+environ.Env.read_env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,13 +33,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=!w2=3^l7!lz3v420p&c$ynszed#+0qkj8!v2cq0ux4$ux4qn&'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+DEBUG_PROPAGATE_EXCEPTIONS = True
 
 # Application definition
 
@@ -91,11 +98,11 @@ WSGI_APPLICATION = 'SistemaWebSuminMiranda200.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'suminMiranda',
-        'USER':'ricfranren',
-        'PASSWORD':'contra1234',
-        'HOST':'localhost',
-        'PORT':'3306',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
         'OPTIONS':{
             'sql_mode':'traditional'
         }
@@ -138,8 +145,9 @@ USE_TZ = True
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL='/ordenes/'
 LOGOUT_REDIRECT_URL=''
-SESSION_COOKIE_AGE=3600
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+AUTO_LOGOUT = {'IDLE_TIME':timedelta(minutes=10), 'MESSAGE':'Tu sesión de usuario a expirado. Inicie sesión nuevamente para continuar.'}
+
+ 
 
 #CONFIGURACION DE MENSAJES
 MESSAGE_TAGS = {
@@ -152,8 +160,29 @@ MESSAGE_TAGS = {
 
 
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT= os.path.join(BASE_DIR, 'media')
+
+
+# CONFIGURACION DE EMAIL
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'   
+EMAIL_PORT = 587       # gmail smtp server port
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")  # Use your email account
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD") # For gmail use app password
+EMAIL_USE_TLS = True     # for SSL communication use EMAIL_USE_SSL
+EMAUL_USE_SSL = False
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

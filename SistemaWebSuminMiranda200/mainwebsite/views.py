@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count
 
+
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm
 
@@ -263,8 +264,10 @@ def producto_lista(request):
 @login_required
 def producto_insertar(request):
     if request.method == 'POST':
-        form = ProductoForm(request.POST)
-        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+        print(request.FILES)
+        form = ProductoForm(request.POST, request.FILES)
+        if request.POST.get('guardar_y_regresar' )  and form.is_valid():
+
             producto = form.save(commit=False)
             producto.save()
             messages.success(request, "El producto se creó exitosamente.")
@@ -286,7 +289,7 @@ def producto_modificar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
 
     if request.method == "POST":
-        form = ProductoForm(request.POST, instance=producto)
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el producto exitosamente.")

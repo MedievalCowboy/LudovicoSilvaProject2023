@@ -68,7 +68,8 @@ class InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario
         fields = ['producto','precio_unit_ref','cant_inicial','cant_disponible', 'id_almacen', 'nota']
-        
+    
+    
         
     def clean(self):
         cleaned_data = super().clean()
@@ -99,10 +100,11 @@ class InventarioForm(forms.ModelForm):
 
 
 class ProductoForm(forms.ModelForm):
-    class Meta:
-        model = Producto
-        fields = '__all__'
+    
 
+    prod_image = forms.ImageField(label='Imagen del producto', required=False)
+    nombre_producto = forms.CharField(label='Nombre del producto')
+    cod_producto = forms.CharField(label="Codigo del producto")
     def clean(self):
         cleaned_data = super().clean()
         cant_min = cleaned_data.get('cant_min')
@@ -111,6 +113,9 @@ class ProductoForm(forms.ModelForm):
 
         if cant_max <= cant_min:
             raise forms.ValidationError("La cantidad máxima debe ser mayor que la cantidad mínima.")
+    class Meta:
+        model = Producto
+        fields = ["cod_producto","nombre_producto", "descripcion_prod","cant_min", "cant_max","id_proveedor", "prod_image"]
         
 
 class ProveedorForm(forms.ModelForm):
