@@ -377,6 +377,7 @@ def proveedor_eliminar(request, pk):
         messages.warning(request, "Se eliminó el proveedor exitosamente.")
         return JsonResponse(data)
     
+
 ######################################################################################
 ######################################################################################
 
@@ -436,6 +437,9 @@ def cliente_eliminar(request,pk):
         data = {'mensaje': 'Cliente eliminado exitosamente.'}
         messages.warning(request, "Se Eliminó el cliente exitosamente.")
         return JsonResponse(data)
+
+
+
 
 ######################################################################################
 ######################################################################################
