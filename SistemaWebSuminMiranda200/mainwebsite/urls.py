@@ -31,6 +31,7 @@ urlpatterns = [
     path('workspace/proveedor/modificar/<int:pk>', views.proveedor_modificar, name="proveedor_modificar"),
     path('workspace/proveedor/eliminar/<int:pk>', views.proveedor_eliminar, name="proveedor_eliminar"),
     
+    
     path('workspace/clientes/', views.clientes, name='clientes'),
     path('workspace/cliente/insertar', views.cliente_insertar, name="cliente_insertar"),
     path('workspace/cliente/modificar/<int:pk>', views.cliente_modificar, name="cliente_modificar"),
