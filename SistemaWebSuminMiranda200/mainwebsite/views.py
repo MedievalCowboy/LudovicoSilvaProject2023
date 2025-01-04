@@ -326,6 +326,17 @@ def proveedores(request):
                'total': total_lista,}
     return render(request, "proveedores.html",context)
 
+    
+@login_required
+def proveedor_detail(request, pk):
+    proveedor  = get_object_or_404(Proveedor, pk=pk)
+    proveedor_productos = Producto.objects.filter(id_proveedor=proveedor)
+    
+    context={'proveedor':proveedor, 'proveedor_productos':proveedor_productos, 'titulo_web':'Vista detallada de proveedor', 'titulo_page':"Detalle del proveedor #"+str(proveedor.id_proveedor)}
+
+    return render(request, 'proveedor_detail.html', context)
+
+
 @login_required
 def proveedor_modificar(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)

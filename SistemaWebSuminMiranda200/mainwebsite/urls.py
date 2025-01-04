@@ -11,7 +11,7 @@ urlpatterns = [
 
     path('login/', views.login_user, name="login"),
     path('logout/', views.logout_user, name="logout"),
-     
+
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='password_reset.html'), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
     path('password_reset/confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
@@ -33,6 +33,7 @@ urlpatterns = [
     path('workspace/orden_prod/modificar/<int:orden_pk>/<int:orprod_pk>', views.orden_prod_modificar, name="orden_prod_modificar"),
 
     path('workspace/proveedores/', views.proveedores, name='proveedores'),
+    path('workspace/proveedor/<int:pk>', views.proveedor_detail, name="proveedor_detail"),
     path('workspace/proveedor/insertar', views.proveedor_insertar, name="proveedor_insertar"),
     path('workspace/proveedor/modificar/<int:pk>', views.proveedor_modificar, name="proveedor_modificar"),
     path('workspace/proveedor/eliminar/<int:pk>', views.proveedor_eliminar, name="proveedor_eliminar"),

@@ -148,10 +148,7 @@ p {
         <div class="row">
             <div class="col-lg-8">
                 <div class="card-box task-detail">
-                    <div class="media mt-0">
-                        <div class="media-body">
-                            <h5 class="media-heading mb-0 mt-0">Usuario emisor: {{orden.id_usuario}}</h5><span class="badge badge-danger">Urgent</span></div>
-                    </div>
+
                     
                         <div><h4 class="text-decoration-underline m-b-20">Proveedor #{{proveedor.id_proveedor}}</h4>
                         </div>
@@ -159,13 +156,13 @@ p {
                             <h5 class="">Opciones</h5>
                             <div class="bootstrap-tagsinput">
                                 <a class="btn tag label label-info" href="{% url 'proveedor_modificar' proveedor.id_proveedor %}">Editar Información del Proveedor</a>
-                                <a class="btn tag label label-info" href="{% url 'proveedores' proveedor.id_proveedor %}">Ir a listado de Proveedores</a>
+                                <a class="btn tag label label-info" href="{% url 'proveedores'%}">Ir a listado de Proveedores</a>
                          
                                 
                             </div>
     
                         </div>
-                        <div class="border rounded my-2">
+                        <div class="border rounded">
                             <p class="fw-bolder">Nombre: {{proveedor.nombre_proveedor}}.</p>
                             <p class="fw-bolder">Correo: {{proveedor.correo}} 
                             <p class="fw-bolder">Telefono: {{proveedor.tlf_proveedor}}.</p>
@@ -177,17 +174,19 @@ p {
                 </div>
             </div>
             <!-- end col -->
-            <div class="col-lg-4">
-                <div class="card-box">
-                    <h4 class="text-decoration-underline fs-5 text-center m-b-30">Productos de este Proveedor</h4>
-                    {% for orden_prod in orden_prod_list %}
+            <div class="">
+                <div class="">
+                    <h4 class="text-decoration-underline fs-2 text-center m-b-30">Productos de este Proveedor</h4>
+                    <hr className="hr hr-blurry" />
+                    {% for producto in proveedor_productos %}
                     <div>
-                        <div class="media m-b-20">
+                        <div class="media">
                            
                             <div class="media-body">
-                                <h5 class="mt-0 text-center">{{producto.id_proveedor.nombre_producto|default:'Sin nombre definido.'}}. 
-                                <p class="font-13 fst-italic mb-0"> {{orden_prod.producto.descripcion_prod|default:'Sin Descripción.'}}</p>
-                                <small class="text-muted">Empaque:{{orden_prod.empaque}}</small>
+                                <h5 class="mt-0 ">(Cod: {{producto.cod_producto|default:'NONE'}}) - {{producto.nombre_producto|default:'Sin nombre definido.'}}.</h5>
+                                <span style="float: inline-end;"><a href="{% url 'productos'%}"> Ver producto</a></span>
+                                <p class="font-13 fst-italic mb-0"> {{producto.descripcion_prod|default:'Sin Descripción.'}}</p>
+                                <small class="text-muted">Cant: Min {{producto.cant_min|default:'NONE'}}, Max {{producto.ant_max|default:'NONE'}}</small>
                             </div>
                         </div>
                         

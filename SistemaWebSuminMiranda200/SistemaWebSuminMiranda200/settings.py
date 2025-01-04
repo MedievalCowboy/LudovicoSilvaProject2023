@@ -40,7 +40,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-DEBUG_PROPAGATE_EXCEPTIONS = True
+#DEBUG_PROPAGATE_EXCEPTIONS = True
 
 # Application definition
 
