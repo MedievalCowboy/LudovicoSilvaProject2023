@@ -160,7 +160,7 @@ p {
                             <div class="bootstrap-tagsinput">
                                 <a class="btn tag label label-info" href="{% url 'cliente_modificar' cliente.id_cliente %}">Editar Información del Cliente</a>
                                 
-                                <a class="btn tag label label-info" href="{% url 'clientes' cliente.id_cliente %}">Ir a listado de Clientes</a>
+                                <a class="btn tag label label-info" href="{% url 'clientes'%}">Ir a listado de Clientes</a>
                          
                                 
                             </div>
@@ -173,7 +173,6 @@ p {
                             <p class="fw-bolder text-break">RIF: {{cliente.rif}}.</p>
                         </div>
                     
-                    {% endfor %}
                 </div>
             </div>
             <!-- end col -->

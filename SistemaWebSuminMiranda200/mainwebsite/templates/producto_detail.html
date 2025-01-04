@@ -2,10 +2,15 @@
 {% load static %}
 
 
-{% block content %}
-
+{% block styles %}
 <style>
-            .producto {
+    body{
+        margin-top:20px;
+    color: #1a202c;
+    text-align: left;
+    background-color: #e2e8f0;    
+    }
+    .producto {
             max-width: 90%;
             margin: 0 auto;
             border: 1px solid #ccc;
@@ -69,7 +74,13 @@
         .producto__tabla th {
             font-weight: bold;
         }
+
 </style>
+    
+{% endblock%}
+
+{% block content %}
+
 <div class="container">
     <div class="producto">
         <div class="row">
@@ -91,6 +102,7 @@
                     <p class="producto__descripcion">
                         {{producto.descripcion_prod|default:'Sin descripción.'}}
                     </p>
+
                     <a style=" background-color: #84aebb5b; width:16rem; text-decoration-line:underline;" class="opacity-10 btn  h6 underline text-wrap" href="{% url 'producto_modificar' producto.id_producto %}">Editar este producto</a>
                     <table class="producto__tabla">
                         <tr>
@@ -111,6 +123,10 @@
                         <tr>
                             <th> Cantidad Mín. - Máx. Recomendada:</th>
                             <td>Mín.: {{producto.cant_min|default:'NONE'}} | Máx.: {{producto.cant_max|default:'NONE'}}.</td>
+                        </tr>
+                        <tr>
+                            <th>Proveedor: </th>
+                            <td><a href="{% url 'proveedor_detail' producto.id_proveedor.id_proveedor %}">{{producto.id_proveedor.nombre_proveedor}}</a></td>
                         </tr>
                         <tr>
                             <th>Notas adicionales:</th>

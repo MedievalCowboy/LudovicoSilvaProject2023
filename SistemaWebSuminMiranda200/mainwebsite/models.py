@@ -13,8 +13,11 @@ class Cliente(models.Model):
     creado_en = models.DateField(auto_now_add=True)
     nombre_cliente = models.CharField(max_length=200)
     direccion = models.TextField(blank=True)
+    correo = models.CharField(max_length=150, blank=True, null=True, default="")
     telefono = models.CharField(max_length=12, blank=True, null=True)
+    telefono2 = models.CharField(max_length=12, blank=True, null=True)
     rif = models.CharField(max_length=15, blank=True)
+    cliente_image = models.ImageField(blank=True, upload_to='images/', default="")
     def __str__(self):
         return(f"{self.id_cliente} : {self.nombre_cliente}")
 

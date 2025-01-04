@@ -2,11 +2,15 @@
 {% load static %}
 
 
+
+
 {% block styles %}
 <style>
 body{
     margin-top:20px;
-    background: #fafae4;
+    color: #1a202c;
+    text-align: left;
+    background-color: #e2e8f0;  
 }
 .card-box {
     padding: 20px;
@@ -184,7 +188,7 @@ p {
                            
                             <div class="media-body">
                                 <h5 class="mt-0 ">(Cod: {{producto.cod_producto|default:'NONE'}}) - {{producto.nombre_producto|default:'Sin nombre definido.'}}.</h5>
-                                <span style="float: inline-end;"><a href="{% url 'productos'%}"> Ver producto</a></span>
+                                <span style="float: inline-end;"><a href="{% url 'producto_detail' producto.id_producto %}"> Ver producto</a></span>
                                 <p class="font-13 fst-italic mb-0"> {{producto.descripcion_prod|default:'Sin Descripción.'}}</p>
                                 <small class="text-muted">Cant: Min {{producto.cant_min|default:'NONE'}}, Max {{producto.ant_max|default:'NONE'}}</small>
                             </div>

@@ -282,7 +282,6 @@ def producto_detail(request, pk):
 @login_required
 def producto_insertar(request):
     if request.method == 'POST':
-        print(request.FILES)
         form = ProductoForm(request.POST, request.FILES)
         if request.POST.get('guardar_y_regresar' )  and form.is_valid():
 
@@ -419,9 +418,28 @@ def clientes(request):
                'titulo_web':'Clientes - SM200SYS'}
     return render(request, "clientes.html",context)
 
+@login_required
+def cliente_detail(request, pk):
+    cliente  = get_object_or_404(Cliente, pk=pk)
+    
+    context={'cliente':cliente,  
+             'titulo_web':'Vista detallada de cliente', 
+             'titulo_page':"Detalle del cliente #"+str(cliente.id_cliente)}
+    
+    try:
+        cliente_ordenes = get_list_or_404(Orden, id_cliente = cliente)
+        context['cliente_ordenes'] = cliente_ordenes
+    except Exception as e:
+        pass
+
+    return render(request, 'cliente_detail.html', context)
+
+
+
 def cliente_insertar(request):
     if request.method == 'POST':
-        form = ClientesForm(request.POST)
+
+        form = ClientesForm(request.POST,request.FILES)
         if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
             clientes = form.save(commit=False)
             clientes.save()
@@ -444,7 +462,7 @@ def cliente_modificar(request, pk):
     clientes = get_object_or_404(Cliente, pk=pk)
 
     if request.method == "POST":
-        form = ClientesForm(request.POST, instance=clientes)
+        form = ClientesForm(request.POST,request.FILES, instance=clientes)
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el cliente exitosamente.")

@@ -40,6 +40,7 @@ urlpatterns = [
     
     
     path('workspace/clientes/', views.clientes, name='clientes'),
+    path('workspace/cliente/<int:pk>', views.cliente_detail, name="cliente_detail"),
     path('workspace/cliente/insertar', views.cliente_insertar, name="cliente_insertar"),
     path('workspace/cliente/modificar/<int:pk>', views.cliente_modificar, name="cliente_modificar"),
     path('workspace/cliente/eliminar/<int:pk>', views.cliente_eliminar, name="cliente_eliminar"),
