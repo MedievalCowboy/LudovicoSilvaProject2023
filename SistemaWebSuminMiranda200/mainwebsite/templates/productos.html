@@ -43,7 +43,14 @@
         <tbody>
             {% for producto in productos %}
             <tr>
-                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ producto.id_producto }}"></td>
+                <td class="text-center">
+                    <button style="border:none; margin:0; padding:0;" >
+                        <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'producto_detail' producto.id_producto %}">
+                            <i class="bi bi-eye-fill"></i> 
+                                Ver
+                        </a>
+                    </button>
+                </td>
                 
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ producto.cod_producto }}</td>
                 <td class="text-center py-0 align-middle">{{ producto.prod_image|default:"N/A" }}</td>

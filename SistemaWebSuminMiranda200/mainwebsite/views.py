@@ -262,6 +262,24 @@ def producto_lista(request):
 
 
 @login_required
+def producto_detail(request, pk):
+    producto  = get_object_or_404(Producto, pk=pk)
+
+    context={'producto':producto,
+             'titulo_web':'Vista detallada de producto', 
+             'titulo_page':"Detalle del producto #"+str(producto.id_producto)
+             }
+
+    try:
+        prod_inv = get_object_or_404(Inventario, producto = producto)
+        context['inventario'] = prod_inv
+    except Exception as e:
+        pass
+        
+
+    return render(request, 'producto_detail.html', context)
+
+@login_required
 def producto_insertar(request):
     if request.method == 'POST':
         print(request.FILES)

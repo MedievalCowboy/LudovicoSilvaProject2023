@@ -50,6 +50,7 @@ urlpatterns = [
     path('workspace/inventario/eliminar/<int:pk>', views.inventario_eliminar, name="inventario_eliminar"),
 
     path('workspace/productos/', views.producto_lista, name='productos'),
+    path('workspace/producto/<int:pk>', views.producto_detail, name="producto_detail"),
     path('workspace/producto/insertar', views.producto_insertar, name="producto_insertar"),
     path('workspace/producto/modificar/<int:pk>', views.producto_modificar, name="producto_modificar"),
     path('workspace/producto/eliminar/<int:pk>', views.producto_eliminar, name="producto_eliminar"),

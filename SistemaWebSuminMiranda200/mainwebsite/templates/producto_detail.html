@@ -1,0 +1,125 @@
+{% extends "base/base2.html" %}
+{% load static %}
+
+
+{% block content %}
+
+<style>
+            .producto {
+            max-width: 90%;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-top:20px;
+        }
+
+        .producto__imagen {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 20px;
+
+        }
+
+        .producto__imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .producto__informacion {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .producto__titulo {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .producto__descripcion {
+            text-align: justify;
+        }
+
+        .producto__precio {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .producto__cantidad {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .producto__tabla {
+            margin-top: 20px;
+        }
+
+        .producto__tabla tr {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .producto__tabla th,
+        .producto__tabla td {
+            padding: 5px;
+            vertical-align: middle;
+        }
+
+        .producto__tabla th {
+            font-weight: bold;
+        }
+</style>
+<div class="container">
+    <div class="producto">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="producto__imagen">
+                    {% if producto.prod_image %}
+                    <!--<img src="{% static medicamento.image_url %}" alt="Imagen del Medicamento"> -->
+                    <img src="{{ producto.prod_image.url }}">
+                    {% else %}
+                    <img src="{% static 'img/producto_default.jpg' %}" alt="Imagen del producto">
+                    
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="producto__informacion">
+                    <h2 class="producto__titulo">{{producto.nombre_producto}}</h2>
+                    <p class="producto__descripcion">
+                        {{producto.descripcion_prod|default:'Sin descripción.'}}
+                    </p>
+                    <a style=" background-color: #84aebb5b; width:16rem; text-decoration-line:underline;" class="opacity-10 btn  h6 underline text-wrap" href="{% url 'producto_modificar' producto.id_producto %}">Editar este producto</a>
+                    <table class="producto__tabla">
+                        <tr>
+                            <th>Cantidad disponible:</th>
+                            {% if inventario %}
+                            <td>{{inventario.cant_disponible|default:'NONE'}} unidades.</td>
+                            {% else %}
+                            <td>Sin información de inventario.</td>
+                            {% endif %}
+                            <tr>
+                                <th>
+                                    Ultima actualización de inventario
+                                </th>
+                                <td>{{inventario.fecha_ult_mod_inv|default:'Sin información en inventario.'}}</td>
+                            </tr>
+                            
+                        </tr>
+                        <tr>
+                            <th> Cantidad Mín. - Máx. Recomendada:</th>
+                            <td>Mín.: {{producto.cant_min|default:'NONE'}} | Máx.: {{producto.cant_max|default:'NONE'}}.</td>
+                        </tr>
+                        <tr>
+                            <th>Notas adicionales:</th>
+                            <td>{{inventario.nota|default:'Sin notas adicionales.'}}</td>
+                        </tr>
+                        </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
