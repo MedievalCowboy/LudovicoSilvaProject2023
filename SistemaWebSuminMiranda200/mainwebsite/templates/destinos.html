@@ -15,10 +15,7 @@
      <!-- Opciones -->
 <div class="row mb-3">
     <div class="col-md-6 d-flex align-items-center">
-        <div class="form-check" style="margin-right:20px;">
-            <input type="checkbox" class="form-check-input mr-2" id="seleccionar-todo">
-            <label class="form-check-label small" for="seleccionar-todo">Seleccionar Todo</label>
-        </div>
+       
         <div class="mr-3">
             <a href="{% url 'destino_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
         </div>
@@ -29,7 +26,6 @@
     <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
         <thead class="thead-dark">
             <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
-                <th class="text-center"></th>
     
                 <th class="text-center py-0">ID</th>
                 <th class="text-center py-0">NOMBRE</th>
@@ -41,7 +37,7 @@
         <tbody>
             {% for destino in destinos %}
             <tr>
-                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ destino.id_destino }}"></td>
+            
                 
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ destino.id_destino}}</td>
                 <td class="text-center py-0 align-middle">{{ destino.nombre_destino|default:"N/A" }}</td>
