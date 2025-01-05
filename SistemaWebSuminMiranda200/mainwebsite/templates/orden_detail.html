@@ -187,7 +187,7 @@ p {
                         <div class="border rounded my-2">
                             <p class="fw-bolder">Cliente: <a href="{% url 'cliente_detail' orden.id_cliente.id_cliente %}">{{orden.id_cliente.nombre_cliente|default:'NONE'}}</a>.</p>
                             <p class="fw-bolder">Solicitado por: {{orden.solicitado}} <small class="text-muted">({{orden.tlf_solicitado}})</small>.</p>
-                            <p class="fw-bolder">Destino: <a href="#">{{orden.id_destino.nombre_destino|default:'NONE'}}</a>.</p>
+                            <p class="fw-bolder">Destino: <a href="{% url 'destino_detail' orden.id_destino.id_destino %}">{{orden.id_destino.nombre_destino|default:'NONE'}}</a>.</p>
                             <p class="fw-bolder text-break">Descripción Requisición: {{orden.desc_requisicion}}.</p>
                         </div>
                     

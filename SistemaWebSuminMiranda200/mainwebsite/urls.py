@@ -57,6 +57,7 @@ urlpatterns = [
     path('workspace/producto/eliminar/<int:pk>', views.producto_eliminar, name="producto_eliminar"),
 
     path('workspace/destinos/', views.destino_lista, name='destinos'),
+    path('workspace/destino/<int:pk>', views.destino_detail, name="destino_detail"),
     path('workspace/destino/insertar', views.destino_insertar, name="destino_insertar"),
     path('workspace/destino/modificar/<int:pk>', views.destino_modificar, name="destino_modificar"),
     path('workspace/destino/eliminar/<int:pk>', views.destino_eliminar, name="destino_eliminar"),

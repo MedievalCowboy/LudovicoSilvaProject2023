@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from django.db.models import Count
+from django.db.models import Count, Sum
 
 
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente
@@ -500,6 +500,9 @@ def cliente_eliminar(request,pk):
 def almacenes(request):
     almacenes_lista = Almacen.objects.all()
 
+    for almacen in almacenes_lista:
+        almacen.conteo_productos = almacen.inventario_set.aggregate(total=Sum('cant_disponible'))['total'] or 0
+    
     context = {'almacenes':almacenes_lista,
                'titulo_web':'Almacenes - SM200SYS'}
     return render(request, "almacenes.html",context)
@@ -560,14 +563,29 @@ def almacen_eliminar(request, pk):
 
 @login_required
 def destino_lista(request):
-    destinos = Destino.objects.annotate(prod_dest_count=Count('prod_dest'))
+    destinos = Destino.objects.annotate(orden_count=Count('orden'))
     context = {
         'destinos': destinos,
         'titulo_web':'Destinos - SM200SYS'
     }
-
-
     return render(request,'destinos.html', context)
+
+@login_required
+def destino_detail(request, pk):
+    destino  = get_object_or_404(Destino, pk=pk)
+    
+    context={'destino':destino,  
+             'titulo_web':'Vista detallada de destino', 
+             'titulo_page':"Detalle del destino #"+str(destino.id_destino)}
+    
+    try:
+        destino_ordenes = get_list_or_404(Orden, id_destino = destino)
+        context['destino_ordenes'] = destino_ordenes
+    except Exception as e:
+        pass
+
+    return render(request, 'destino_detail.html', context)
+
 
 @login_required
 def destino_modificar(request, pk):

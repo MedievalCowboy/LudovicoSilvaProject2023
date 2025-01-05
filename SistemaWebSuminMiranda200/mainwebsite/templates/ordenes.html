@@ -72,7 +72,7 @@
                 </td>
                 <td class="text-center py-0 align-middle">{{ orden.fecha_emision|default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle"><small><a href="{% url 'cliente_detail' orden.id_cliente.id_cliente %}">{{ orden.id_cliente.nombre_cliente|default:"N/A" }}</a></small></td>
-                <td class="text-center py-0 align-middle"><small><a href="#">{{ orden.id_destino.nombre_destino|default:"N/A" }}</a></small></td>
+                <td class="text-center py-0 align-middle"><small><a href="{% url 'destino_detail' orden.id_destino.id_destino %}">{{ orden.id_destino.nombre_destino|default:"N/A" }}</a></small></td>
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
                     <button class="btn_mostrar" data-id="{{ orden.id_orden }}" style="padding: 0; margin: 0; border: none; font-size: 12px;">
                         <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-warning btn-sm {% if orden.num_productos == 0 %} disabled {% endif %}"

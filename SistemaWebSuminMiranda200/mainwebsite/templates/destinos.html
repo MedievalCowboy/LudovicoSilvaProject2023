@@ -35,11 +35,11 @@
     <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
         <thead class="thead-dark">
             <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
-    
+                <th class="text-center py-0"></th>
                 <th class="text-center py-0">ID</th>
                 <th class="text-center py-0">NOMBRE</th>
                 <th class="text-center py-0">CIUDAD</th>
-                <th class="text-center py-0">REL. PROD.</th>
+                <th class="text-center py-0">NÚM. ORDENES</th>
                 <th class="text-center py-0">OPCIONES</th>
             </tr>
         </thead>
@@ -47,16 +47,19 @@
             {% for destino in destinos %}
             <tr>
             
-                
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ destino.id_destino}}</td>
-                <td class="text-center py-0 align-middle">{{ destino.nombre_destino|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ destino.ciudad |default:"N/A" }}</td>
+                <td style="padding: 0;" class="text-center">
+                    <button style="border:none; margin:0; padding:0;" >
+                        <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'destino_detail' destino.id_destino %}">
+                            <i class="bi bi-eye-fill"></i> 
+                                Ver
+                        </a>
+                    </button>
+                </td>
+                <td class="text-center py-0 align-middle" style="padding: 0 5px;"><small>{{ destino.id_destino}}</small></td>
+                <td class="text-center py-0 align-middle"><small>{{ destino.nombre_destino|default:"N/A" }}</small></td>
+                <td class="text-center py-0 align-middle"><small>{{ destino.ciudad |default:"N/A" }}</small></td>
                 <td class="text-center py-0 align-middle ">
-                    <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" 
-                    class="btn btn-warning btn-sm {% if destino.prod_dest_count == 0 %} disabled {% endif %}" 
-                    href="{% url 'prod_dest_det_dest' destino.id_destino %}">
-                    <i class="bi bi-columns-gap"></i> PROD: {{ destino.prod_dest_count|default:0 }}
-                    </a>
+                    <small> {{ destino.orden_count|default:0 }}</small>
                 </td>
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'destino_modificar' destino.id_destino %}"><i class="bi bi-pen"></i> Editar</a></button>

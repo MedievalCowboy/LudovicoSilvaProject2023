@@ -122,6 +122,22 @@ class ProveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
         fields = '__all__'
+    tlf_proveedor = forms.CharField(
+        label='Telefono',
+        max_length=12,
+        required=False  # Si no quieres que sea obligatorio
+    )
+    def clean_tlf_proveedor(self):
+        telefono = self.cleaned_data['tlf_proveedor']
+        if not re.match(r'^\d{11}$', telefono):
+            raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
+        return telefono
+    def clean_correo(self):
+        email = self.cleaned_data['correo']
+        regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        if not re.match(regex, email):
+            raise forms.ValidationError('Por favor, ingresa una dirección de correo electrónico válida.')
+        return email
 
 class DestinoForm(forms.ModelForm):
     class Meta:
@@ -140,9 +156,53 @@ class AlmacenForm(forms.ModelForm):
     class Meta: 
         model = Almacen
         fields = '__all__'
+    
 
 class ClientesForm(forms.ModelForm):
     class Meta: 
         model = Cliente
         fields= '__all__'
-        
+    telefono = forms.CharField(
+        label='Telefono 1',
+        max_length=12,
+        required=False  # Si no quieres que sea obligatorio
+    )
+    def clean_telefono(self):
+        telefono = self.cleaned_data['telefono']
+        if not re.match(r'^\d{11}$', telefono):
+            raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
+        return telefono
+    def clean_correo(self):
+        email = self.cleaned_data['correo']
+        regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        if not re.match(regex, email):
+            raise forms.ValidationError('Por favor, ingresa una dirección de correo electrónico válida.')
+        return email
+    
+    telefono2 = forms.CharField(
+        label='Telefono 2',
+        max_length=12,
+        required=False  # Si no quieres que sea obligatorio
+    )
+    def clean_telefono2(self):
+        telefono2 = self.cleaned_data['telefono2']
+        if not re.match(r'^\d{11}$', telefono2):
+            raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
+        return telefono2
+    def clean_rif(self):
+        rif = self.cleaned_data['rif']
+
+        # Eliminar espacios y convertir a mayúsculas
+        rif = rif.strip().upper()
+
+        # Expresiones regulares para diferentes tipos de RIF
+        cedula_venezolana = re.compile(r'^V-?(\d{9})$')
+        cedula_extranjera = re.compile(r'^E-?(\d{8})$')
+        rif_empresa = re.compile(r'^J-?(\d{9})$')
+
+        # Validar el formato
+        if not (cedula_venezolana.match(rif) or cedula_extranjera.match(rif) or rif_empresa.match(rif)):
+            raise forms.ValidationError("El RIF ingresado no tiene un formato válido (Ejemplos: J-000950369 o V8765123).")
+
+        return rif
+    

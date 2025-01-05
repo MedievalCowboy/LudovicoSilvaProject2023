@@ -48,7 +48,7 @@
             {% for proveedor in proveedores %}
             <tr>
 
-                        <td class="text-center">
+                        <td style="padding: 0;" class="text-center">
                             <button style="border:none; margin:0; padding:0;" >
                                 <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'proveedor_detail' proveedor.id_proveedor %}">
                                     <i class="bi bi-eye-fill"></i> 
@@ -57,11 +57,11 @@
                             </button>
                         </td>
                 
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ proveedor.id_proveedor}}</td>
+                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ proveedor.id_proveedor|default:"N/A"}}</td>
                 <td class="text-center py-0 align-middle">{{ proveedor.nombre_proveedor|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ proveedor.correo |default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ proveedor.tlf_proveedor|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ proveedor.nota_proveedor|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle"><small>{{ proveedor.correo |default:"N/A" }}</small></td>
+                <td class="text-center py-0 align-middle"><small>{{ proveedor.tlf_proveedor|default:"N/A" }}</small></td>
+                <td class="text-center py-0 align-middle"><small>{{ proveedor.nota_proveedor|default:"N/A" }}</small></td>
                 
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'proveedor_modificar' proveedor.id_proveedor %}"><i class="bi bi-pen"></i> Editar</a></button>

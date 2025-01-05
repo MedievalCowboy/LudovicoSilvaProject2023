@@ -36,9 +36,10 @@
     <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
         <thead class="thead-dark">
             <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
-    
+                <th></th>
                 <th class="text-center py-0">ID</th>
                 <th class="text-center py-0">NOMBRE</th>
+                <th class="text-center py-0" >CANTIDAD PROD.</th>
                 <th class="text-center py-0">OPCIONES</th>
             </tr>
         </thead>
@@ -46,11 +47,19 @@
             {% for almacen in almacenes %}
             <tr>
                
-                
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ almacen.id_almacen}}</td>
+                <td style="padding: 0;" class="text-center">
+                    <button style="border:none; margin:0; padding:0;" >
+                        <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="#">
+                            <i class="bi bi-eye-fill"></i> 
+                                Ver
+                        </a>
+                    </button>
+                </td>
+        
+                <td style="padding:0;" class="text-center py-0 align-middle" style="padding: 0 5px;">{{ almacen.id_almacen}}</td>
                 <td class="text-center py-0 align-middle">{{ almacen.nombre_almacen|default:"N/A" }}</td>
-                
-                <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                <td class="text-center py-0 align-middle">{{almacen.conteo_productos|default:'N/A'}}</td>
+                <td class="text-center" style="padding:0;" class="" style="white-space: nowrap; padding: 5px;">
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'almacen_modificar' almacen.id_almacen %}"><i class="bi bi-pen"></i> Editar</a></button>
                     
                     <button class="btn btn-danger btn-sm eliminar" data-id="{{ almacen.id_almacen }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
