@@ -10,9 +10,16 @@
     text-align: left;
     background-color: #e2e8f0;    
     }
+    .producto__imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+
 {% endblock%}
 
 
@@ -32,7 +39,7 @@
 </div>
 
 <div style="overflow-x: auto; white-space: nowrap;">
-    <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
+    <table class="table table-bordered table-sm p-0 stripe" id="miTabla">
         <thead class="thead-dark">
             <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
                 <th class="text-center"></th>
@@ -40,7 +47,7 @@
                 <th class="text-center py-0">COD. PROD.</th>
                 <th class="text-center py-0">IMAGEN</th>
                 <th class="text-center py-0">NOMBRE</th>
-                <th class="text-center py-0">MAX;MIN</th>
+                <th class="text-center py-0">MIN;MAX</th>
                 <th class="text-center py-0">DESC</th>
                 <th class="text-center py-0">PROVEEDOR</th>
                 <th class="text-center py-0">OPCIONES</th>
@@ -49,21 +56,31 @@
         <tbody>
             {% for producto in productos %}
             <tr>
-                <td class="text-center">
-                    <button style="border:none; margin:0; padding:0;" >
-                        <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'producto_detail' producto.id_producto %}">
+                <td style="justify-content: center;" class=" ">
+                    <button style="margin:0;border:none; justify-self: center;">
+                        <a style=" font-size: 12px;" class="btn btn-info btn-sm text-center"  href="{% url 'producto_detail' producto.id_producto %}">
                             <i class="bi bi-eye-fill"></i> 
                                 Ver
                         </a>
                     </button>
                 </td>
                 
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ producto.cod_producto }}</td>
-                <td class="text-center py-0 align-middle">{{ producto.prod_image|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ producto.nombre_producto|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ producto.cant_max |default:"N/A" }};{{ producto.cant_min|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ producto.descripcion_prod|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ producto.id_proveedor|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle" style="padding: 0"><small>{{ producto.cod_producto }}</small></td>
+                <!-- <td class="text-center py-0 align-middle">{{ producto.prod_image|default:"N/A" }}</td> -->
+                 <td class="producto__imagen">
+                    {% if producto.prod_image %}
+                    <!--<img src="{% static medicamento.image_url %}" alt="Imagen del Medicamento"> -->
+                    <img src="{{ producto.prod_image.url }}", alt="Imagen del producto">
+                    {% else %}
+                    <img src="{% static 'img/producto_default.jpg' %}" alt="Imagen del producto">
+                    
+                    {% endif %}
+
+                 </td>
+                <td class="text-center py-0 align-middle"><small>{{ producto.nombre_producto|default:"N/A" }}</small></td>
+                <td class="text-center py-0 align-middle"><small>{{ producto.cant_min |default:"N/A" }};{{ producto.cant_max|default:"N/A" }}</small></td>
+                <td class="text-center py-0 align-middle"><small>{{ producto.descripcion_prod|default:"N/A" }}</small></td>
+                <td class="text-center py-0 align-middle"><small><a href="{% url 'proveedor_detail' producto.id_proveedor.id_proveedor %}">{{ producto.id_proveedor.nombre_proveedor|default:"N/A" }}</a></small></td>
                 
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'producto_modificar' producto.id_producto %}"><i class="bi bi-pen"></i> Editar</a></button>

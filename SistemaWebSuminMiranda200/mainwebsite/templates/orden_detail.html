@@ -172,18 +172,22 @@ p {
                         <div class="task-tags mt-4">
                             <h5 class="">Opciones</h5>
                             <div class="bootstrap-tagsinput">
-                                <a class="btn tag label label-info" href="{% url 'orden_modificar' orden.id_orden %}">Editar Orden</a>
+                                <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn tag label label-info" href="{% url 'orden_modificar' orden.id_orden %}">Editar Orden</a>
                                 
-                                <a class="btn tag label label-info" href="{% url 'orden_prod_listar' orden.id_orden %}">Ir a listado de Productos de Orden</a>
+                                <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn tag label label-info" href="{% url 'orden_prod_listar' orden.id_orden %}">Ir a listado de Productos de Orden</a>
+                                <button style="border:none; margin:0; padding:0;" >
+                                    <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-success btn-sm"  href="{% url 'orden_insertar2' orden.id_orden %}">Añadir Producto a la orden
+                                    </a>
+                                </button>
                          
                                 
                             </div>
     
                         </div>
                         <div class="border rounded my-2">
-                            <p class="fw-bolder">Cliente: {{orden.id_cliente}}.</p>
+                            <p class="fw-bolder">Cliente: <a href="{% url 'cliente_detail' orden.id_cliente.id_cliente %}">{{orden.id_cliente.nombre_cliente|default:'NONE'}}</a>.</p>
                             <p class="fw-bolder">Solicitado por: {{orden.solicitado}} <small class="text-muted">({{orden.tlf_solicitado}})</small>.</p>
-                            <p class="fw-bolder">Destino: {{orden.id_destino}}.</p>
+                            <p class="fw-bolder">Destino: <a href="#">{{orden.id_destino.nombre_destino|default:'NONE'}}</a>.</p>
                             <p class="fw-bolder text-break">Descripción Requisición: {{orden.desc_requisicion}}.</p>
                         </div>
                     
@@ -213,13 +217,17 @@ p {
             <!-- end col -->
             <div class="col-lg-4">
                 <div class="card-box">
-                    <h4 class="text-decoration-underline fs-5 text-center m-b-30">Productos en esta Orden</h4>
+                    <h4 class="text-decoration-underline fs-5 text-center m-b-30">Productos en esta Orden 
+
+                    </h4>
                     {% for orden_prod in orden_prod_list %}
                     <div>
                         <div class="media m-b-20">
                            
                             <div class="media-body">
-                                <h5 class="mt-0 text-center">{{orden_prod.producto.nombre_producto|default:'Sin nombre definido.'}}. <small class="text-muted">Cant:{{orden_prod.cantidad}}</small></h5>
+                                <h5 class="mt-0 text-center">
+                                    <a href="{% url 'producto_detail' orden_prod.producto.id_producto %}">{{orden_prod.producto.nombre_producto|default:'Sin nombre definido.'}}.</a>
+                                    <small class="text-muted">Cant:{{orden_prod.cantidad}}</small></h5>
                                 <small class="text-muted">Precio/Unidad:{{orden_prod.precio_unit}}</small>
                                 <p class="font-13 fst-italic mb-0"> {{orden_prod.producto.descripcion_prod|default:'Sin Descripción.'}}</p>
                                 <small class="text-muted">Empaque:{{orden_prod.empaque}}</small>

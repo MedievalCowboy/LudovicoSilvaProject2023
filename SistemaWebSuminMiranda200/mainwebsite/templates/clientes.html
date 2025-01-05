@@ -32,13 +32,14 @@
                 <th class="text-center py-0">TLF</th>
                 <th class="text-center py-0">DIR</th>
                 <th class="text-center py-0">RIF</th>
+                <th class="text-center py-0">NUM ORDEN</th>
                 <th class="text-center py-0">OPCIONES</th>
             </tr>
         </thead>
         <tbody>
             {% for cliente in clientes %}
             <tr>
-                <td class="text-center">
+                <td style="margin: 0; padding: 0;" class="text-center">
                     <button style="border:none; margin:0; padding:0;" >
                         <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'cliente_detail' cliente.id_cliente %}">
                             <i class="bi bi-eye-fill"></i> 
@@ -48,10 +49,10 @@
                 </td>
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ cliente.id_cliente }}</td>
                 <td class="text-center py-0 align-middle">{{ cliente.nombre_cliente|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ cliente.tlf |default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ cliente.direccion|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle">{{ cliente.telefono|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle"><small>{{ cliente.direccion|default:"N/A" }}</small></td>
                 <td class="text-center py-0 align-middle">{{ cliente.rif|default:"N/A" }}</td>
-                
+                <td class="text-center py-0 align-middle"><small>{{cliente.num_ordenes}}</small></td>
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'cliente_modificar' cliente.id_cliente %}"><i class="bi bi-pen"></i> Editar</a></button>
                     

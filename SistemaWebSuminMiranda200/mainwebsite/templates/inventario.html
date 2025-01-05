@@ -55,11 +55,11 @@
             <tr>
                
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ inventario_elemento.id_inventario }}</td>
-                <td class="text-center py-0 align-middle">{{ inventario_elemento.producto|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle"><small><a href="{% url 'producto_detail' inventario_elemento.producto.id_producto %}">{{ inventario_elemento.producto.nombre_producto|default:"N/A" }}</a></small></td>
                 <td class="text-center py-0 align-middle">{{ inventario_elemento.precio_unit_ref|default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle">{{ inventario_elemento.cant_disponible|default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle">{{ inventario_elemento.cant_inicial|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ inventario_elemento.id_almacen|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle"><small><a href="#">{{ inventario_elemento.id_almacen.nombre_almacen|default:"N/A" }}</a></small></td>
                 <td class="text-center py-0 align-middle">{{ inventario_elemento.creado_en|default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle">{{ inventario_elemento.fecha_ult_mod_inv|default:"N/A" }}</td>
                 

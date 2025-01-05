@@ -412,10 +412,13 @@ def proveedor_eliminar(request, pk):
 #SERVICIOS RELACIONADOS CON CLIENTES
 @login_required
 def clientes(request):
-    clientes_lista = Cliente.objects.all()
-
+    # lista_ordenes = Orden.objects.annotate(num_productos=Count('orden_producto'))
+    clientes_lista = Cliente.objects.annotate(num_ordenes=Count('orden'))
+    
     context = {'clientes':clientes_lista,
                'titulo_web':'Clientes - SM200SYS'}
+    
+    
     return render(request, "clientes.html",context)
 
 @login_required
