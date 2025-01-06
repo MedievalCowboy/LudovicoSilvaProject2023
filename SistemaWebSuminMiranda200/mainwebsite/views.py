@@ -508,6 +508,21 @@ def almacenes(request):
     return render(request, "almacenes.html",context)
 
 @login_required
+def almacen_detail(request, pk):
+    almacen  = get_object_or_404(Almacen, pk=pk)
+    try:
+        almacen.conteo_productos = almacen.inventario_set.aggregate(total=Sum('cant_disponible'))['total'] or 0
+    except Exception as e:
+        pass
+    
+    context={'almacen':almacen,  
+             'titulo_web':'Vista detallada de almacen', 
+             'titulo_page':"Detalle del almacen #"+str(almacen.id_almacen)}
+    
+
+    return render(request, 'almacen_detail.html', context)
+
+@login_required
 def almacen_modificar(request, pk):
     almacen = get_object_or_404(Almacen, pk=pk)
 

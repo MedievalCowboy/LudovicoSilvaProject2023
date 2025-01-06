@@ -36,6 +36,8 @@ class Almacen(models.Model):
     id_almacen = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
     nombre_almacen = models.CharField(max_length=200)
+    direccion = models.CharField(max_length=20, blank=True, null=True, default="")
+    nota = models.TextField(max_length=20, blank=True, null=True, default="")
     def __str__(self):
         return(f"{self.id_almacen} - {self.nombre_almacen}")
 
