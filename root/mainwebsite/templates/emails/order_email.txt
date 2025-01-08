@@ -1,0 +1,24 @@
+Hola {{orden.id_cliente.nombre_cliente}}, Acá te enviamos los detalles de la orden #{{orden.num_orden}} requerida el {{orden.fecha_requisicion}}.
+ORDEN #{{orden.num_orden}}.
+CLIENTE: {{orden.id_cliente.nombre_cliente}}.
+FECHA REQUISICIÓN: {{orden.fecha_requisicion}}.
+DESTINO: {{orden.id_destino.nombre_destino}}.
+FECHA EMISIÓN: {{orden.fecha_emision}}.
+ESTADO: {{orden.estado}}.
+NÚMERO DE FACTURA: {{orden.num_factura}}.
+DESCRIPCIÓN DE LA SOLICITUD: {{orden.desc_requisicion}}.
+FECHA DE ENTREGA ESTIMADA: {{orden.fecha_entrega}}.
+REPRESENTANTE DEL CLIENTE: {{orden.solicitado}} - ({{orden.tlf_solicitado}}).
+NÚMERO DE LOTE: {{orden.num_lote}}.
+
+
+PARA MÁS INFORMACIÓN SOBRE SU ORDEN PORFAVOR CONTACTAR A:
+{{contact_email}}
+{{contact_tlf}}
+
+MUCHAS GRACIAS POR USAR NUESTROS SERVICIOS.
+
+Atentamiente, Suministros Miranda 200 C.A.
+
+(Este es un mensaje automatico, porfavor evitar responder al mensaje de forma directa.)
+

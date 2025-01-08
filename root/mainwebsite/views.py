@@ -1,4 +1,3 @@
-from re import A
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth import login, logout, authenticate
@@ -6,15 +5,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count, Sum
-
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+import re
+from django.templatetags.static import static
 
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm
 
 def pruebas(request):
     return render(request, 'base2.html', {'titulo_web':'pruebabaaaa'})
-
-
 
 def portal_principal(request):
     return render(request, 'index.html', {'titulo_web':'Suministros Miranda 200 C.A'})
@@ -29,11 +31,53 @@ def portal_conocenos(request):
 ######################################################################################
 #SERVICIOS RELACIONADOS CON ORDENES
 
+#logica para enviar email a correo en formato texto y html
+#Regresa 1 si se envió y 0 si no se envio nada.
+def send_email(subject, from_email, to_emails, text_template, html_template, context):
+    text_content = render_to_string(text_template, context = context)
+    
+    html_content = render_to_string(html_template, context = context)
+    
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to_emails)
+
+    msg.attach_alternative(html_content, "text/html")
+    value = msg.send()
+    return value
+
 #pagina dashboard "workspace/ordenes/"
 @login_required
 def ordenes(request):
     lista_ordenes = Orden.objects.annotate(num_productos=Count('orden_producto'))
     return render(request, 'ordenes.html',{'ordenes':lista_ordenes, 'titulo_web':'Ordenes - SM200SYS'})
+
+@login_required
+def send_orden_info_email(request, pk):
+    if request.method == 'GET':
+        orden = get_object_or_404(Orden, pk = pk)
+        orden_productos = Orden_Producto.objects.filter(id_orden=orden)
+        if re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', orden.id_cliente.correo):
+            email_subject = f"Notificación de Orden #{orden.num_orden} - Suministros Miranda 200 C.A."
+            text_template = "emails/order_email.txt"
+            html_template = "emails/order_email.html"
+            
+            context = {'orden':orden,'orden_productos':orden_productos, 'contact_email':settings.EMAIL_HOST_USER , 'contact_tlf':'04265922250'}
+            try:
+                logo_path = static('img/sum3.png')
+                logo_abs_path = f"{get_current_site(request)}{logo_path}"
+                context['logo_path'] = logo_abs_path
+            except Exception as e:
+                pass
+            email_from = settings.EMAIL_HOST_USER
+            email_to = [orden.id_cliente.correo]
+            if send_email(email_subject, email_from, email_to, text_template, html_template, context) == 1:
+                messages.success(request, "Se envió un correo al cliente con la información de la orden.")
+            else:
+                print("ocurrio un error inesperado al tratar de enviar el email...")
+        else:
+            messages.warning(request, "Error al tratar de enviar email al cliente. El cliente no dispone de un email valido.")
+    url = reverse('orden_detail', kwargs={'pk': pk})    
+    return redirect(url)
+
 
 @login_required
 def orden_insertar(request):
@@ -124,7 +168,8 @@ def orden_eliminar(request, pk):
         data = {'mensaje': 'Orden eliminada exitosamente.'}
         messages.warning(request, "Se Eliminó la orden exitosamente.")
         return JsonResponse(data)
-    
+
+#Funcion que muestra una orden en especifico.
 @login_required
 def orden_detail(request, pk):
     orden  = get_object_or_404(Orden, pk=pk)

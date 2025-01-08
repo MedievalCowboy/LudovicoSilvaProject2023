@@ -179,8 +179,8 @@ p {
                                     <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-success btn-sm"  href="{% url 'orden_insertar2' orden.id_orden %}">Añadir Producto a la orden
                                     </a>
                                 </button>
-                         
-                                
+
+                                <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn tag label label-info" href="{% url 'send_orden_email' orden.id_orden %}">Notificar al Cliente</a>
                             </div>
     
                         </div>

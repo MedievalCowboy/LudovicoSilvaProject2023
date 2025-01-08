@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SUMINISTROS MIRANDA 200 C.A.</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size:10px;
+        }
+        .header {
+            text-align: center;
+            background-color: azure;
+        }
+        .logo {
+            max-width: 50px;
+        }
+        .details {
+            margin-top: 20px;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1px;
+        }
+        .detail-title {
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{logo_path}}" alt="Logo Suministros Miranda 200 C.A." class="logo">
+        <h1>SUMINISTROS MIRANDA 200 C.A.</h1>
+    </div>
+
+    <div class="details">
+        <p>Hola {{ orden.id_cliente.nombre_cliente }},</p>
+        <p>Acá te enviamos los detalles de la orden <strong>#{{orden.num_orden}}</strong> requerida el {{ orden.fecha_requisicion }}.</p>
+
+        <ul>
+            <li class="detail-item">
+                <h5 class="detail-title">ORDEN:</h5>
+                <p>#{{orden.num_orden}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">CLIENTE:</h5>
+                <p>{{ orden.id_cliente.nombre_cliente}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">FECHA REQUISICIÓNE:</h5>
+                <p>{{orden.fecha_requisicion}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">DESTINO:</h5>
+                <p>{{orden.id_destino.nombre_destino}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">FECHA EMISIÓN:</h5>
+                <p>{{orden.fecha_emision}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">ESTADO:</h5>
+                <p>{{orden.estado}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">NÚMERO DE FACTURA:</h5>
+                <p>{{orden.num_factura}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">DESCRIPCIÓN DE LA SOLICITUD:</h5>
+                <p>{{orden.desc_requisicion}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">FECHA DE ENTREGA ESTIMADA:</h5>
+                <p>{{orden.fecha_entrega}}.</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">REPRESENTANTE DEL CLIENTE:</h5>
+                <p>{{orden.solicitado}} - ({{orden.tlf_solicitado}}).</p>
+            </li>
+            <li class="detail-item">
+                <h5 class="detail-title">NÚMERO DE LOTE:</h5>
+                <p>{{ orden.num_lote }}</p>
+            </li>
+            <li class="detail-items">
+                <h5 class="detail-title" >PRODUCTOS EN ESTA ORDEN:</h5>
+                <ul>
+                    {% for producto in orden_productos %}
+                    <li>
+                        Nombre: {{producto.producto.nombre_producto}}.
+                        Cantidad: {{producto.cantidad}}.
+                        Precio Unitario: $ {{producto.precio_unit}}.
+                        Empaque: {{producto.empaque}}.
+                    </li>
+                    {% endfor %}
+                    <hr>
+                </ul>
+                
+            </li>
+        </ul>
+
+
+        <p><strong>PARA MÁS INFORMACIÓN SOBRE SU ORDEN POR FAVOR CONTACTAR A:</strong></p>
+        <p>{{ contact_email }}</p>
+        <p>{{ contact_tlf }}</p>
+
+        <p>Muchas gracias por usar nuestros servicios.</p>
+
+        <p>Atentamente,</p>
+        <p>Suministros Miranda 200 C.A.</p>
+        <p><small>(Este es un mensaje automático, por favor evitar responder al mensaje de forma directa.)</small></p>
+    </div>
+</body>
+</html>
