@@ -101,7 +101,7 @@ class Orden(models.Model):
     num_orden = models.IntegerField()
     fecha_emision = models.DateField(blank=True, null= True)
     estado = models.CharField(max_length=20)
-    num_factura = models.CharField(max_length=40)
+    num_factura = models.CharField(max_length=20)
     desc_requisicion = models.CharField(max_length=20)
     fecha_requisicion = models.DateField(blank=True, null= True)
     fecha_entrega = models.DateField(blank=True, null= True)
