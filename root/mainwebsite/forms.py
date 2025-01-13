@@ -26,6 +26,7 @@ class OrdenForm(forms.ModelForm):
     fecha_requisicion = forms.DateField(
         label='Fecha de Requisición',
         required=False,
+        localize=True,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
     fecha_entrega = forms.DateField(
@@ -45,6 +46,8 @@ class OrdenForm(forms.ModelForm):
         if not re.match(r'^\d{11}$', tlf_solicitado):
             raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
         return tlf_solicitado
+    
+
     
 class OrdenProductoForm(forms.ModelForm):
     class Meta:
@@ -206,6 +209,5 @@ class ClientesForm(forms.ModelForm):
         # Validar el formato
         if not (cedula_venezolana.match(rif) or cedula_extranjera.match(rif) or rif_empresa.match(rif)):
             raise forms.ValidationError("El RIF ingresado no tiene un formato válido (Ejemplos: J-000950369 o V8765123).")
-
         return rif
     

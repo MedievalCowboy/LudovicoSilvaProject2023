@@ -138,18 +138,19 @@ def orden_insertar_2(request, pk):
 
 @login_required
 def orden_modificar(request,pk):
+
     orden = get_object_or_404(Orden, pk=pk)
 
     if request.method == "POST":
         form = OrdenForm(request.POST, instance=orden)
         if form.is_valid():
-            print(form)
             form.save()
             messages.info(request, "Se modificó la orden exitosamente.")
             return redirect('ordenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
 
     else:
         form = OrdenForm(instance=orden)
+
 
 
     context = {'form': form, 

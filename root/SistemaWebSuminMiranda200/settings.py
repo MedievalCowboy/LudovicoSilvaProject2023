@@ -11,13 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 
-
 from pathlib import Path
 import os
 from django.contrib import messages
 import environ
 from datetime import timedelta
-import mimetypes
+
 
 import pymysql
 pymysql.install_as_MySQLdb()
@@ -145,8 +144,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 
-LANGUAGE_CODE = 'es-es'
 
+LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Caracas'
 
 USE_I18N = True
