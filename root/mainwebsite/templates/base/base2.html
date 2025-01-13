@@ -18,13 +18,13 @@
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
-  <link rel="stylesheet" href="{% static 'thirdparty/css/bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'thirdparty/bsicons/bs-icons-1.10.5/font/bootstrap-icons.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static '/thirdparty/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static '/thirdparty/bsicons/bs-icons-1.10.5/font/bootstrap-icons.css' %}">
 
 
   <!-- Template Main CSS File -->
-  <link href="{% static 'css/style_person.css' %}" rel="stylesheet">
-  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <link type="text/css" href="{% static '/css/style_person.css' %}" rel="stylesheet">
+  <link type="text/css" href="{% static '/css/style.css' %}" rel="stylesheet">
   
   {% block styles %}
   {% endblock %}
@@ -73,9 +73,10 @@
 
 
     {% include 'base/footer2.html' %}
-  <script src="{% static 'thirdparty/js/bootstrap.bundle.min.js' %}"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-  <script src="{% static 'js/main.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="{% static '/thirdparty/js/bootstrap.bundle.min.js' %}"></script>
+ 
+  <script src="{% static '/js/main.js' %}"></script>
   {% block scripts %}
   {% endblock %}
 </body>

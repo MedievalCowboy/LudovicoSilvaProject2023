@@ -3,7 +3,6 @@ from .models import Orden, Orden_Producto, Inventario, Producto, Proveedor, Alma
 from django.utils import timezone
 import re
 
-
 class OrdenForm(forms.ModelForm):
 
     # Definir las opciones para el campo "Estado"
@@ -17,11 +16,12 @@ class OrdenForm(forms.ModelForm):
         model = Orden
         fields = '__all__'
         exclude = ('id_usuario',)
-
+        
        # Personalización de campos de fecha
     fecha_emision = forms.DateField(
         label='Fecha de Emisión',
-        widget=forms.DateInput(attrs={'type': 'date'})
+        widget=forms.DateInput(attrs={'class':'form-control','type': 'date', }),
+
     )
     fecha_requisicion = forms.DateField(
         label='Fecha de Requisición',
@@ -45,8 +45,7 @@ class OrdenForm(forms.ModelForm):
         if not re.match(r'^\d{11}$', tlf_solicitado):
             raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
         return tlf_solicitado
-
-
+    
 class OrdenProductoForm(forms.ModelForm):
     class Meta:
         model = Orden_Producto
@@ -60,8 +59,6 @@ class OrdenProductoForm(forms.ModelForm):
 
         # Establecer el campo 'id_orden' como no editable
         self.fields['id_orden'].disabled = True
-
-
 
 
 class InventarioForm(forms.ModelForm):
@@ -129,14 +126,16 @@ class ProveedorForm(forms.ModelForm):
     )
     def clean_tlf_proveedor(self):
         telefono = self.cleaned_data['tlf_proveedor']
-        if not re.match(r'^\d{11}$', telefono):
-            raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
+        if telefono:
+            if not re.match(r'^\d{11}$', telefono):
+                raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
         return telefono
     def clean_correo(self):
         email = self.cleaned_data['correo']
         regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-        if not re.match(regex, email):
-            raise forms.ValidationError('Por favor, ingresa una dirección de correo electrónico válida.')
+        if email:
+            if not re.match(regex, email):
+                raise forms.ValidationError('Por favor, ingresa una dirección de correo electrónico válida.')
         return email
 
 class DestinoForm(forms.ModelForm):
@@ -169,14 +168,16 @@ class ClientesForm(forms.ModelForm):
     )
     def clean_telefono(self):
         telefono = self.cleaned_data['telefono']
-        if not re.match(r'^\d{11}$', telefono):
-            raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
+        if telefono:
+            if not re.match(r'^\d{11}$', telefono):
+                raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
         return telefono
     def clean_correo(self):
         email = self.cleaned_data['correo']
         regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-        if not re.match(regex, email):
-            raise forms.ValidationError('Por favor, ingresa una dirección de correo electrónico válida.')
+        if email:
+            if not re.match(regex, email):
+                raise forms.ValidationError('Por favor, ingresa una dirección de correo electrónico válida.')
         return email
     
     telefono2 = forms.CharField(
@@ -186,8 +187,10 @@ class ClientesForm(forms.ModelForm):
     )
     def clean_telefono2(self):
         telefono2 = self.cleaned_data['telefono2']
-        if not re.match(r'^\d{11}$', telefono2):
-            raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
+
+        if telefono2:
+            if not re.match(r'^\d{11}$', telefono2):
+                raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
         return telefono2
     def clean_rif(self):
         rif = self.cleaned_data['rif']

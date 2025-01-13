@@ -1,4 +1,5 @@
 {% extends "base/base2.html" %}
+
 {% load static %}
 
 
@@ -162,10 +163,10 @@ p {
                 <div class="card-box task-detail">
                     <div class="media mt-0">
                         <div class="media-body">
-                            <h5 class="media-heading mb-0 mt-0">Usuario emisor: {{orden.id_usuario}}</h5><span class="badge badge-danger">Urgent</span></div>
+                            <h5 class="media-heading mb-0 mt-0">Usuario emisor: {{orden.id_usuario|default:"N/A"}}</h5><span class="badge badge-danger">Urgent</span></div>
                     </div>
                     
-                        <div><h4 class="text-decoration-underline m-b-20">Orden #{{orden.num_orden}}</h4>
+                        <div><h4 class="text-decoration-underline m-b-20">Orden #{{orden.num_orden|default:"N/A"}}</h4>
                             <span class="fw-bold">Estado de Orden:</span>
                             <span 
                             class=" border rounded text-center py-0 align-middle 
@@ -195,10 +196,22 @@ p {
     
                         </div>
                         <div class="border rounded my-2">
-                            <p class="fw-bolder">Cliente: <a href="{% url 'cliente_detail' orden.id_cliente.id_cliente %}">{{orden.id_cliente.nombre_cliente|default:'NONE'}}</a>.</p>
-                            <p class="fw-bolder">Solicitado por: {{orden.solicitado}} <small class="text-muted">({{orden.tlf_solicitado}})</small>.</p>
-                            <p class="fw-bolder">Destino: <a href="{% url 'destino_detail' orden.id_destino.id_destino %}">{{orden.id_destino.nombre_destino|default:'NONE'}}</a>.</p>
-                            <p class="fw-bolder text-break">Descripción Requisición: {{orden.desc_requisicion}}.</p>
+                            <p class="fw-bolder">Cliente: 
+                                {% if orden.id_cliente %}
+                                <a href="{% url 'cliente_detail' orden.id_cliente.id_cliente %}">{{orden.id_cliente.nombre_cliente|default:'NONE'}}</a>
+                                {% else %}
+                                N/A
+                                {% endif %}
+                                .</p>
+                            <p class="fw-bolder">Solicitado por: {{orden.solicitado|default:"N/A"}} <small class="text-muted">({{orden.tlf_solicitado|default:"N/A"}})</small>.</p>
+                            <p class="fw-bolder">Destino: 
+                                {% if orden.id_destino %}
+                                <a href="{% url 'destino_detail' orden.id_destino.id_destino %}">{{orden.id_destino.nombre_destino|default:'NONE'}}</a>
+                                {% else %}
+                                N/A
+                                {% endif %}
+                                .</p>
+                            <p class="fw-bolder text-break">Descripción Requisición: {{orden.desc_requisicion|default:"N/A"}}.</p>
                         </div>
                     
                     <ul class=" list-inline task-dates m-b-0 ">
@@ -236,7 +249,11 @@ p {
                            
                             <div class="media-body">
                                 <h5 class="mt-0 text-center">
+                                    {% if orden_prod.producto %}
                                     <a href="{% url 'producto_detail' orden_prod.producto.id_producto %}">{{orden_prod.producto.nombre_producto|default:'Sin nombre definido.'}}.</a>
+                                    {% else %}
+                                    N/A
+                                    {% endif %}
                                     <small class="text-muted">Cant:{{orden_prod.cantidad}}</small></h5>
                                 <small class="text-muted">Precio/Unidad:{{orden_prod.precio_unit}}</small>
                                 <p class="font-13 fst-italic mb-0"> {{orden_prod.producto.descripcion_prod|default:'Sin Descripción.'}}</p>

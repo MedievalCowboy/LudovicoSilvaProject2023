@@ -14,10 +14,19 @@ class Cliente(models.Model):
     nombre_cliente = models.CharField(max_length=200)
     direccion = models.TextField(blank=True)
     correo = models.CharField(max_length=150, blank=True, null=True, default="")
-    telefono = models.CharField(max_length=12, blank=True, null=True)
+    telefono = models.CharField(max_length=12, null=True)
     telefono2 = models.CharField(max_length=12, blank=True, null=True)
-    rif = models.CharField(max_length=15, blank=True)
+    rif = models.CharField(max_length=15)
     cliente_image = models.ImageField(blank=True, upload_to='images/', default="")
+    
+    @classmethod
+    def get_default_pk(cls):
+        cliente, created = cls.objects.get_or_create(
+            nombre_cliente='NONE', 
+            
+        )
+        return cliente.pk
+    
     def __str__(self):
         return(f"{self.id_cliente} : {self.nombre_cliente}")
 
@@ -109,7 +118,7 @@ class Orden(models.Model):
     tlf_solicitado = models.CharField(max_length=12, blank=True, null=True)
     fecha_ult_mod = models.DateField(auto_now_add=True)
     num_lote = models.CharField(max_length=20)
-    id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null = True)
+    id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null = True, default=Cliente.get_default_pk)
     id_destino = models.ForeignKey(Destino, on_delete=models.SET_NULL, null = True)
     id_usuario = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
     def __str__(self):
@@ -121,6 +130,6 @@ class Orden_Producto(models.Model):
     cantidad = models.IntegerField()
     precio_unit = models.DecimalField(max_digits=9, decimal_places=3, default=0.0)
     empaque = models.CharField(max_length=20)
-    producto = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     id_orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
     # Relaciones

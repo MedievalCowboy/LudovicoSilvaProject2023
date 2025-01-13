@@ -17,6 +17,7 @@ import os
 from django.contrib import messages
 import environ
 from datetime import timedelta
+import mimetypes
 
 import pymysql
 pymysql.install_as_MySQLdb()
@@ -36,7 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     "crispy_bootstrap4",
+    "tempus_dominus",
     #apps
     'mainwebsite'
 ]
@@ -63,6 +65,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,6 +92,15 @@ TEMPLATES = [
     },
 ]
 
+STORAGES = {
+
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+
+    
 WSGI_APPLICATION = 'SistemaWebSuminMiranda200.wsgi.application'
 
 
@@ -135,10 +147,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Caracas'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 #CONFIGURACION DE SESIONES
@@ -164,7 +176,6 @@ STATIC_URL = '/static/'
 
 if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE='whitenoise.storage.CompressedManifestStaticFilesStorage'
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     

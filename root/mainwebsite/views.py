@@ -143,12 +143,14 @@ def orden_modificar(request,pk):
     if request.method == "POST":
         form = OrdenForm(request.POST, instance=orden)
         if form.is_valid():
+            print(form)
             form.save()
             messages.info(request, "Se modificó la orden exitosamente.")
             return redirect('ordenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
 
     else:
         form = OrdenForm(instance=orden)
+
 
     context = {'form': form, 
                'titulo_web': 'Modificar Orden - SM200SYS',
@@ -468,6 +470,7 @@ def clientes(request):
 
 @login_required
 def cliente_detail(request, pk):
+    
     cliente  = get_object_or_404(Cliente, pk=pk)
     
     context={'cliente':cliente,  
