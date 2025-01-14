@@ -1,0 +1,27 @@
+{% extends "base/base2.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+
+
+{% block styles %}
+
+{% endblock %}
+
+{% block content %}
+<h3>Crear nuevo usuario en el sistema</h3>
+<div class="container container-sm">
+    <form action="" method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group mb-3">
+        
+        <label class="" for="">{{field.label}}</label>
+            {{field}}
+           <span style="color:brown"> {{field.errors}}</span>
+        </div>    
+        {% endfor %}
+        <button class="custom-btn custom-btn-green btn-sm text-center" name="Crear_usuario" type="submit"><i class="bi bi-plus-square"></i> Guardar y Salir</button>
+    </form>
+</div>
+
+{% endblock %}

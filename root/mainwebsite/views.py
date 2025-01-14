@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound, Http404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count, Sum
@@ -11,12 +13,20 @@ from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 import re
 from django.templatetags.static import static
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile
+from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm
 
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente
-from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm
 
+from django.contrib.admin.models import LogEntry
+
+from .decorators import allowed_users, only_admin
+
+
+@allowed_users(allowed_roles=['gerente'])
 def pruebas(request):
-    return render(request, 'base2.html', {'titulo_web':'pruebabaaaa'})
+    logs = LogEntry.objects.all()
+    context = {'titulo_web':'pruebabaaaa', 'log_registry':logs}
+    return render(request, 'prueba1.html', context)
 
 def portal_principal(request):
     return render(request, 'index.html', {'titulo_web':'Suministros Miranda 200 C.A'})
@@ -89,7 +99,6 @@ def orden_insertar(request):
             orden.save()
             messages.success(request, "La orden se creó exitosamente.")
             return redirect('ordenes')
-
         if request.POST.get('guardar_e_insertar_producto' ) and form.is_valid() :
             orden = form.save(commit=False)
             orden.id_usuario = request.user
@@ -98,17 +107,14 @@ def orden_insertar(request):
             url = reverse('orden_insertar2', kwargs={'pk': pk_orden})
             messages.success(request, "La orden se creó exitosamente.")
             return redirect(url)
-        
         if request.POST.get('guardar_y_crear_otra_orden') and form.is_valid():
             orden = form.save(commit=False)
             orden.id_usuario = request.user
             orden.save()
             messages.success(request, "La orden se creó exitosamente.")
             form = OrdenForm()
-            
     else:
         form = OrdenForm()
-
     return render(request, 'orden_insertar.html', {'form': form, 'titulo_web':'Insertar Orden - SM200SYS'})
 
 
@@ -116,48 +122,37 @@ def orden_insertar(request):
 def orden_insertar_2(request, pk):
     if request.method == 'POST':
         form = OrdenProductoForm(request.POST, pk=pk)
-
         if request.POST.get("guardar_y_regresar") and form.is_valid():
             print("orden_insertar_2 CASO 1")
             form.save()
             messages.success(request, "Se registró el producto a la orden exitosamente.")
             return redirect('ordenes') 
-
         elif request.POST.get("guardar_y_crear_otro") and form.is_valid():
             print("orden_insertar_2 CASO 2")
             form.save()
             # Limpia el formulario para crear otro
             messages.success(request, "Se registró el producto a la orden exitosamente.")
             form = OrdenProductoForm(pk=pk)
-
     else:
         form = OrdenProductoForm(pk=pk)
-
     return render(request, 'orden_insertar2.html', {'form': form, 'titulo_web': 'Insertar Orden - SM200SYS'})
 
 
 @login_required
 def orden_modificar(request,pk):
-
     orden = get_object_or_404(Orden, pk=pk)
-
     if request.method == "POST":
         form = OrdenForm(request.POST, instance=orden)
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó la orden exitosamente.")
             return redirect('ordenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
-
     else:
         form = OrdenForm(instance=orden)
-
-
-
     context = {'form': form, 
                'titulo_web': 'Modificar Orden - SM200SYS',
                'volver_a':'ordenes',
                'titulo_page':'Modificar Orden'}
-
     return render(request, 'base/base_modificar.html', context)
 
 #Esto esta conectado con ajax
@@ -775,6 +770,41 @@ def prod_dest_eliminar(request, pk):
         messages.warning(request, "Relación producto destino eliminada exitosamente.")
         return JsonResponse(data)
 
+
+######################################################################################
+######################################################################################
+
+#SERVICIOS RELACIONADOS CON USUARIOS / PERFILES DE USUARIO
+@login_required
+@only_admin
+def register_user(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "El usuario se creó con exito.")
+            return redirect('ordenes')
+            
+    
+    context = {'form':form, 'titulo_web':'Crear nuevo usuario'}
+    return render(request, 'register_user.html', context)
+
+@login_required
+def user_profile(request, pk, username):
+    user =  get_object_or_404(User, pk=pk)
+    if not request.user.is_staff:    
+        if (not request.user == user):
+            messages.warning(request, "NO TIENES PERMISO PARA VER ESTE CONTENIDO.")
+            return redirect('ordenes')
+    perfil = get_object_or_404(Profile, user = user)
+    context = {
+        'user':user, 
+        'perfil':perfil,
+        'titulo_web':'Usuario:'+str(user.username)
+    }
+    return render(request, 'perfil_usuario.html', context)
+    
 
 ######################################################################################
 ######################################################################################

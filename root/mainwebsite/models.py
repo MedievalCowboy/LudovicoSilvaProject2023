@@ -3,9 +3,21 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-
-
-
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    nombres = models.CharField(max_length=200, null=True, blank=True)
+    apellidos = models.CharField(max_length=200, null=True, blank=True)
+    telefono = models.CharField(max_length=12, null=True, blank=True)
+    telefono2 = models.CharField(max_length=12, blank=True, null=True)
+    cedula = models.CharField(max_length=12, blank=True, null=True)
+    email = models.CharField(max_length=150, blank=True, null=True)
+    estado = models.CharField(max_length=40, blank=True, null=True)
+    direccion = models.CharField(max_length=200, blank=True, null=True)
+    cargo = models.CharField(max_length=200, null=True, blank=True)
+    
+    def __str__(self):
+        return(f"{self.cedula} : {self.nombres} {self.apellidos}")
+    
 
 
 class Cliente(models.Model):

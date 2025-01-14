@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <ul>
+        {% for log in log_registry %}
+            <li>
+                USER: {{log.user}} | ACTION: {{log.action_flag}} | TIME: {{log.action_time}} | ON: {{log.object_repr}} | {{log.change_message}}
+            </li>
+            <hr>
+        {% endfor %}
+    </ul>
+</body>
+</html>

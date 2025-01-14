@@ -2,6 +2,20 @@ from django import forms
 from .models import Orden, Orden_Producto, Inventario, Producto, Proveedor, Almacen, Destino, Prod_Dest, Cliente
 from django.utils import timezone
 import re
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+
+class CustomUserForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email','password1','password2']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
+        
 
 class OrdenForm(forms.ModelForm):
 
