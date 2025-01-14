@@ -3,7 +3,7 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count, Sum
@@ -20,7 +20,7 @@ from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, P
 from django.contrib.admin.models import LogEntry
 
 from .decorators import allowed_users, only_admin
-
+from .extras import obtener_rol_mas_alto
 
 @allowed_users(allowed_roles=['gerente'])
 def pruebas(request):
@@ -782,9 +782,31 @@ def register_user(request):
     if request.method == 'POST':
         form = CustomUserForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_user = form.save()
+            selected_rol = form.cleaned_data['rol_selector']
+            try:
+                if selected_rol == 'ceo':
+                    group = Group.objects.get(name=selected_rol)
+                    new_user.groups.add(group)
+                    group = Group.objects.get(name="gerente")
+                    new_user.groups.add(group)
+                    group = Group.objects.get(name="empleado")
+                    new_user.groups.add(group)
+                elif selected_rol == 'gerente':
+                    group = Group.objects.get(name=selected_rol)
+                    new_user.groups.add(group)
+                    group = Group.objects.get(name="empleado")
+                    new_user.groups.add(group)
+                elif selected_rol == 'empleado':
+                    group = Group.objects.get(name=selected_rol)
+                    new_user.groups.add(group)
+            except Group.DoesNotExist:
+                messages.warning(request, "ERROR AL TRATAR DE GUARDAR EL ROL DEL USUARIO.")
+                return redirect('ordenes')
+            
             messages.success(request, "El usuario se creó con exito.")
             return redirect('ordenes')
+            
             
     
     context = {'form':form, 'titulo_web':'Crear nuevo usuario'}
@@ -794,10 +816,12 @@ def register_user(request):
 def user_profile(request, pk, username):
     user =  get_object_or_404(User, pk=pk)
     if not request.user.is_staff:    
-        if (not request.user == user):
-            messages.warning(request, "NO TIENES PERMISO PARA VER ESTE CONTENIDO.")
-            return redirect('ordenes')
+        if (not request.user.groups.filter(name='ceo').exists()):
+            if (not request.user == user):
+                messages.warning(request, "NO TIENES PERMISO PARA VER ESTE CONTENIDO.")
+                return redirect('ordenes')
     perfil = get_object_or_404(Profile, user = user)
+    print(obtener_rol_mas_alto(request.user))
     context = {
         'user':user, 
         'perfil':perfil,

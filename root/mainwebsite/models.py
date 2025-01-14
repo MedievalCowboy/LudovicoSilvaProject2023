@@ -2,6 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from .extras import generar_nombre_imagen
+
+
+def generar_nombre_imgen_cliente(instance, filename):
+    return generar_nombre_imagen(instance, filename, 'cliente', 'id_cliente', 'clients')
+
+def generar_nombre_imgen_producto(instance, filename):
+    return generar_nombre_imagen(instance, filename, 'producto', 'id_producto', 'products')
+
+def generar_nombre_imgen_usuario(instance, filename):
+    return generar_nombre_imagen(instance, filename, 'usuario', '#', 'products')
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
@@ -14,10 +25,11 @@ class Profile(models.Model):
     estado = models.CharField(max_length=40, blank=True, null=True)
     direccion = models.CharField(max_length=200, blank=True, null=True)
     cargo = models.CharField(max_length=200, null=True, blank=True)
-    
+    image = models.ImageField(blank=True, upload_to=generar_nombre_imgen_usuario, default="")
     def __str__(self):
-        return(f"{self.cedula} : {self.nombres} {self.apellidos}")
+        return(f"{self.user.username}|{self.cedula} : {self.nombres} {self.apellidos}")
     
+
 
 
 class Cliente(models.Model):
@@ -29,7 +41,7 @@ class Cliente(models.Model):
     telefono = models.CharField(max_length=12, null=True)
     telefono2 = models.CharField(max_length=12, blank=True, null=True)
     rif = models.CharField(max_length=15)
-    cliente_image = models.ImageField(blank=True, upload_to='images/', default="")
+    cliente_image = models.ImageField(blank=True, upload_to=generar_nombre_imgen_cliente, default="")
     
     @classmethod
     def get_default_pk(cls):
@@ -80,7 +92,7 @@ class Producto(models.Model):
     cant_min = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
     cant_max = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
-    prod_image = models.ImageField(blank=True, upload_to='images/', default="")
+    prod_image = models.ImageField(blank=True, upload_to=generar_nombre_imgen_producto, default="")
     def __str__(self):
         return(f"{self.cod_producto}-{self.nombre_producto}({self.cant_max};{self.cant_min})")
 

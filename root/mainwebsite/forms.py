@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 
 
 class CustomUserForm(UserCreationForm):
+    
+    rol_selector = forms.ChoiceField(label="Rol en el sistema",choices=[('empleado', 'Empleado'), ('gerente', 'Gerente'), ('ceo', 'CEO')])
+    
     class Meta:
         model = User
         fields = ['username', 'email','password1','password2']

@@ -1,3 +1,4 @@
+{% load auth_extras %}
 {% load static %}
   <!-- ======= Sidebar ======= -->
   <aside id="sidebar" class="sidebar aside-custom">
@@ -121,7 +122,7 @@
         </ul>
       </li> 
       <!-- End Components Nav -->
-
+      {% if request.user|has_group:"gerente" %}
       <li class="nav-heading" style="">Gerencia</li>
 
       <li class="nav-item" style="">
@@ -136,14 +137,22 @@
           <small><span>Registros de inicio de sesión <span class="badge bg-secondary">WIP</span></span></small>
         </a>
       </li>
+      {% endif %}
       {% if user.is_staff %}
       <li class="nav-heading" style="">Administración</li>
 
       <li class="nav-item" style="">
-        <a class="nav-link collapsed aside-btn" href="#">
+        <a class="nav-link collapsed aside-btn" data-bs-target="#usuario-aside" data-bs-toggle="collapse" href="#">
           <i class="bi bi-person"></i>
-          <small><span>Usuarios <span class="badge bg-secondary">WIP</span></span></small>
+          <small><span>Usuarios <span class="badge bg-secondary">WIP</span></span></small> <i class="bi bi-chevron-down ms-auto"></i>
         </a>
+        <ul id="usuario-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="{% url 'register_user' %}">
+              <i class="bi bi-circle"></i><span>Crear nuevo usuario</span>
+            </a>
+          </li>
+        </ul>
       </li>
       
       <li class="nav-item" style="">
@@ -151,6 +160,7 @@
           <i class="bi bi-shield-shaded"></i>
           <small><span>Panel Admin. Sistema</span></small>
         </a>
+        
       </li>
       {% endif %}
 

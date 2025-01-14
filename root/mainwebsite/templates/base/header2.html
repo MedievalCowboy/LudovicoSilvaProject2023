@@ -1,4 +1,5 @@
 {% load static %}
+{% load auth_extras %}
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center header-custom">
 
@@ -76,10 +77,10 @@
               {% if user.is_staff %}
                   <!-- El usuario es administrador (staff) -->
                   
-                  <span>Administrador</span>
+                  <span>Administrador de sistema</span>
               {% else %}
-                  <!-- El usuario no es administrador -->
-                  <span>Usuario no admin</span>
+                  <span>{{request.user|higher_group}}</span>
+  
               {% endif %}
             </li>
             <li>

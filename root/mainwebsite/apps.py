@@ -7,3 +7,4 @@ class MainwebsiteConfig(AppConfig):
     
     def ready(self):
         from . import signals
+        from .templatetags import auth_extras

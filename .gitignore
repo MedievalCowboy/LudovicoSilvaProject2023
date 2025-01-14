@@ -162,3 +162,7 @@ static
 staticfiles
 ./staticfiles
 ./static
+media
+media/
+./media/
+**/root/media
