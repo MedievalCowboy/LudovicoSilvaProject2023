@@ -7,13 +7,45 @@
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
-.aside-custom{
+.aside-custom-red{
     
     background: rgb(255,255,255) !important;
-    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(219,23,23,1) 89%, rgba(255,0,0,1) 100%) !important;
+    background: linear-gradient(180deg,
+     rgba(255,255,255,1) 0%,
+      rgba(219,23,23,1) 89%,
+       rgba(255,0,0,1) 100%) !important;
 }
 
-.header-custom{
+.aside-custom-brown{
+    
+    background: rgb(255,255,255) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(88,52,53,1) 89%, rgba(54,24,24,1) 100%) !important;
+}
+
+.aside-custom-blue{
+    
+    background: rgb(255,255,255) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(92,92,186,1) 89%, rgba(25,17,166,1) 100%) !important;
+}
+
+.aside-custom-lime{
+    
+    background: rgb(255,255,255) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(242,254,184,1) 89%, rgba(145,180,28,1) 100%) !important;
+}
+
+.aside-custom-pink{
+    background: rgb(255,255,255) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(236,200,242,1) 89%, rgba(231,88,237,1) 100%) !important;
+}
+
+.aside-custom-grey{
+    background: rgb(255,255,255) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(130,130,130,1) 89%, rgba(40,40,40,1) 100%) !important;
+}
+
+
+.header-custom-red{
     background-image: linear-gradient(
   270deg,
   hsl(0deg 99% 37%) 0%,
@@ -29,6 +61,26 @@
   hsl(0deg 38% 97%) 47%,
   hsl(0deg 0% 100%) 100%
 ) !important;
+}
+
+.header-custom-blue{
+    background: linear-gradient(270deg, rgba(25,17,166,1) 7%, rgba(92,92,186,1) 30%, rgba(255,255,255,1) 100%) !important;
+}
+
+.header-custom-grey{
+    background: linear-gradient(270deg, rgba(40,40,40,1) 7%, rgba(130,130,130,1) 30%, rgba(255,255,255,1) 100%) !important;
+}
+
+.header-custom-lime{
+    background: linear-gradient(270deg, rgba(145,180,28,1) 7%, rgba(242,254,184,1) 30%, rgba(255,255,255,1) 100%) !important;
+}
+
+.header-custom-pink{
+    background: linear-gradient(270deg, rgba(231,88,237,1) 20%, rgba(236,200,242,1) 55%, rgba(255,255,255,1) 100%) !important;
+}
+
+.header-custom-brown{
+    background: linear-gradient(270deg, rgba(54,24,24,1) 20%, rgba(88,52,53,1) 55%, rgba(255,255,255,1) 100%) !important;
 }
 
 #messages-container {

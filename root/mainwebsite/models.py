@@ -14,6 +14,16 @@ def generar_nombre_imgen_producto(instance, filename):
 def generar_nombre_imgen_usuario(instance, filename):
     return generar_nombre_imagen(instance, filename, 'usuario', '#', 'products')
 
+
+TEMAS_SISTEMA = [
+    ('red', 'Rojo'),
+    ('blue', 'Azul'),
+    ('grey','Gris'),
+    ('lime', 'Lima'),
+    ('pink', 'Rosado'),
+    ('brown', "Marrón"),
+]
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     nombres = models.CharField(max_length=200, null=True, blank=True)
@@ -25,6 +35,7 @@ class Profile(models.Model):
     estado = models.CharField(max_length=40, blank=True, null=True)
     direccion = models.CharField(max_length=200, blank=True, null=True)
     cargo = models.CharField(max_length=200, null=True, blank=True)
+    tema_sistema = models.CharField(max_length=20,choices=TEMAS_SISTEMA, default='red')
     image = models.ImageField(blank=True, upload_to=generar_nombre_imgen_usuario, default="")
     def __str__(self):
         return(f"{self.user.username}|{self.cedula} : {self.nombres} {self.apellidos}")

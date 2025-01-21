@@ -76,5 +76,7 @@ urlpatterns = [
     path('workspace/almacen/modificar/<int:pk>', views.almacen_modificar, name="almacen_modificar"),
     path('workspace/almacen/eliminar/<int:pk>', views.almacen_eliminar, name="almacen_eliminar"),
     
+    path('workspace/config/actualizar_tema/', views.set_theme, name="set_theme"),
+    
 ]
 

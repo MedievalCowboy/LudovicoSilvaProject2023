@@ -1,0 +1,90 @@
+<!-- SELECTOR DE TEMA -->
+
+<style>
+    .theme-preview {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 8px;
+        border: 2px solid #fab8b8;
+        vertical-align: middle;
+    }
+    
+    .color-preview {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-right: 10px;
+        border: 1px solid #ddd;
+    }
+    
+    .theme-option {
+        display: flex;
+        align-items: center;
+        padding: 4px 0;
+    }
+    
+    .dropdown-item {
+        display: block;
+        padding: 8px 16px;
+        clear: both;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .theme-selector{
+        margin-right: 1em;
+    }
+
+</style>
+
+<form action="{% url 'set_theme' %}" method="post" id="themeForm">
+    {% csrf_token %}
+    <div class="theme-selector">
+        <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <small><span class="theme-preview" style="background: {{current_theme.color}}"></span>
+                {{ current_theme.name }}</small>
+        </button>
+        <ul class="dropdown-menu">
+            {% for theme in themes %}
+            <li>
+                <button type="submit" name="theme" value="{{ theme.code_name }}" class="dropdown-item">
+                    <span class="theme-option">
+                        <span class="color-preview" style="background: {{ theme.color }}"></span>
+                        {{ theme.name }}
+                    </span>
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cierra el dropdown después de seleccionar una opción
+        document.querySelectorAll('.theme-selector .dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const dropdown = this.closest('.dropdown-menu');
+                if (dropdown) dropdown.classList.remove('show');
+            });
+        });
+        
+        // Actualiza dinámicamente el color del botón principal
+        const form = document.getElementById('themeForm');
+        form.addEventListener('submit', function() {
+            const selectedTheme = document.activeElement?.value;
+            const preview = document.querySelector('.theme-preview');
+            if (selectedTheme && preview) {
+                preview.style.backgroundColor = document.querySelector(`button[value="${selectedTheme}"] .color-preview`).style.backgroundColor;
+            }
+        });
+    });
+    </script>

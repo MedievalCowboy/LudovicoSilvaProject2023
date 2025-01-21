@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404, get_list_or_40
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound, Http404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
@@ -39,20 +40,33 @@ def portal_conocenos(request):
 
 ######################################################################################
 ######################################################################################
-#SERVICIOS RELACIONADOS CON ORDENES
+@require_POST
+def set_theme(request):
+    theme = request.POST.get('theme', 'red')
+    if request.user.is_authenticated:
+        profile = request.user.profile
+        profile.tema_sistema = theme
+        profile.save()
+    else:
+        request.session['theme'] = theme
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
 
 #logica para enviar email a correo en formato texto y html
 #Regresa 1 si se envió y 0 si no se envio nada.
 def send_email(subject, from_email, to_emails, text_template, html_template, context):
     text_content = render_to_string(text_template, context = context)
-    
     html_content = render_to_string(html_template, context = context)
-    
     msg = EmailMultiAlternatives(subject, text_content, from_email, to_emails)
-
     msg.attach_alternative(html_content, "text/html")
     value = msg.send()
     return value
+
+######################################################################################
+######################################################################################
+#SERVICIOS RELACIONADOS CON ORDENES
+
+
 
 #pagina dashboard "workspace/ordenes/"
 @login_required

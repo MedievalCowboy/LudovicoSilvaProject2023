@@ -16,3 +16,4 @@ def update_profile(sender, instance, created, **kwargs):
     if not created:
         instance.profile.save()
         print('Profile updated.')
+

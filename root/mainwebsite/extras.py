@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+
 def obtener_rol_mas_alto(user):
     # Jerarquía de roles asociando el nombre con un valor numérico (mas alto, mas rango)
     jerarquia_roles = [
@@ -33,3 +34,4 @@ def generar_nombre_imagen(instance, filename, clase_modelo, campo_id, nombre_car
     else:
         new_filename = f"{clase_modelo}_{getattr(instance, campo_id)}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
     return os.path.join('images',nombre_carpeta, new_filename)
+
