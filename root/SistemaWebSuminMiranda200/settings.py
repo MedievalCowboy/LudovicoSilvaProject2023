@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     "crispy_bootstrap4",
     "tempus_dominus",
+    'django_filters',
+    'widget_tweaks',
     #apps
     'mainwebsite'
 ]
@@ -149,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'America/Caracas'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 USE_L10N = True
@@ -161,7 +163,14 @@ LOGIN_REDIRECT_URL='/ordenes/'
 LOGOUT_REDIRECT_URL=''
 AUTO_LOGOUT = {'IDLE_TIME':timedelta(minutes=10), 'MESSAGE':'Tu sesión de usuario a expirado. Inicie sesión nuevamente para continuar.'}
 
- 
+# Tiempo de inactividad en segundos (20 minutos = 20 * 60)
+SESSION_COOKIE_AGE = 1200
+
+# Renovar la sesión en cada solicitud (actualiza el contador de inactividad)
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Opcional: Forzar a que la sesión expire al cerrar el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # (False para usar SESSION_COOKIE_AGE)
 
 #CONFIGURACION DE MENSAJES
 MESSAGE_TAGS = {

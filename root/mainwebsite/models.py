@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from .extras import generar_nombre_imagen
 
-
 def generar_nombre_imgen_cliente(instance, filename):
     return generar_nombre_imagen(instance, filename, 'cliente', 'id_cliente', 'clients')
 
@@ -14,7 +13,6 @@ def generar_nombre_imgen_producto(instance, filename):
 def generar_nombre_imgen_usuario(instance, filename):
     return generar_nombre_imagen(instance, filename, 'usuario', '#', 'products')
 
-
 TEMAS_SISTEMA = [
     ('red', 'Rojo'),
     ('blue', 'Azul'),
@@ -23,6 +21,29 @@ TEMAS_SISTEMA = [
     ('pink', 'Rosado'),
     ('brown', "Marrón"),
 ]
+
+LOGIN_CHOICES =[
+    ('login', 'Inicio de Sesión'),
+    ('logout', 'Cerrar sesión'),
+    ('failed_attempt', 'Intento Fallido'),
+]
+
+class LoginHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event_type = models.CharField(max_length=20, choices=LOGIN_CHOICES)
+    timestamp = models.DateTimeField(default=timezone.now)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=255)
+    device_type = models.CharField(max_length=50, blank=True)
+    browser = models.CharField(max_length=50, blank=True)
+    operating_system = models.CharField(max_length=50, blank=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'Historial de Acceso'
+        verbose_name_plural = 'Histal de accesos'
+    def __str__(self):
+        return f"{self.user.username} - {self.event_type} - {self.timestamp}"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
@@ -40,8 +61,6 @@ class Profile(models.Model):
     def __str__(self):
         return(f"{self.user.username}|{self.cedula} : {self.nombres} {self.apellidos}")
     
-
-
 
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
@@ -167,4 +186,4 @@ class Orden_Producto(models.Model):
     empaque = models.CharField(max_length=20)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     id_orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
-    # Relaciones
+    

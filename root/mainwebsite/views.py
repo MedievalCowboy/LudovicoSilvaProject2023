@@ -8,15 +8,16 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count, Sum
+from django.core.paginator import Paginator
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 import re
 from django.templatetags.static import static
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm
-
+from .filters import LoginHistoryFilter
 
 from django.contrib.admin.models import LogEntry
 
@@ -862,12 +863,32 @@ def login_user(request):
         return redirect('ordenes')
     return render(request, 'login.html', {})
 
-#Terminar sesión
+#Cerrar sesión
 def logout_user(request):
     logout(request)
     messages.success(request, "Te has desconectado correctamente")
     #return redirect('ordenes')
     return HttpResponseRedirect(reverse('login')) 
+
+# Listado de accesos al sistema
+@login_required
+@only_admin
+def global_access_history(request):
+    qs = LoginHistory.objects.all().order_by('-timestamp')
+    
+    # Aplicar filtros
+    filter = LoginHistoryFilter(request.GET, queryset=qs)
+    
+    # Paginación
+    paginator = Paginator(filter.qs, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'auth/global_history.html', {
+        'filter': filter,
+        'page_obj': page_obj
+    })
+
 
 ######################################################################################
 ######################################################################################
