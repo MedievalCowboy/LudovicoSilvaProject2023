@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound, Http404
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound, Http404, HttpResponse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.models import Session
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
+from django.template.loader import render_to_string
 from django.contrib.auth.models import User, Group
+from xhtml2pdf import pisa
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.contrib import messages
@@ -15,6 +17,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 import re
+import os
 from django.utils import timezone
 from django.templatetags.static import static
 from django.contrib.admin.models import LogEntry
@@ -172,6 +175,8 @@ def orden_eliminar(request, pk):
         messages.warning(request, "Se Eliminó la orden exitosamente.")
         return JsonResponse(data)
 
+
+
 #Funcion que muestra una orden en especifico.
 @login_required
 def orden_detail(request, pk):
@@ -181,6 +186,68 @@ def orden_detail(request, pk):
     context={'orden':orden, 'orden_prod_list':orden_productos, 'titulo_web':'Vista detallada de orden', 'titulo_page':"Detalle de Orden #"+str(orden.num_orden)}
 
     return render(request, 'ordenes/orden_detail.html', context)
+
+
+def link_callback(uri, _):
+    """
+    Convierte URLs estáticas a rutas del sistema.
+    Ej: '/static/img/logo.png' → '/ruta/proyecto/mainwebsite/static/img/logo.png'
+    """
+    # Paso 1: Eliminar '/' inicial y convertir a ruta relativa
+    uri = uri.lstrip('/')
+    
+    # Paso 2: Verificar si es una URL estática
+    if uri.startswith('static/'):
+        # Desarrollo: Buscar en STATICFILES_DIRS
+        if settings.DEBUG:
+            path = os.path.join(settings.BASE_DIR, 'mainwebsite', 'static', uri.replace('static/', ''))
+        # Producción: Buscar en STATIC_ROOT
+        else:
+            path = os.path.join(settings.STATIC_ROOT, uri.replace('static/', ''))
+        
+        # Verificar si el archivo existe
+        if not os.path.exists(path):
+            raise ValueError(f"Archivo estático no encontrado: {path}")
+        return path
+    
+    # Si no es estático, retornar la URI original (ej: URLs HTTP)
+    return uri
+
+def generar_pdf_orden(request, pk):
+    # Obtener la orden con sus productos relacionados
+    orden = Orden.objects.prefetch_related('orden_producto_set__producto').get(pk=pk)
+    orden_productos = orden.orden_producto_set.all()  # Obtiene todos los productos
+    
+    context = {
+        'orden': orden,
+        'orden_productos': orden_productos, 
+        'total_general': orden.get_total_general, 
+        'empresa': {
+            'nombre': 'Suministros Miranda 200 C.A.',
+            'direccion': 'Av. Principal 123, Ciudad',
+            'telefono': '0412-1234567',
+            'email': 'soporte@empresa.com',
+        }
+    }
+    
+    # Renderizar plantilla HTML
+    html_string = render_to_string('ordenes/pdf_orden.html', context)
+    
+    # Crear respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'filename=orden_{orden.num_orden}.pdf'
+    
+    # Generar PDF
+    pisa_status = pisa.CreatePDF(
+        html_string, 
+        dest=response,
+        encoding='UTF-8',
+        link_callback=link_callback
+    )
+    
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF')
+    return response
 
 
 ######################################################################################
@@ -861,7 +928,7 @@ def logout_user(request):
 
 # Listado de accesos al sistema
 @login_required
-@only_admin
+@allowed_users(allowed_roles=['gerente'])
 def global_access_history(request):
     qs = LoginHistory.objects.all().order_by('-timestamp')
     
@@ -880,7 +947,7 @@ def global_access_history(request):
     
 ## peticion para ver las sesiones de usuario activas al momento
 @login_required
-@only_admin
+@allowed_users(allowed_roles=['gerente'])
 def active_sessions_view(request):
     sessions = Session.objects.filter(expire_date__gt=timezone.now())
     
@@ -899,7 +966,7 @@ def active_sessions_view(request):
 
 ## Peticion para desconectar un usuario en especifico.
 @login_required
-@only_admin
+@allowed_users(allowed_roles=['gerente'])
 def disconnect_user(request, session_key):
     print("Session Key recibida:", session_key)
     try:
@@ -937,7 +1004,7 @@ def disconnect_user(request, session_key):
 
 ## Peticion para desconectar a todos los usuarios excluyendo usuarios staff 
 @login_required
-@only_admin
+@allowed_users(allowed_roles=['gerente'])
 def disconnect_all(request):
     # Excluir staff y usuario actual
     sessions = UserSession.objects.exclude(

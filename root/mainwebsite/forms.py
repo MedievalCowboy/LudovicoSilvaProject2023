@@ -63,9 +63,8 @@ class OrdenForm(forms.ModelForm):
         if not re.match(r'^\d{11}$', tlf_solicitado):
             raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
         return tlf_solicitado
-    
 
-    
+
 class OrdenProductoForm(forms.ModelForm):
     class Meta:
         model = Orden_Producto

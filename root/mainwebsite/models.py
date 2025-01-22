@@ -191,6 +191,11 @@ class Orden(models.Model):
     id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null = True, default=Cliente.get_default_pk)
     id_destino = models.ForeignKey(Destino, on_delete=models.SET_NULL, null = True)
     id_usuario = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
+    
+    @property
+    def get_total_general(self):
+        return sum(item.get_total for item in self.orden_producto_set.all())
+    
     def __str__(self):
         return(f"id:{self.id_orden}-numOrden:{self.num_orden}-desc:{self.desc_requisicion}")
 
@@ -202,4 +207,8 @@ class Orden_Producto(models.Model):
     empaque = models.CharField(max_length=20)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     id_orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
+    
+    @property
+    def get_total(self):
+        return self.cantidad * self.precio_unit
     

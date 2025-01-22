@@ -30,6 +30,7 @@ urlpatterns = [
     path('workspace/orden/modificar/<int:pk>', views.orden_modificar, name="orden_modificar"),
     path('workspace/orden/eliminar/<int:pk>', views.orden_eliminar, name="orden_eliminar"),
     path('workspace/orden/send_email/<int:pk>', views.send_orden_info_email, name="send_orden_email"),
+    path('workspace/orden/pdf/<int:pk>/', views.generar_pdf_orden, name='orden_pdf'),
 
     path('workspace/orden_prod/listar/<int:pk>', views.orden_prod_listar, name="orden_prod_listar"),
     path('workspace/orden_prod/eliminar/<int:pk>', views.orden_prod_eliminar, name="orden_prod_eliminar"),
