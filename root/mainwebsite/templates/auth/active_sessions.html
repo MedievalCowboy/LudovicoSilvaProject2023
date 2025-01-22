@@ -1,0 +1,73 @@
+{% extends "base/base2.html" %}
+{% load static %}
+
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Sesiones Activas</h2>
+        <form method="post" action="{% url 'disconnect_all' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">
+                <i class="bi bi-plug-fill"></i> Desconectar Todos
+            </button>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Inicio de Sesión</th>
+                    <th>Última Actividad</th>
+                    <th>Dirección IP</th>
+                    <th>Dispositivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in active_users %}
+                <tr>
+                    <td>
+                        <a href="{% url 'user_profile' session.user.pk session.user.username %}" 
+                           class="text-decoration-none">
+                            {{ session.user.username }}
+                            {% if session.user.is_staff %}
+                            <i class="bi bi-award-fill text-warning ms-1"></i>
+                            {% endif %}
+                        </a>
+                    </td>
+                    <td>{{ session.login_time|date:"d M Y H:i" }}</td>
+                    <td>{{ session.last_activity|date:"d M Y H:i" }}</td>
+                    <td>{{ session.ip_address }}</td>
+                    <td>{{ session.device }}</td>
+                    <td>
+                        {% if session.user.is_staff or session.user.pk == current_user_pk %}
+                            <button class="btn btn-outline-secondary btn-sm" disabled>
+                                <i class="bi bi-power"></i> Desconectar
+                            </button>
+                        {% else %}
+                        <form method="post" action="{% url 'disconnect_user' session.session_key %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="session_key" value="{{ session.session_key }}">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-power"></i>
+                                Desconectar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No hay sesiones activas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

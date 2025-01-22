@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -28,6 +29,21 @@ LOGIN_CHOICES =[
     ('failed_attempt', 'Intento Fallido'),
 ]
 
+class UserSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session_key = models.CharField(max_length=40, unique=True)
+    login_time = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField()
+    device = models.CharField(max_length=255)
+    last_activity = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_active(self):
+        return Session.objects.filter(
+            session_key=self.session_key,
+            expire_date__gt=timezone.now()
+        ).exists()
+
 class LoginHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event_type = models.CharField(max_length=20, choices=LOGIN_CHOICES)
@@ -41,7 +57,7 @@ class LoginHistory(models.Model):
     class Meta:
         ordering = ['-timestamp']
         verbose_name = 'Historial de Acceso'
-        verbose_name_plural = 'Histal de accesos'
+        verbose_name_plural = 'Historial de accesos'
     def __str__(self):
         return f"{self.user.username} - {self.event_type} - {self.timestamp}"
 

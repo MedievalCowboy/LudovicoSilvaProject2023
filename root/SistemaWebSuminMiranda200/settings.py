@@ -73,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'mainwebsite.middleware.UpdateLastActivityMiddleware',
 ]
 
 ROOT_URLCONF = 'SistemaWebSuminMiranda200.urls'
@@ -171,6 +172,9 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # Opcional: Forzar a que la sesión expire al cerrar el navegador
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # (False para usar SESSION_COOKIE_AGE)
+
+# Asegura usar base de datos para las sesiones
+SESSION_ENGINE = "django.contrib.sessions.backends.db" 
 
 #CONFIGURACION DE MENSAJES
 MESSAGE_TAGS = {

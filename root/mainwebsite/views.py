@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404, get_list_or_40
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound, Http404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.sessions.models import Session
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count, Sum
@@ -14,8 +17,9 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 import re
+from django.utils import timezone
 from django.templatetags.static import static
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm
 from .filters import LoginHistoryFilter
 
@@ -888,7 +892,82 @@ def global_access_history(request):
         'filter': filter,
         'page_obj': page_obj
     })
+## peticion para ver las sesiones de usuario activas al momento
+@login_required
+@only_admin
+def active_sessions_view(request):
+    sessions = Session.objects.filter(expire_date__gt=timezone.now())
+    
+    active_users = []
+    for session in sessions:
+        try:
+            user_session = UserSession.objects.get(session_key=session.session_key)
+            active_users.append(user_session)
+        except UserSession.DoesNotExist:
+            pass
+    
+    return render(request, 'auth/active_sessions.html', {
+        'active_users': active_users,
+        'current_user_pk': request.user.pk  # Nuevo contexto
+    })
 
+## Peticion para desconectar un usuario en especifico.
+@login_required
+@only_admin
+def disconnect_user(request, session_key):
+    print("Session Key recibida:", session_key)
+    try:
+        # Primero verificar la sesión de Django
+        try:
+            
+            django_session = Session.objects.get(session_key=session_key)
+        except Session.DoesNotExist:
+            messages.error(request, "La sesión no existe en el sistema")
+            return redirect('active_sessions')
+        
+        # Luego verificar tu registro UserSession
+        try:
+            user_session = UserSession.objects.get(session_key=session_key)
+        except UserSession.DoesNotExist:
+            messages.error(request, "La sesión no está registrada")
+            django_session.delete()  # Limpiar sesión huérfana
+            return redirect('active_sessions')
+        
+        # Validar permisos
+        if user_session.user.is_staff or user_session.user == request.user:
+            messages.error(request, "Acción no permitida para este usuario")
+            return redirect('active_sessions')
+        
+        # Eliminar en orden inverso
+        with transaction.atomic():
+            user_session.delete()  # Primero tu registro
+            django_session.delete()  # Luego la sesión de Django
+            messages.success(request, f"Usuario {user_session.user.username} desconectado")
+            
+    except Exception as e:
+        messages.error(request, "Error interno al procesar la solicitud")
+    
+    return redirect('active_sessions')
+
+## Peticion para desconectar a todos los usuarios excluyendo usuarios staff 
+@login_required
+@only_admin
+def disconnect_all(request):
+    # Excluir staff y usuario actual
+    sessions = UserSession.objects.exclude(
+        user__is_staff=True
+    ).exclude(
+        user=request.user
+    )
+    
+    count = sessions.count()
+    # Eliminar sesiones
+    for session in sessions:
+        Session.objects.filter(session_key=session.session_key).delete()
+    sessions.delete()
+    
+    messages.success(request, f'{count} usuarios desconectados exitosamente')
+    return redirect('active_sessions')
 
 ######################################################################################
 ######################################################################################

@@ -18,8 +18,7 @@ urlpatterns = [
     path('password_reset/confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
     path('password_reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),
     
-    #path('/perfil/<string:nombre>', views.perfil_usuario, name='perfil'),
-
+    
     path('pruebas/', views.pruebas, name="pruebas"),
 
     path('workspace/ordenes/', views.ordenes, name='ordenes'),
@@ -78,6 +77,9 @@ urlpatterns = [
     
     path('workspace/config/actualizar_tema/', views.set_theme, name="set_theme"),
     path('workspace/administracion/accesos-usuarios/', views.global_access_history, name='global_access_history'),
+    path('workspace/administracion/usuarios-activos/', views.active_sessions_view, name='active_sessions'),
+    path('workspace/administracion/desconectar-usuario/<str:session_key>/', views.disconnect_user, name='disconnect_user'),
+    path('workspace/administracion/desconectar-todos-usuarios/', views.disconnect_all, name='disconnect_all'),
     
 ]
 

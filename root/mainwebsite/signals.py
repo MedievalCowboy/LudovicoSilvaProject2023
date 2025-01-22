@@ -1,10 +1,11 @@
 from django.db import transaction
 from django.db.models.signals import post_save
+
 from django.contrib.auth.models import User
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver
 
-from .models import Profile, LoginHistory
+from .models import Profile, LoginHistory, UserSession
 from .extras import get_client_ip, parse_user_agent
 
 @receiver(post_save,sender=User)
@@ -54,3 +55,22 @@ def log_user_logout(sender, request, user, **kwargs):
                 browser=agent_info['browser'],
                 operating_system=agent_info['os']
             )
+            
+            
+
+@receiver(user_logged_in)
+def create_user_session(sender, request, user, **kwargs):
+    # Eliminar sesiones previas del usuario
+    UserSession.objects.filter(user=user).delete()
+    
+    # Obtener información del dispositivo
+    user_agent = parse_user_agent(request)
+    device_info = f"{user_agent['device_type']}-{user_agent['os']}"
+    
+    # Crear nueva sesión
+    UserSession.objects.create(
+        user=user,
+        session_key=request.session.session_key,
+        ip_address=get_client_ip(request),
+        device=device_info
+    )

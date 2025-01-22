@@ -123,7 +123,7 @@
       </li> 
       <!-- End Components Nav -->
       {% if request.user|has_group:"gerente" %}
-      <li class="nav-heading" style="">Gerencia</li>
+      <li class="nav-heading" style="">Gestión</li>
 
       <li class="nav-item" style="">
         <a class="nav-link collapsed aside-btn" href="#">
@@ -132,11 +132,18 @@
         </a>
       </li>
       <li class="nav-item" style="">
+        <a class="nav-link collapsed aside-btn" href="{% url 'active_sessions' %}">
+          <i class="bi bi-broadcast"></i>
+          <small><span>Usuarios activos</span></small>
+        </a>
+      </li>
+      <li class="nav-item" style="">
         <a class="nav-link collapsed aside-btn" href="{% url 'global_access_history' %}">
           <i class="bi bi-door-open"></i>
           <small><span>Registros de inicio de sesión</span></small>
         </a>
       </li>
+
       {% endif %}
       {% if user.is_staff %}
       <li class="nav-heading" style="">Administración</li>
