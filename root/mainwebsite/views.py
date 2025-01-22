@@ -77,7 +77,7 @@ def send_email(subject, from_email, to_emails, text_template, html_template, con
 @login_required
 def ordenes(request):
     lista_ordenes = Orden.objects.annotate(num_productos=Count('orden_producto'))
-    return render(request, 'ordenes.html',{'ordenes':lista_ordenes, 'titulo_web':'Ordenes - SM200SYS'})
+    return render(request, 'ordenes/ordenes.html',{'ordenes':lista_ordenes, 'titulo_web':'Ordenes - SM200SYS'})
 
 @login_required
 def send_orden_info_email(request, pk):
@@ -107,7 +107,6 @@ def send_orden_info_email(request, pk):
     url = reverse('orden_detail', kwargs={'pk': pk})    
     return redirect(url)
 
-
 @login_required
 def orden_insertar(request):
     if request.method == 'POST':
@@ -134,7 +133,7 @@ def orden_insertar(request):
             form = OrdenForm()
     else:
         form = OrdenForm()
-    return render(request, 'orden_insertar.html', {'form': form, 'titulo_web':'Insertar Orden - SM200SYS'})
+    return render(request, 'ordenes/orden_insertar.html', {'form': form, 'titulo_web':'Insertar Orden - SM200SYS'})
 
 
 @login_required
@@ -154,7 +153,7 @@ def orden_insertar_2(request, pk):
             form = OrdenProductoForm(pk=pk)
     else:
         form = OrdenProductoForm(pk=pk)
-    return render(request, 'orden_insertar2.html', {'form': form, 'titulo_web': 'Insertar Orden - SM200SYS'})
+    return render(request, 'ordenes/orden_insertar2.html', {'form': form, 'titulo_web': 'Insertar Orden - SM200SYS'})
 
 
 @login_required
@@ -194,7 +193,7 @@ def orden_detail(request, pk):
     
     context={'orden':orden, 'orden_prod_list':orden_productos, 'titulo_web':'Vista detallada de orden', 'titulo_page':"Detalle de Orden #"+str(orden.num_orden)}
 
-    return render(request, 'orden_detail.html', context)
+    return render(request, 'ordenes/orden_detail.html', context)
 
 
 ######################################################################################
@@ -212,7 +211,7 @@ def orden_prod_listar(request, pk):
              'orden_prod_list': orden_prod_elements,
              'titulo_web':'Productos en la orden '+ str(orden.num_orden)  ,}
 
-    return render(request, 'orden_prod_list.html', context)
+    return render(request, 'ordenes/orden_prod_list.html', context)
 
 #Esto esta conectado con ajax
 @login_required
@@ -245,9 +244,8 @@ def orden_prod_modificar(request, orden_pk, orprod_pk):
                'titulo_page':'Modificar Productos de Orden #'+str(orden.num_orden),
                }
     
-    return render(request, 'orden_prod_mod.html',context)
-        
-    
+    return render(request, 'ordenes/orden_prod_mod.html',context)
+
 
 ######################################################################################
 ######################################################################################
@@ -259,7 +257,7 @@ def inventario_lista(request):
 
     context = {'inventario':inventario_list,
                'titulo_web':'Inventario - SM200SYS'}
-    return render(request, "inventario.html",context)
+    return render(request, "inventario/inventario.html",context)
 
 @login_required
 def inventario_insertar(request):
@@ -280,7 +278,7 @@ def inventario_insertar(request):
     else:
         form = InventarioForm()
 
-    return render(request, 'inventario_insertar.html', {'form': form, 'titulo_web':'Insertar Elemento en Inventario - SM200SYS'})
+    return render(request, 'inventario/inventario_insertar.html', {'form': form, 'titulo_web':'Insertar Elemento en Inventario - SM200SYS'})
 
 @login_required
 def inventario_modificar(request, pk):
@@ -320,7 +318,7 @@ def producto_lista(request):
 
     context = {'productos':producto_list,
                'titulo_web':"Productos - SM200SYS",}
-    return render(request, "productos.html", context)
+    return render(request, "inventario/productos.html", context)
 
 
 @login_required
@@ -339,7 +337,7 @@ def producto_detail(request, pk):
         pass
         
 
-    return render(request, 'producto_detail.html', context)
+    return render(request, 'inventario/producto_detail.html', context)
 
 @login_required
 def producto_insertar(request):
@@ -361,7 +359,7 @@ def producto_insertar(request):
     else:
         form = ProductoForm()
 
-    return render(request, 'producto_insertar.html', {'form': form, 'titulo_web':'Insertar Producto - SM200SYS'})
+    return render(request, 'inventario/producto_insertar.html', {'form': form, 'titulo_web':'Insertar Producto - SM200SYS'})
 
 @login_required
 def producto_modificar(request, pk):
@@ -403,7 +401,7 @@ def proveedores(request):
     total_lista = len(proveedores_lista)
     context = {'proveedores':proveedores_lista,
                'total': total_lista,}
-    return render(request, "proveedores.html",context)
+    return render(request, "proveedores/proveedores.html",context)
 
     
 @login_required
@@ -413,7 +411,7 @@ def proveedor_detail(request, pk):
     
     context={'proveedor':proveedor, 'proveedor_productos':proveedor_productos, 'titulo_web':'Vista detallada de proveedor', 'titulo_page':"Detalle del proveedor #"+str(proveedor.id_proveedor)}
 
-    return render(request, 'proveedor_detail.html', context)
+    return render(request, 'proveedores/proveedor_detail.html', context)
 
 
 @login_required
@@ -455,7 +453,7 @@ def proveedor_insertar(request):
     else:
         form = ProveedorForm()
 
-    return render(request, 'proveedor_insertar.html', {'form': form, 'titulo_web':'Insertar Proveedor - SM200SYS'})
+    return render(request, 'proveedores/proveedor_insertar.html', {'form': form, 'titulo_web':'Insertar Proveedor - SM200SYS'})
 
 @login_required
 def proveedor_eliminar(request, pk):
@@ -481,7 +479,7 @@ def clientes(request):
                'titulo_web':'Clientes - SM200SYS'}
     
     
-    return render(request, "clientes.html",context)
+    return render(request, "clientes/clientes.html",context)
 
 @login_required
 def cliente_detail(request, pk):
@@ -498,7 +496,7 @@ def cliente_detail(request, pk):
     except Exception as e:
         pass
 
-    return render(request, 'cliente_detail.html', context)
+    return render(request, 'clientes/cliente_detail.html', context)
 
 
 
@@ -521,7 +519,7 @@ def cliente_insertar(request):
     else:
         form = ClientesForm()
 
-    return render(request, 'cliente_insertar.html', {'form': form, 'titulo_web':'Insertar Cliente - SM200SYS'})
+    return render(request, 'clientes/cliente_insertar.html', {'form': form, 'titulo_web':'Insertar Cliente - SM200SYS'})
 
 
 def cliente_modificar(request, pk):
@@ -568,7 +566,7 @@ def almacenes(request):
     
     context = {'almacenes':almacenes_lista,
                'titulo_web':'Almacenes - SM200SYS'}
-    return render(request, "almacenes.html",context)
+    return render(request, "almacenes/almacenes.html",context)
 
 @login_required
 def almacen_detail(request, pk):
@@ -583,7 +581,7 @@ def almacen_detail(request, pk):
              'titulo_page':"Detalle del almacen #"+str(almacen.id_almacen)}
     
 
-    return render(request, 'almacen_detail.html', context)
+    return render(request, 'almacenes/almacen_detail.html', context)
 
 @login_required
 def almacen_modificar(request, pk):
@@ -623,7 +621,7 @@ def almacen_insertar(request):
     else: 
         form = AlmacenForm()
 
-    return render(request, 'almacen_insertar.html', {'form': form, 'titulo_web':'Insertar Almacen - SM200SYS'})
+    return render(request, 'almacenes/almacen_insertar.html', {'form': form, 'titulo_web':'Insertar Almacen - SM200SYS'})
 
 @login_required
 def almacen_eliminar(request, pk):
@@ -646,7 +644,7 @@ def destino_lista(request):
         'destinos': destinos,
         'titulo_web':'Destinos - SM200SYS'
     }
-    return render(request,'destinos.html', context)
+    return render(request,'destinos/destinos.html', context)
 
 @login_required
 def destino_detail(request, pk):
@@ -662,7 +660,7 @@ def destino_detail(request, pk):
     except Exception as e:
         pass
 
-    return render(request, 'destino_detail.html', context)
+    return render(request, 'destinos/destino_detail.html', context)
 
 
 @login_required
@@ -704,7 +702,7 @@ def destino_insertar(request):
     else:
         form = DestinoForm()
 
-    return render(request, 'destino_insertar.html', {'form': form, 'titulo_web':'Insertar Destino - SM200SYS'})
+    return render(request, 'destinos/destino_insertar.html', {'form': form, 'titulo_web':'Insertar Destino - SM200SYS'})
 
 @login_required
 def destino_eliminar(request, pk):
@@ -725,7 +723,7 @@ def prod_dest_lista(request):
     context = {'consumos':prod_dest_list,
                'titulo_web':'Consumo general de Productos/Destinos - SM200SYS'}
     
-    return render(request,'prod_dest_consumos.html', context)
+    return render(request,'inventario/prod_dest_consumos.html', context)
 
 @login_required
 def prod_dest_det_dest(request, pk):
@@ -736,7 +734,7 @@ def prod_dest_det_dest(request, pk):
              'listado': prod_dest_det_list,
              'id_destino':destino.nombre_destino,
              'titulo_web':'Consumo de productos para el destino '+ destino.nombre_destino  ,}
-    return render(request, 'prod_dest_det_dest.html', context)
+    return render(request, 'inventario/prod_dest_det_dest.html', context)
 
 @login_required
 def prod_dest_modificar(request,pk):
@@ -756,7 +754,7 @@ def prod_dest_modificar(request,pk):
                'titulo_web': 'Modificar relación Producto en Destino - SM200SYS',
                'titulo_page':'Modificar relación Producto en Destino',
                'volver_a':'prod_dest_lista'}
-    return render(request, 'prod_dest_modificar.html', context)
+    return render(request, 'inventario/prod_dest_modificar.html', context)
 
 @login_required
 def prod_dest_insertar(request):
@@ -778,7 +776,7 @@ def prod_dest_insertar(request):
         form = ProdDestForm()
 
     print("llego")
-    return render(request, 'prod_dest_insertar.html', {'form': form, 'titulo_web':'Insertar relación consumo Producto/Destino - SM200SYS'})
+    return render(request, 'inventario/prod_dest_insertar.html', {'form': form, 'titulo_web':'Insertar relación consumo Producto/Destino - SM200SYS'})
     
 @login_required
 def prod_dest_eliminar(request, pk):
@@ -829,7 +827,7 @@ def register_user(request):
             
     
     context = {'form':form, 'titulo_web':'Crear nuevo usuario'}
-    return render(request, 'register_user.html', context)
+    return render(request, 'usuarios/crear_usuario.html', context)
 
 @login_required
 def user_profile(request, pk, username):
@@ -846,7 +844,7 @@ def user_profile(request, pk, username):
         'perfil':perfil,
         'titulo_web':'Usuario:'+str(user.username)
     }
-    return render(request, 'perfil_usuario.html', context)
+    return render(request, 'usuarios/perfil_usuario.html', context)
     
 
 ######################################################################################
@@ -865,7 +863,7 @@ def login_user(request):
             messages.warning(request, "Usuario o contraseña incorrectos.")
     if request.user.is_authenticated:
         return redirect('ordenes')
-    return render(request, 'login.html', {})
+    return render(request, 'auth/login.html', {})
 
 #Cerrar sesión
 def logout_user(request):
@@ -892,6 +890,7 @@ def global_access_history(request):
         'filter': filter,
         'page_obj': page_obj
     })
+    
 ## peticion para ver las sesiones de usuario activas al momento
 @login_required
 @only_admin
@@ -974,5 +973,5 @@ def disconnect_all(request):
 
 #manejo de errores 404 custom
 def custom_404(request, exception):
-    return render(request, 'error_404.html', status=404)
+    return render(request, 'base/404.html', status=404)
 
