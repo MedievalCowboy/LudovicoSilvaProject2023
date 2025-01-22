@@ -1,6 +1,20 @@
 import os
 from datetime import datetime
 import user_agents
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+
+
+
+#logica para enviar email a correo en formato texto y html
+#Regresa 1 si se envió y 0 si no se envio nada.
+def send_email(subject, from_email, to_emails, text_template, html_template, context):
+    text_content = render_to_string(text_template, context = context)
+    html_content = render_to_string(html_template, context = context)
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to_emails)
+    msg.attach_alternative(html_content, "text/html")
+    value = msg.send()
+    return value
 
 def obtener_rol_mas_alto(user):
     # Jerarquía de roles asociando el nombre con un valor numérico (mas alto, mas rango)

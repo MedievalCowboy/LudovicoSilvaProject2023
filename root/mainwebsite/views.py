@@ -12,21 +12,19 @@ from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count, Sum
 from django.core.paginator import Paginator
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 import re
 from django.utils import timezone
 from django.templatetags.static import static
+from django.contrib.admin.models import LogEntry
+
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm
 from .filters import LoginHistoryFilter
-
-from django.contrib.admin.models import LogEntry
-
 from .decorators import allowed_users, only_admin
-from .extras import obtener_rol_mas_alto
+from .extras import obtener_rol_mas_alto, send_email
+
 
 @allowed_users(allowed_roles=['gerente'])
 def pruebas(request):
@@ -57,20 +55,9 @@ def set_theme(request):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-#logica para enviar email a correo en formato texto y html
-#Regresa 1 si se envió y 0 si no se envio nada.
-def send_email(subject, from_email, to_emails, text_template, html_template, context):
-    text_content = render_to_string(text_template, context = context)
-    html_content = render_to_string(html_template, context = context)
-    msg = EmailMultiAlternatives(subject, text_content, from_email, to_emails)
-    msg.attach_alternative(html_content, "text/html")
-    value = msg.send()
-    return value
-
 ######################################################################################
 ######################################################################################
 #SERVICIOS RELACIONADOS CON ORDENES
-
 
 
 #pagina dashboard "workspace/ordenes/"

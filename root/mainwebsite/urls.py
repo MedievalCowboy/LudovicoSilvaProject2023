@@ -3,6 +3,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
+
 urlpatterns = [
 
     path('', views.portal_principal, name="portalPrincipal"),
@@ -21,6 +22,7 @@ urlpatterns = [
     
     path('pruebas/', views.pruebas, name="pruebas"),
 
+    
     path('workspace/ordenes/', views.ordenes, name='ordenes'),
     path('workspace/orden/<int:pk>', views.orden_detail, name="orden_detail"),
     path('workspace/orden/insertar', views.orden_insertar, name="orden_insertar"),
@@ -32,6 +34,7 @@ urlpatterns = [
     path('workspace/orden_prod/listar/<int:pk>', views.orden_prod_listar, name="orden_prod_listar"),
     path('workspace/orden_prod/eliminar/<int:pk>', views.orden_prod_eliminar, name="orden_prod_eliminar"),
     path('workspace/orden_prod/modificar/<int:orden_pk>/<int:orprod_pk>', views.orden_prod_modificar, name="orden_prod_modificar"),
+
 
     path('workspace/proveedores/', views.proveedores, name='proveedores'),
     path('workspace/proveedor/<int:pk>', views.proveedor_detail, name="proveedor_detail"),
