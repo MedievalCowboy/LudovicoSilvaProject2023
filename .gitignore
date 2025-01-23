@@ -167,3 +167,5 @@ media/
 ./media/
 **/root/media
 migrations
+.VSCodeCounter
+.vscode
