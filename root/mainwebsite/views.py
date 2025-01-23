@@ -3,7 +3,7 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.models import Session
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.forms import UserCreationForm
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User, Group
@@ -16,18 +16,18 @@ from django.db.models import Count, Sum
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.contenttypes.models import ContentType
 import re
 import os
+import csv
 from django.utils import timezone
 from django.templatetags.static import static
 from django.contrib.admin.models import LogEntry
-
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
-
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession
+from django.views.generic import ListView
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession, AuditLog
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm, ProfileForm
 from .filters import LoginHistoryFilter
 
@@ -949,7 +949,8 @@ def edit_profile(request, user_id=None):
     context = {
         'form': form,
         'target_user': target_user,
-        'all_users': all_users
+        'all_users': all_users,
+        'titulo_web': 'Editar Perfil',
     }
     return render(request, 'usuarios/editar_perfil.html', context)
 
@@ -961,7 +962,8 @@ def user_list(request):
     
     context ={
         'users': users,
-        'default_photo': 'static/img/profile-img.png'
+        'default_photo': 'static/img/profile-img.png',
+        'titulo_web': 'Lista de Usuarios registrados',
     }
     
     return render(request, 'usuarios/lista_usuarios.html', context)
@@ -1040,7 +1042,8 @@ def global_access_history(request):
     
     return render(request, 'auth/global_history.html', {
         'filter': filter,
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'titulo_web': 'Historial de inicios de sesión',
     })
     
 ## peticion para ver las sesiones de usuario activas al momento
@@ -1057,10 +1060,13 @@ def active_sessions_view(request):
         except UserSession.DoesNotExist:
             pass
     
-    return render(request, 'auth/active_sessions.html', {
-        'active_users': active_users,
-        'current_user_pk': request.user.pk  # Nuevo contexto
-    })
+    context ={
+         'active_users': active_users,
+        'current_user_pk': request.user.pk,
+        'titulo_web': 'Usuarios activos en el sistema',
+        }
+    
+    return render(request, 'auth/active_sessions.html', context)
 
 ## Peticion para desconectar un usuario en especifico.
 @login_required
@@ -1091,7 +1097,7 @@ def disconnect_user(request, session_key):
         
         # Eliminar en orden inverso
         with transaction.atomic():
-            user_session.delete()  # Primero tu registro
+            user_session.delete()  # Primero el registro de sesion
             django_session.delete()  # Luego la sesión de Django
             messages.success(request, f"Usuario {user_session.user.username} desconectado")
             
@@ -1119,6 +1125,39 @@ def disconnect_all(request):
     
     messages.success(request, f'{count} usuarios desconectados exitosamente')
     return redirect('active_sessions')
+
+
+class AuditLogListView(ListView):
+    model = AuditLog
+    template_name = 'auth/activity_log_list.html'
+    paginate_by = 25
+    context_object_name = 'logs'
+
+    def get_queryset(self):
+        qs = super().get_queryset().select_related('user', 'content_type')
+        
+        # Aplicar filtros simples, tal vez luego usar filtros avanzados idk
+        filters = {
+            'user__username__icontains': self.request.GET.get('user__username'),
+            'action': self.request.GET.get('action'),
+            'content_type__model': self.request.GET.get('content_type__model'),
+            'ip_address': self.request.GET.get('ip_address')
+        }
+        
+        for key, value in filters.items():
+            if value:
+                qs = qs.filter(**{key: value})
+                
+        return qs.order_by('-timestamp')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Obtener modelos únicos para el filtro
+        context['content_types'] = ContentType.objects.filter(
+            pk__in=AuditLog.objects.values('content_type_id').distinct()
+        )
+        context['titulo_web'] = 'Historial de acciones en el sistema'
+        return context
 
 ######################################################################################
 ######################################################################################

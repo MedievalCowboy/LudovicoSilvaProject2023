@@ -27,7 +27,7 @@ class LoginHistoryFilter(django_filters.FilterSet):
 
     class Meta:
         model = LoginHistory
-        fields = []  # Desactivamos campos automáticos
+        fields = [] 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

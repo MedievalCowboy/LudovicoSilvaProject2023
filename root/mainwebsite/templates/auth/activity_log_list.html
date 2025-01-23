@@ -1,0 +1,209 @@
+{% extends "base/base2.html" %}
+{% load static i18n %}
+{% load param_replace %}
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">{% trans "Registro de Actividades del Sistema" %}</h2>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body py-3">
+            <form method="get" class="row g-3 align-items-end">
+                <!-- Usuario -->
+                <div class="col-md-3">
+                    <label class="form-label small mb-1">{% trans "Usuario" %}</label>
+                    <input type="text" name="user__username" value="{{ request.GET.user__username }}" 
+                           class="form-control form-control-sm" placeholder="{% trans 'Filtrar por usuario...' %}">
+                </div>
+                
+                <!-- Acción -->
+                <div class="col-md-2">
+                    <label class="form-label small mb-1">{% trans "Acción" %}</label>
+                    <select name="action" class="form-select form-select-sm">
+                        <option value="">{% trans "Todas" %}</option>
+                        <option value="C" {% if request.GET.action == 'C' %}selected{% endif %}>{% trans "Creación" %}</option>
+                        <option value="U" {% if request.GET.action == 'U' %}selected{% endif %}>{% trans "Actualización" %}</option>
+                        <option value="D" {% if request.GET.action == 'D' %}selected{% endif %}>{% trans "Eliminación" %}</option>
+                    </select>
+                </div>
+                
+                <!-- Modelo -->
+                <div class="col-md-3">
+                    <label class="form-label small mb-1">{% trans "Modelo" %}</label>
+                    <select name="content_type__model" class="form-select form-select-sm">
+                        <option value="">{% trans "Todos" %}</option>
+                        {% for model in content_types %}
+                            <option value="{{ model.model }}" 
+                                {% if request.GET.content_type__model == model.model %}selected{% endif %}>
+                                {{ model.name|title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- IP -->
+                <div class="col-md-2">
+                    <label class="form-label small mb-1">{% trans "Dirección IP" %}</label>
+                    <input type="text" name="ip_address" value="{{ request.GET.ip_address }}" 
+                           class="form-control form-control-sm" placeholder="192.168.1.1">
+                </div>
+                
+                <!-- Botones -->
+                <div class="col-md-2">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-funnel me-1"></i>{% trans "Filtrar" %}
+                        </button>
+                        <a href="?" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-counterclockwise"></i> {% trans "Limpiar" %}
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>{% trans "Fecha" %}</th>
+                    <th>{% trans "Usuario" %}</th>
+                    <th>{% trans "Acción" %}</th>
+                    <th>{% trans "Modelo" %}</th>
+                    <th>{% trans "Cambios" %}</th>
+                    <th>{% trans "Dispositivo" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <!-- Fecha -->
+                    <td class="small">
+                        {{ log.timestamp|date:"d M Y H:i" }}
+                    </td>
+                    
+                    <!-- Usuario -->
+                    <td>
+                        {% if log.user %}
+                        <a href="{% url 'user_profile' log.user.pk log.user.username %}" 
+                           class="text-decoration-none">
+                            {{ log.user.username }}
+                            {% if log.user.is_superuser %}
+                            <i class="bi bi-star-fill text-warning ms-1"></i>
+                            {% endif %}
+                        </a>
+                        {% else %}
+                        {% trans "Sistema" %}
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Acción -->
+                    <td>
+                        <span class="badge 
+                            {% if log.action == 'C' %}bg-success
+                            {% elif log.action == 'U' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ log.get_action_display }}
+                        </span>
+                    </td>
+                    
+                    <!-- Modelo -->
+                    <td>
+                        <span class="badge bg-info">
+                            {{ log.content_type.model|title }}
+                        </span>
+                    </td>
+                    
+                    <!-- Cambios -->
+                    <td class="small">
+                        {% for campo, valores in log.changes.items %}
+                        <div class="mb-1">
+                            <span class="fw-bold">{{ campo|title }}:</span>
+                            <span class="text-danger">{{ valores.old|default:"-" }}</span> → 
+                            <span class="text-success">{{ valores.new|default:"-" }}</span>
+                        </div>
+                        {% endfor %}
+                    </td>
+                    
+                    <!-- Dispositivo -->
+                    <td class="small ps-3">
+                        <div class="d-flex flex-column">
+                            {% if log.ip_address %}
+                            <span class="text-muted small">IP: {{ log.ip_address }}</span>
+                            {% endif %}
+                            <span>
+                                {{ log.dispositivo }}{% if log.navegador or log.sistema_operativo %},{% endif %}
+                                {{ log.navegador }}{% if log.sistema_operativo %},{% endif %}
+                                {{ log.sistema_operativo }}
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>{% trans "No se encontraron registros de actividad" %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación con filtros -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Paginación" class="mt-4">
+        <ul class="pagination justify-content-end">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?{% param_replace page=num %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+    .table-sm td, .table-sm th {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .badge {
+        min-width: 85px;
+        padding: 0.4em 0.65em;
+    }
+    
+    .form-select-sm, .form-control-sm {
+        font-size: 0.85rem;
+    }
+    
+    td.small {
+        font-size: 0.875em;
+    }
+</style>
+{% endblock %}

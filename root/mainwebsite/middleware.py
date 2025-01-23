@@ -1,6 +1,6 @@
 from django.utils import timezone
 from .models import UserSession
-
+import threading
 class UpdateLastActivityMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -16,3 +16,21 @@ class UpdateLastActivityMiddleware:
             ).update(last_activity=timezone.now())
         
         return response
+    
+
+
+
+_local = threading.local()
+
+class AuditMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        _local.request = request
+        response = self.get_response(request)
+        del _local.request
+        return response
+
+def get_current_request():
+    return getattr(_local, 'request', None)

@@ -6,3 +6,4 @@ register = template.Library()
 def mul(value, arg):
     """Multiplica dos valores."""
     return float(value) * float(arg)
+

@@ -126,9 +126,10 @@
       <li class="nav-heading" style="">Gestión</li>
 
       <li class="nav-item" style="">
-        <a class="nav-link collapsed aside-btn" href="#">
+        <a class="nav-link collapsed aside-btn" href="{% url 'audit_log_list' %}">
           <i class="bi bi-search"></i>
-          <small><span>Movimientos en el Sistema <span class="badge bg-secondary">WIP</span></span></small>
+          <small><span>Movimientos en el Sistema</span></small>
+          <!--<span class="badge bg-secondary">WIP</span>-->
         </a>
       </li>
       <li class="nav-item" style="">
@@ -152,7 +153,7 @@
       <li class="nav-item" style="">
         <a class="nav-link collapsed aside-btn" data-bs-target="#usuario-aside" data-bs-toggle="collapse" href="#">
           <i class="bi bi-person"></i>
-          <small><span>Usuarios <span class="badge bg-secondary">WIP</span></span></small> <i class="bi bi-chevron-down ms-auto"></i>
+          <small><span>Usuarios</span></small> <i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="usuario-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>

@@ -73,8 +73,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
     ##
+    'mainwebsite.middleware.AuditMiddleware',
     'mainwebsite.middleware.UpdateLastActivityMiddleware',
 ]
 
@@ -93,6 +94,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 
                 ##
+                
                 'mainwebsite.context_processors.theme_context',
                 'mainwebsite.context_processors.user_profile',
             ],

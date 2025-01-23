@@ -1,12 +1,133 @@
 from django.db import transaction
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete, pre_save
 
 from django.contrib.auth.models import User
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
 
-from .models import Profile, LoginHistory, UserSession
+from .models import Profile, LoginHistory, UserSession, AuditLog
 from .extras import get_client_ip, parse_user_agent
+from .middleware import get_current_request
+
+import datetime
+from decimal import Decimal
+
+
+
+
+def track_model(sender, **kwargs):
+    """Registra señales para cualquier modelo a auditar"""
+    
+    # Capturar el estado ANTES de guardar (pre_save)
+    @receiver(pre_save, sender=sender, weak=False)
+    def pre_save_handler(sender, instance, **kwargs):
+        if instance.pk:  # Solo para actualizaciones(updates)
+            try:
+                instance._old_state = sender.objects.get(pk=instance.pk)
+            except sender.DoesNotExist:
+                instance._old_state = None
+        else:  # Creación, no hay estado anterior
+            instance._old_state = None
+    
+    # Procesar después de guardar (post_save)
+    @receiver(post_save, sender=sender, weak=False)
+    def post_save_handler(sender, instance, created, **kwargs):
+        request = get_current_request()
+        
+        ip = get_client_ip(request) if request else None
+        ua_data = parse_user_agent(request) if request else {}
+        
+        # Obtener el estado anterior desde el atributo temporal
+        old_instance = getattr(instance, '_old_state', None)
+        
+        AuditLog.objects.create(
+            user=request.user if request and request.user.is_authenticated else None,
+            content_type=ContentType.objects.get_for_model(sender),
+            object_id=instance.pk,
+            action='C' if created else 'U',
+            changes=_get_changes(instance, old_instance) if not created else {},
+            ip_address=ip,
+            user_agent=ua_data
+        )
+        
+        # Limpiar el atributo temporal
+        if hasattr(instance, '_old_state'):
+            del instance._old_state
+
+    # Manejar eliminaciones (post_delete)
+    @receiver(post_delete, sender=sender, weak=False)
+    def post_delete_handler(sender, instance, **kwargs):
+        request = get_current_request()
+        ip = get_client_ip(request) if request else None
+        
+        AuditLog.objects.create(
+            user=request.user if request and request.user.is_authenticated else None,
+            content_type=ContentType.objects.get_for_model(sender),
+            object_id=instance.pk,
+            action='D',
+            ip_address=ip,
+            user_agent=parse_user_agent(request) if request else {}
+        )
+
+def _get_changes(instance, old_instance):
+    """Compara el estado actual con el anterior, manejando tipos de datos."""
+    if hasattr(instance, 'get_changes'):
+        return instance.get_changes()
+    
+    if not old_instance: 
+        return {}
+    
+    changes = {}
+    default_exclusions = {'id', 'creado_en', 'ultima_modificacion'}
+    model_exclusions = set()
+    
+    if hasattr(instance, 'Audit') and hasattr(instance.Audit, 'excluded_fields'):
+        model_exclusions = set(instance.Audit.excluded_fields)
+    
+    excluded_fields = default_exclusions.union(model_exclusions)
+    
+    for field in instance._meta.get_fields():
+        if field.many_to_many or field.one_to_many:
+            continue
+            
+        field_name = field.name
+        if field_name in excluded_fields:
+            continue
+        
+        try:
+            old_val = getattr(old_instance, field_name, None)
+            new_val = getattr(instance, field_name, None)
+            
+            if field.is_relation:
+                old_val = old_val.pk if old_val else None
+                new_val = new_val.pk if new_val else None
+            else:
+
+                old_val = _serialize_value(old_val)
+                new_val = _serialize_value(new_val)
+            
+            if old_val != new_val:
+                changes[field_name] = {
+                    'old': old_val,
+                    'new': new_val
+                }
+        except Exception as e:
+            continue  
+    
+    return changes
+
+def _serialize_value(value):
+    """Convierte valores complejos a tipos serializables para JSON."""
+    if isinstance(value, (datetime.date, datetime.datetime)):
+        return value.isoformat()
+    elif hasattr(value, 'pk'):  
+        return value.pk
+    elif isinstance(value, Decimal):
+        return str(value)
+    elif isinstance(value, float):
+        return float(value)  
+    return value
 
 @receiver(post_save,sender=User)
 def create_profile(sender, instance, created, **kwargs):

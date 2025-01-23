@@ -2,8 +2,49 @@ from django.db import models
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from mainwebsite.extras import TEMAS_SISTEMA, LOGIN_CHOICES, generar_nombre_imgen_cliente, generar_nombre_imgen_producto,generar_nombre_imgen_usuario
+
+
+class AuditLog(models.Model):
+    ACTION_CHOICES = (
+        ('C', 'Creación'),
+        ('U', 'Actualización'),
+        ('D', 'Eliminación')
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    action = models.CharField(max_length=1, choices=ACTION_CHOICES, default='')
+    changes = models.JSONField(default=dict)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True)
+    user_agent = models.JSONField(default=dict)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=['timestamp'])
+        ]
+
+    def __str__(self):
+        return f"{self.get_action_display()} en {self.content_type}"
+
+    @property
+    def dispositivo(self):
+        return self.user_agent.get('device_type', 'Desconocido')
+    
+    @property
+    def navegador(self):
+        return self.user_agent.get('browser', 'Desconocido')
+    
+    @property
+    def sistema_operativo(self):
+        return self.user_agent.get('os', 'Desconocido')
+
 
 class UserSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -34,6 +75,7 @@ class LoginHistory(models.Model):
         verbose_name_plural = 'Historial de accesos'
     def __str__(self):
         return f"{self.user.username} - {self.event_type} - {self.timestamp}"
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     nombres = models.CharField(max_length=200, null=True, blank=True)
@@ -180,3 +222,16 @@ class Orden_Producto(models.Model):
     def get_total(self):
         return self.cantidad * self.precio_unit
     
+    
+MODELS_TO_AUDIT = [
+    Profile,
+    Cliente,
+    Proveedor,
+    Almacen,
+    Destino,
+    Producto,
+    Inventario,
+    Prod_Dest,
+    Orden,
+    Orden_Producto
+]

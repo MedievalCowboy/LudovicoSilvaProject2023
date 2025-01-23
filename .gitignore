@@ -166,3 +166,4 @@ media
 media/
 ./media/
 **/root/media
+migrations

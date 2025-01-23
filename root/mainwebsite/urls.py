@@ -88,6 +88,8 @@ urlpatterns = [
     path('workspace/administracion/usuarios-activos/', views.active_sessions_view, name='active_sessions'),
     path('workspace/administracion/desconectar-usuario/<str:session_key>/', views.disconnect_user, name='disconnect_user'),
     path('workspace/administracion/desconectar-todos-usuarios/', views.disconnect_all, name='disconnect_all'),
+    path('workspace/administracion/actividad-sistema', views.AuditLogListView.as_view(), name='audit_log_list'),
+    #path('workspace/administracion/actividad-sistema/exportar/', views.export_audit_logs, name='export_audit_logs'),
     
     path('500/', views.handler500, name='error_500'),
 ]

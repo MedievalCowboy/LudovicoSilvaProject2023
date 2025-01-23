@@ -31,3 +31,4 @@ class LoginHistoryAdmin(admin.ModelAdmin):
             obj.browser
         )
     device_info.short_description = 'Dispositivo'
+
