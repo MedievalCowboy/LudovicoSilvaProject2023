@@ -35,3 +35,11 @@ def role_required(*required_roles):
 
         return wrapper
     return decorator
+
+def only_admin(view_func):
+        def wrapper_func(request, *args, **kwargs):
+            if request.user.is_staff:
+                return view_func(request, *args, **kwargs)
+            return redirect('ordenes')
+
+        return wrapper_func

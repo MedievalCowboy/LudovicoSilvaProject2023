@@ -1,7 +1,5 @@
 from django import template
-from django.contrib.auth.models import Group 
 
-#from ..extras import obtener_rol_mas_alto
 from mainwebsite.security.utils import obtener_rol_mas_alto
 from mainwebsite.security.hierarchy import HIERARCHY, DISPLAY_NAMES
 

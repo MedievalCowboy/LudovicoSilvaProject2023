@@ -22,18 +22,23 @@ from django.utils import timezone
 from django.templatetags.static import static
 from django.contrib.admin.models import LogEntry
 
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
+
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm
 from .filters import LoginHistoryFilter
 
+from .extras import send_email
 
-from .decorators import allowed_users, only_admin
-from .extras import obtener_rol_mas_alto, send_email
+from .security.utils import obtener_rol_mas_alto
+from .security.hierarchy import HIERARCHY
+from .security.decorators import role_required, only_admin
 
-from .security.decorators import role_required
 
-
-@allowed_users(allowed_roles=['gerente'])
+@role_required('gerente')
 def pruebas(request):
     logs = LogEntry.objects.all()
     context = {'titulo_web':'pruebabaaaa', 'log_registry':logs}
@@ -889,18 +894,31 @@ def register_user(request):
 
 @login_required
 def user_profile(request, pk, username):
-    user =  get_object_or_404(User, pk=pk)
-    if not request.user.is_staff:    
-        if (not request.user.groups.filter(name='ceo').exists()):
-            if (not request.user == user):
-                messages.warning(request, "NO TIENES PERMISO PARA VER ESTE CONTENIDO.")
-                return redirect('ordenes')
-    perfil = get_object_or_404(Profile, user = user)
-    print(obtener_rol_mas_alto(request.user))
+    # Obtener usuario objetivo
+    target_user = get_object_or_404(User, pk=pk, username=username)
+    
+    # Permitir acceso si es el propio usuario
+    if request.user == target_user:
+        return render_profile(request, target_user)
+    
+    # Verificar permisos para ver otros perfiles
+    current_user_role = obtener_rol_mas_alto(request.user)
+    current_user_value = HIERARCHY.get(current_user_role, 0)
+    required_value = HIERARCHY['ceo']
+    
+    if current_user_value >= required_value:
+        return render_profile(request, target_user)
+    
+    # Acceso denegado
+    messages.warning(request, "No tienes permisos para ver este perfil")
+    return redirect('ordenes')
+
+def render_profile(request, user):
+    perfil = get_object_or_404(Profile, user=user)
     context = {
-        'user':user, 
-        'perfil':perfil,
-        'titulo_web':'Usuario:'+str(user.username)
+        'user': user,
+        'perfil': perfil,
+        'titulo_web': f'Perfil de {user.username}'
     }
     return render(request, 'usuarios/perfil_usuario.html', context)
     
@@ -909,30 +927,62 @@ def user_profile(request, pk, username):
 ######################################################################################
 
 #SERVICIOS RELACIONADOS CON SESIONES DE USUARIOS
+@require_http_methods(["GET", "POST"])
+@never_cache
 def login_user(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request,username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, "Has iniciado sesión correctamente.")
-        else:
-            messages.warning(request, "Usuario o contraseña incorrectos.")
+    # Redirigir usuarios ya autenticados
     if request.user.is_authenticated:
         return redirect('ordenes')
-    return render(request, 'auth/login.html', {})
+    
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        try:
+            if form.is_valid():
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password')
+                user = authenticate(request, username=username, password=password)
+                
+                if user is not None:
+                    login(request, user)
+                    messages.success(request, f"Has iniciado sesión, {user.username}.")
+                    next_url = request.POST.get('next', reverse('ordenes'))
+                    return redirect(next_url)
+            
+            # Manejo de errores mejorado
+            messages.error(request, "Credenciales inválidas. Por favor intente nuevamente.")
+        
+        except ValidationError as e:
+            messages.error(request, f"Error de validación: {e}")
+        
+        except Exception as e:
+            messages.error(request, "Error inesperado en el inicio de sesión")
+            # Registrar el error (logging)
+    
+    else:
+        form = AuthenticationForm()
+    
+    context = {
+        'form': form,
+        'next': request.GET.get('next', '')
+    }
+    return render(request, 'auth/login.html', context)
 
-#Cerrar sesión
+@login_required
+@require_http_methods(["POST"])
+@never_cache
 def logout_user(request):
-    logout(request)
-    messages.success(request, "Te has desconectado correctamente")
-    #return redirect('ordenes')
-    return HttpResponseRedirect(reverse('login')) 
+    try:
+        username = request.user.username
+        logout(request)
+        messages.success(request, f"¡Hasta pronto, {username}!")
+    except Exception as e:
+        messages.error(request, "Error al cerrar sesión")
+    
+    return HttpResponseRedirect(reverse('login'))
 
 # Listado de accesos al sistema
 @login_required
-@allowed_users(allowed_roles=['gerente'])
+@role_required('gerente')
 def global_access_history(request):
     qs = LoginHistory.objects.all().order_by('-timestamp')
     
@@ -951,7 +1001,7 @@ def global_access_history(request):
     
 ## peticion para ver las sesiones de usuario activas al momento
 @login_required
-@role_required('ceo')
+@role_required('gerente')
 def active_sessions_view(request):
     sessions = Session.objects.filter(expire_date__gt=timezone.now())
     
@@ -970,7 +1020,7 @@ def active_sessions_view(request):
 
 ## Peticion para desconectar un usuario en especifico.
 @login_required
-@allowed_users(allowed_roles=['gerente'])
+@role_required('gerente')
 def disconnect_user(request, session_key):
     print("Session Key recibida:", session_key)
     try:
@@ -1008,7 +1058,7 @@ def disconnect_user(request, session_key):
 
 ## Peticion para desconectar a todos los usuarios excluyendo usuarios staff 
 @login_required
-@allowed_users(allowed_roles=['gerente'])
+@role_required('gerente')
 def disconnect_all(request):
     # Excluir staff y usuario actual
     sessions = UserSession.objects.exclude(

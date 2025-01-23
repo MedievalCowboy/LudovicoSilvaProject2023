@@ -14,29 +14,6 @@ def send_email(subject, from_email, to_emails, text_template, html_template, con
     value = msg.send()
     return value
 
-def obtener_rol_mas_alto(user):
-    # Jerarquía de roles asociando el nombre con un valor numérico (mas alto, mas rango)
-    jerarquia_roles = [
-        ('admin',99),
-        ('ceo', 20),
-        ('gerente', 2),
-        ('empleado', 1)
-    ]
-    grupos_usuario = user.groups.values_list('name', flat=True)
-
-    mapa_roles = dict(jerarquia_roles)
-
-    max_valor = 0
-    rol_mas_alto = None
-    for grupo in grupos_usuario:
-        if grupo in mapa_roles:
-            valor_actual = mapa_roles[grupo]
-            if valor_actual > max_valor:
-                max_valor = valor_actual
-                rol_mas_alto = grupo
-
-    return rol_mas_alto
-
 def generar_nombre_imagen(instance, filename, clase_modelo, campo_id, nombre_carpeta):
 
     ext = filename.split('.')[-1]
