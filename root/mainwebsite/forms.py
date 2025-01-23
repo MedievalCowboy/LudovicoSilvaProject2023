@@ -1,24 +1,71 @@
 from django import forms
-from .models import Orden, Orden_Producto, Inventario, Producto, Proveedor, Almacen, Destino, Prod_Dest, Cliente
+from .models import Orden, Orden_Producto, Inventario, Producto, Proveedor, Almacen, Destino, Prod_Dest, Cliente, Profile
 from django.utils import timezone
 import re
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+from .security.utils import obtener_rol_mas_alto
+from .security.hierarchy import get_allowed_roles, DISPLAY_NAMES
 
-class CustomUserForm(UserCreationForm):
-    
-    rol_selector = forms.ChoiceField(label="Rol en el sistema",choices=[('empleado', 'Empleado'), ('gerente', 'Gerente'), ('ceo', 'CEO')])
-    
+class ProfileForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ['username', 'email','password1','password2']
+        model = Profile
+        fields = [
+            'nombres', 
+            'apellidos', 
+            'telefono', 
+            'telefono2', 
+            'cedula', 
+            'email', 
+            'estado', 
+            'direccion', 
+            'cargo', 
+            'tema_sistema', 
+            'image'
+        ]
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'tema_sistema': forms.Select(attrs={'class': 'form-control'}),
+        }
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super().__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+class CustomUserForm(UserCreationForm):
+    rol_selector = forms.ChoiceField(
+        label="Rol en el sistema",
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        # Extraer el request del kwargs
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
         
+        # Configurar opciones dinámicas del rol
+        if self.request and self.request.user.is_authenticated:
+            current_role = obtener_rol_mas_alto(self.request.user)
+            allowed_roles = get_allowed_roles(current_role)
+            
+            # Crear choices con nombres display y excluir admin si no es superusuario
+            self.fields['rol_selector'].choices = [
+                (role, DISPLAY_NAMES.get(role, role.capitalize()))
+                for role in allowed_roles
+                if role != 'admin' or self.request.user.is_superuser
+            ]
+
+        # Estilos para todos los campos
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+            field.help_text = ''  # Eliminar textos de ayuda por defecto
 
 class OrdenForm(forms.ModelForm):
 
@@ -37,19 +84,21 @@ class OrdenForm(forms.ModelForm):
        # Personalización de campos de fecha
     fecha_emision = forms.DateField(
         label='Fecha de Emisión',
-        widget=forms.DateInput(attrs={'class':'form-control','type': 'date', }),
+        input_formats=['%Y-%m-%d'],
+        widget=forms.DateInput(format='%Y-%m-%d',attrs={'class':'form-control','type': 'date', }),
 
     )
     fecha_requisicion = forms.DateField(
         label='Fecha de Requisición',
         required=False,
-        localize=True,
-        widget=forms.DateInput(attrs={'type': 'date'})
+        input_formats=['%Y-%m-%d'],
+        widget=forms.DateInput(format='%Y-%m-%d',attrs={'class':'form-control','type': 'date', }),
     )
     fecha_entrega = forms.DateField(
         label='Fecha de Entrega',
         required=False,
-        widget=forms.DateInput(attrs={'type': 'date'})
+        input_formats=['%Y-%m-%d'],
+        widget=forms.DateInput(format='%Y-%m-%d',attrs={'class':'form-control','type': 'date', }),
     )
     estado = forms.ChoiceField(choices=ESTADO_CHOICES, label='Estado')
 
@@ -141,7 +190,7 @@ class ProveedorForm(forms.ModelForm):
     tlf_proveedor = forms.CharField(
         label='Telefono',
         max_length=12,
-        required=False  # Si no quieres que sea obligatorio
+        required=False
     )
     def clean_tlf_proveedor(self):
         telefono = self.cleaned_data['tlf_proveedor']
@@ -167,7 +216,8 @@ class ProdDestForm(forms.ModelForm):
         fields='__all__'
     fecha_ult_sumin = forms.DateField(
         label='Fecha ultimo suministro',
-        widget=forms.DateInput(attrs={'type': 'date'})
+        input_formats=['%Y-%m-%d'],
+        widget=forms.DateInput(format='%Y-%m-%d',attrs={'class':'form-control','type': 'date', }),
     )
 
 class AlmacenForm(forms.ModelForm):
@@ -183,7 +233,7 @@ class ClientesForm(forms.ModelForm):
     telefono = forms.CharField(
         label='Telefono 1',
         max_length=12,
-        required=False  # Si no quieres que sea obligatorio
+        required=False 
     )
     def clean_telefono(self):
         telefono = self.cleaned_data['telefono']
@@ -202,7 +252,7 @@ class ClientesForm(forms.ModelForm):
     telefono2 = forms.CharField(
         label='Telefono 2',
         max_length=12,
-        required=False  # Si no quieres que sea obligatorio
+        required=False
     )
     def clean_telefono2(self):
         telefono2 = self.cleaned_data['telefono2']

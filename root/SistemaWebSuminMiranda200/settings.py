@@ -36,7 +36,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -94,6 +94,7 @@ TEMPLATES = [
                 
                 ##
                 'mainwebsite.context_processors.theme_context',
+                'mainwebsite.context_processors.user_profile',
             ],
         },
     },
@@ -155,11 +156,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es-es'
+TIME_ZONE = 'America/Mexico_City'
+
+DATE_INPUT_FORMATS = ['%Y-%m-%d']  # Formato ISO para inputs
+DATE_FORMAT = 'd/m/Y'  # Formato para mostrar en templates
 
 USE_I18N = True
-USE_L10N = True
+USE_L10N = False
 USE_TZ = True
 
 #CONFIGURACION DE SESIONES
@@ -200,8 +204,6 @@ else:
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, "mainwebsite", "static"),
     ]
-
-
 
 
 MEDIA_URL = '/media/'

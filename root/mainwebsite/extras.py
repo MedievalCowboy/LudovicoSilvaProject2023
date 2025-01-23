@@ -15,13 +15,18 @@ def send_email(subject, from_email, to_emails, text_template, html_template, con
     return value
 
 def generar_nombre_imagen(instance, filename, clase_modelo, campo_id, nombre_carpeta):
-
     ext = filename.split('.')[-1]
+    
     if clase_modelo == 'usuario':
-        new_filename = f"{clase_modelo}_{instance.user.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+        # Usamos el ID del perfil en lugar del usuario
+        identificador = f"profile_{instance.id}"
     else:
-        new_filename = f"{clase_modelo}_{getattr(instance, campo_id)}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
-    return os.path.join('images',nombre_carpeta, new_filename)
+        identificador = f"{clase_modelo}_{getattr(instance, campo_id)}"
+    
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    new_filename = f"{identificador}_{timestamp}.{ext}"
+    
+    return os.path.join('images', nombre_carpeta, new_filename)
 
 
 #obtener la IP de alguien que hace una peticion.

@@ -1,3 +1,6 @@
+from .models import Profile
+
+
 def theme_context(request):
     THEMES = {
         'red': {
@@ -46,3 +49,13 @@ def theme_context(request):
     return {'current_theme': THEMES[theme_key],
             'themes':THEMES.values()
             }
+
+#permite tener acceso del perfil en cualquier parte del sistema / tras haber iniciado sesion
+def user_profile(request):
+    profile = None
+    if request.user.is_authenticated:
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            pass
+    return {'user_profile': profile}

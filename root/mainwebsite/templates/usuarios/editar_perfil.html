@@ -1,0 +1,77 @@
+{% extends "base/base2.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block styles %}
+<style>
+    body {
+        margin-top: 20px;
+        color: #1a202c;
+        text-align: left;
+        background-color: #e2e8f0 !important;    
+    }
+    .custom-btn-green {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+    .custom-btn-granada {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6 d-flex align-items-center">
+        <div class="mr-3" style="margin-right:5px; margin-top:20px;">
+            <a href="{% url 'user_profile' pk=user.pk username=user.username %}" 
+               class="custom-btn custom-btn-sand btn-sm mb-3">
+                <i class="bi bi-arrow-left-circle"></i> Volver al perfil
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container p-4">
+    <h1 class="mb-4">{% if target_user != user %}Editar perfil de {{ target_user.username }}{% else %}Editar Mi Perfil{% endif %}</h1>
+    
+    {% if all_users %}
+    <div class="mb-4">
+        <label class="form-label">Seleccionar usuario para editar:</label>
+        <select class="form-select" id="userSelect">
+            <option value="">-- Seleccione un usuario --</option>
+            {% for u in all_users %}
+            <option value="{% url 'edit_profile' u.id %}" 
+                    {% if u == target_user %}selected{% endif %}>
+                {{ u.username }} ({{ u.profile.get_role_display }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+    
+    <form method="POST" enctype='multipart/form-data'>
+        {% csrf_token %}
+        {{ form|crispy }}
+        
+        <div class="mt-4">
+            <button class="custom-btn custom-btn-green btn-sm" name="guardar" type="submit">
+                <i class="bi bi-save"></i> Guardar Cambios
+            </button>
+            <a href="{% url 'user_profile' pk=target_user.pk username=target_user.username %}" 
+               class="custom-btn custom-btn-granada btn-sm">
+                <i class="bi bi-x-square"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+{% if all_users %}
+<script>
+    document.getElementById('userSelect').addEventListener('change', function() {
+        if (this.value) window.location = this.value;
+    });
+</script>
+{% endif %}
+{% endblock %}

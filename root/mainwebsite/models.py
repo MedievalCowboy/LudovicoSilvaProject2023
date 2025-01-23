@@ -12,7 +12,7 @@ def generar_nombre_imgen_producto(instance, filename):
     return generar_nombre_imagen(instance, filename, 'producto', 'id_producto', 'products')
 
 def generar_nombre_imgen_usuario(instance, filename):
-    return generar_nombre_imagen(instance, filename, 'usuario', '#', 'products')
+    return generar_nombre_imagen(instance, filename, 'usuario', 'id', 'usuarios')
 
 TEMAS_SISTEMA = [
     ('red', 'Rojo'),

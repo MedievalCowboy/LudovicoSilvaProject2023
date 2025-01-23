@@ -23,14 +23,19 @@
 
         <a style="color:white;" class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
           data-bs-toggle="dropdown">
+          {% if user_profile and user_profile.image %}
+          <img src="{{ user_profile.image.url }}" alt="Profile" class="rounded-circle">
+          {% else %}
           <img src="{% static 'img/profile-img.png' %}" alt="Profile" class="rounded-circle">
+          {% endif %}
+          
           <span class="d-none d-md-block dropdown-toggle ps-2">{{user}}</span>
         </a><!-- End Profile Iamge Icon -->
 
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
           <li class="dropdown-header">
             <h6>{{user}}</h6>
-            
+
             <span>({{ user|display_role }})</span>
 
           </li>
@@ -41,7 +46,7 @@
           <li>
             <a class="dropdown-item d-flex align-items-center" href="{% url 'user_profile' user.id user.username %}">
               <i class="bi bi-person"></i>
-              <span>Mi Perfil - WIP</span>
+              <span>Mi Perfil</span>
             </a>
           </li>
           <li>
@@ -66,8 +71,9 @@
 
             <form class="" action="{% url 'logout' %}" method="post">
               {% csrf_token %}
-              <button class="dropdown-item d-flex align-items-center" type="submit" class="btn btn-link"> <i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
-          </form>
+              <button class="dropdown-item d-flex align-items-center" type="submit" class="btn btn-link"> <i
+                  class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
+            </form>
 
           </li>
 

@@ -28,13 +28,13 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession
-from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm
+from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm, ProfileForm
 from .filters import LoginHistoryFilter
 
 from .extras import send_email
 
-from .security.utils import obtener_rol_mas_alto
-from .security.hierarchy import HIERARCHY
+from .security.utils import obtener_rol_mas_alto, puede_asignar_rol
+from .security.hierarchy import HIERARCHY, get_allowed_roles, DISPLAY_NAMES
 from .security.decorators import role_required, only_admin
 
 
@@ -593,7 +593,7 @@ def cliente_modificar(request, pk):
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el cliente exitosamente.")
-            return redirect('clientes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+            return redirect('clientes')  
 
     else:
         form = ClientesForm(instance=clientes)
@@ -655,7 +655,7 @@ def almacen_modificar(request, pk):
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el almacen exitosamente.")
-            return redirect('almacenes')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+            return redirect('almacenes')  
 
     else:
         form = AlmacenForm(instance=almacen)
@@ -735,7 +735,7 @@ def destino_modificar(request, pk):
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el destino exitosamente.")
-            return redirect('destinos')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+            return redirect('destinos') 
 
     else:
         form = DestinoForm(instance=destino)
@@ -808,7 +808,7 @@ def prod_dest_modificar(request,pk):
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó la relacion entre producto y destino exitosamente.")
-            return redirect('prod_dest_lista')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+            return redirect('prod_dest_lista') 
 
     else:
         form = ProdDestForm(instance=prod_dest)
@@ -855,78 +855,109 @@ def prod_dest_eliminar(request, pk):
 ######################################################################################
 
 #SERVICIOS RELACIONADOS CON USUARIOS / PERFILES DE USUARIO
-@login_required
-@only_admin
+
+@role_required('admin')  
 def register_user(request):
-    form = CustomUserForm()
-    if request.method == 'POST':
-        form = CustomUserForm(request.POST)
-        if form.is_valid():
-            new_user = form.save()
-            selected_rol = form.cleaned_data['rol_selector']
-            try:
-                if selected_rol == 'ceo':
-                    group = Group.objects.get(name=selected_rol)
-                    new_user.groups.add(group)
-                    group = Group.objects.get(name="gerente")
-                    new_user.groups.add(group)
-                    group = Group.objects.get(name="empleado")
-                    new_user.groups.add(group)
-                elif selected_rol == 'gerente':
-                    group = Group.objects.get(name=selected_rol)
-                    new_user.groups.add(group)
-                    group = Group.objects.get(name="empleado")
-                    new_user.groups.add(group)
-                elif selected_rol == 'empleado':
-                    group = Group.objects.get(name=selected_rol)
-                    new_user.groups.add(group)
-            except Group.DoesNotExist:
-                messages.warning(request, "ERROR AL TRATAR DE GUARDAR EL ROL DEL USUARIO.")
-                return redirect('ordenes')
-            
-            messages.success(request, "El usuario se creó con exito.")
-            return redirect('ordenes')
-            
-            
+    current_user_role = obtener_rol_mas_alto(request.user)
+    allowed_roles = get_allowed_roles(current_user_role)
     
-    context = {'form':form, 'titulo_web':'Crear nuevo usuario'}
+    form = CustomUserForm(request=request)
+    
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST, request=request)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    new_user = form.save()
+                    selected_role = form.cleaned_data['rol_selector']
+                    
+                    if not puede_asignar_rol(current_user_role, selected_role):
+                        messages.error(request, f"⛔ Rol no permitido: {DISPLAY_NAMES.get(selected_role)}")
+                        return redirect('ordenes')
+                    
+                    group = Group.objects.get(name=selected_role)
+                    new_user.groups.add(group)
+                    
+                    messages.success(request, f"✅ {new_user.username} creado como {DISPLAY_NAMES.get(selected_role)}")
+                    return redirect('ordenes')
+            
+            except Group.DoesNotExist:
+                messages.error(request, "❌ Error: Rol no existe en el sistema")
+    
+    context = {
+        'form': form,
+        'titulo_web': 'Crear usuario',
+        'roles_permitidos': [DISPLAY_NAMES[r] for r in allowed_roles if r != 'admin']
+    }
     return render(request, 'usuarios/crear_usuario.html', context)
 
 @login_required
 def user_profile(request, pk, username):
-    # Obtener usuario objetivo
     target_user = get_object_or_404(User, pk=pk, username=username)
-    
-    # Permitir acceso si es el propio usuario
-    if request.user == target_user:
-        return render_profile(request, target_user)
-    
-    # Verificar permisos para ver otros perfiles
     current_user_role = obtener_rol_mas_alto(request.user)
-    current_user_value = HIERARCHY.get(current_user_role, 0)
-    required_value = HIERARCHY['ceo']
     
-    if current_user_value >= required_value:
-        return render_profile(request, target_user)
+    # Calcular si es admin
+    is_admin = HIERARCHY.get(current_user_role, 0) >= HIERARCHY['admin']
     
-    # Acceso denegado
+    # Validar acceso
+    if request.user == target_user or is_admin or HIERARCHY.get(current_user_role, 0) >= HIERARCHY['ceo']:
+        return render_profile(request, target_user, is_admin)
+    
     messages.warning(request, "No tienes permisos para ver este perfil")
     return redirect('ordenes')
 
-def render_profile(request, user):
+def render_profile(request, user, is_admin=False):
     perfil = get_object_or_404(Profile, user=user)
     context = {
-        'user': user,
+        'profile_user': user,
         'perfil': perfil,
-        'titulo_web': f'Perfil de {user.username}'
+        'titulo_web': f'Perfil de {user.username}',
+        'is_admin': is_admin  # Pasar variable al template
     }
     return render(request, 'usuarios/perfil_usuario.html', context)
+
+
+@login_required
+def edit_profile(request, user_id=None):
+    # Obtener usuario a editar
+    target_user = get_object_or_404(User, pk=user_id) if user_id else request.user
+    profile = get_object_or_404(Profile, user=target_user)
     
+    # Verificar permisos
+    current_user_role = obtener_rol_mas_alto(request.user)
+    is_admin = HIERARCHY.get(current_user_role, 0) >= HIERARCHY['admin']
+    
+    if not (request.user == target_user or is_admin):
+        messages.error(request, "No tienes permisos para editar este perfil")
+        return redirect('ordenes')
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Perfil de {target_user.username} actualizado")
+            return redirect('user_profile', pk=target_user.pk, username=target_user.username)
+    else:
+        form = ProfileForm(instance=profile)
+    
+    # Si es admin, mostrar selector de usuario
+    if is_admin:
+        all_users = User.objects.all()
+    else:
+        all_users = None
+    
+    context = {
+        'form': form,
+        'target_user': target_user,
+        'all_users': all_users
+    }
+    return render(request, 'usuarios/editar_perfil.html', context)
 
 ######################################################################################
 ######################################################################################
 
 #SERVICIOS RELACIONADOS CON SESIONES DE USUARIOS
+
 @require_http_methods(["GET", "POST"])
 @never_cache
 def login_user(request):
