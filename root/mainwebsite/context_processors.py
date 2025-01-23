@@ -35,7 +35,7 @@ def theme_context(request):
         }
     }
     
-    theme_key = 'red'  # Valor por defecto
+    theme_key = 'red'  # Valor por defecto tema rojo
     if request.user.is_authenticated:
         try:
             theme_key = request.user.profile.tema_sistema

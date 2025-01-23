@@ -22,7 +22,7 @@ def obtener_rol_mas_alto(user):
             default=None
         )
     except Exception as e:
-        # Loggear error si es necesario
+        # Loggear error si es necesario, de momento no jaja
         return None
 
 def puede_asignar_rol(assigner_role, target_role):

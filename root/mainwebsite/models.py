@@ -3,31 +3,7 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from .extras import generar_nombre_imagen
-
-def generar_nombre_imgen_cliente(instance, filename):
-    return generar_nombre_imagen(instance, filename, 'cliente', 'id_cliente', 'clients')
-
-def generar_nombre_imgen_producto(instance, filename):
-    return generar_nombre_imagen(instance, filename, 'producto', 'id_producto', 'products')
-
-def generar_nombre_imgen_usuario(instance, filename):
-    return generar_nombre_imagen(instance, filename, 'usuario', 'id', 'usuarios')
-
-TEMAS_SISTEMA = [
-    ('red', 'Rojo'),
-    ('blue', 'Azul'),
-    ('grey','Gris'),
-    ('lime', 'Lima'),
-    ('pink', 'Rosado'),
-    ('brown', "Marrón"),
-]
-
-LOGIN_CHOICES =[
-    ('login', 'Inicio de Sesión'),
-    ('logout', 'Cerrar sesión'),
-    ('failed_attempt', 'Intento Fallido'),
-]
+from mainwebsite.extras import TEMAS_SISTEMA, LOGIN_CHOICES, generar_nombre_imgen_cliente, generar_nombre_imgen_producto,generar_nombre_imgen_usuario
 
 class UserSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -43,7 +19,6 @@ class UserSession(models.Model):
             session_key=self.session_key,
             expire_date__gt=timezone.now()
         ).exists()
-
 class LoginHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event_type = models.CharField(max_length=20, choices=LOGIN_CHOICES)
@@ -53,14 +28,12 @@ class LoginHistory(models.Model):
     device_type = models.CharField(max_length=50, blank=True)
     browser = models.CharField(max_length=50, blank=True)
     operating_system = models.CharField(max_length=50, blank=True)
-    
     class Meta:
         ordering = ['-timestamp']
         verbose_name = 'Historial de Acceso'
         verbose_name_plural = 'Historial de accesos'
     def __str__(self):
         return f"{self.user.username} - {self.event_type} - {self.timestamp}"
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     nombres = models.CharField(max_length=200, null=True, blank=True)
@@ -76,8 +49,6 @@ class Profile(models.Model):
     image = models.ImageField(blank=True, upload_to=generar_nombre_imgen_usuario, default="")
     def __str__(self):
         return(f"{self.user.username}|{self.cedula} : {self.nombres} {self.apellidos}")
-    
-
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
@@ -93,13 +64,10 @@ class Cliente(models.Model):
     def get_default_pk(cls):
         cliente, created = cls.objects.get_or_create(
             nombre_cliente='NONE', 
-            
         )
         return cliente.pk
-    
     def __str__(self):
         return(f"{self.id_cliente} : {self.nombre_cliente}")
-
 class Proveedor(models.Model):
     id_proveedor = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
@@ -135,8 +103,8 @@ class Producto(models.Model):
     cod_producto = models.CharField(max_length=20, blank=True)
     nombre_producto = models.CharField(max_length=200)
     descripcion_prod = models.TextField(blank=True)
-    cant_min = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
-    cant_max = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
+    cant_min = models.PositiveIntegerField(default=0)
+    cant_max = models.PositiveIntegerField(default=0)
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
     prod_image = models.ImageField(blank=True, upload_to=generar_nombre_imgen_producto, default="")
     def __str__(self):
@@ -146,7 +114,7 @@ class Inventario(models.Model):
     id_inventario = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
     precio_unit_ref = models.DecimalField(max_digits=9, decimal_places=3)
-    cant_disponible = models.PositiveIntegerField(default=0)  # Cambiado a PositiveIntegerField
+    cant_disponible = models.PositiveIntegerField(default=0) 
     cant_inicial = models.PositiveIntegerField(default=0)
     fecha_ult_mod_inv = models.DateField(default=timezone.now)  # Se establece la fecha por defecto
     producto = models.ForeignKey(Producto, on_delete=models.DO_NOTHING)

@@ -4,6 +4,21 @@ import user_agents
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
+TEMAS_SISTEMA = [
+    ('red', 'Rojo'),
+    ('blue', 'Azul'),
+    ('grey','Gris'),
+    ('lime', 'Lima'),
+    ('pink', 'Rosado'),
+    ('brown', "Marrón"),
+]
+
+LOGIN_CHOICES =[
+    ('login', 'Inicio de Sesión'),
+    ('logout', 'Cerrar sesión'),
+    ('failed_attempt', 'Intento Fallido'),
+]
+
 #logica para enviar email a correo en formato texto y html
 #Regresa 1 si se envió y 0 si no se envio nada.
 def send_email(subject, from_email, to_emails, text_template, html_template, context):
@@ -18,7 +33,7 @@ def generar_nombre_imagen(instance, filename, clase_modelo, campo_id, nombre_car
     ext = filename.split('.')[-1]
     
     if clase_modelo == 'usuario':
-        # Usamos el ID del perfil en lugar del usuario
+        # Identificador del PERFIL no del usuario.
         identificador = f"profile_{instance.id}"
     else:
         identificador = f"{clase_modelo}_{getattr(instance, campo_id)}"
@@ -48,3 +63,13 @@ def parse_user_agent(request):
         'os': user_agent.os.family,
         'user_agent': str(user_agent)
     }
+
+def generar_nombre_imgen_cliente(instance, filename):
+    return generar_nombre_imagen(instance, filename, 'cliente', 'id_cliente', 'clients')
+
+def generar_nombre_imgen_producto(instance, filename):
+    return generar_nombre_imagen(instance, filename, 'producto', 'id_producto', 'products')
+
+def generar_nombre_imgen_usuario(instance, filename):
+    return generar_nombre_imagen(instance, filename, 'usuario', 'id', 'usuarios')
+

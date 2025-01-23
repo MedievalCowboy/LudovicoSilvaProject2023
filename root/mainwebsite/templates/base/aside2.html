@@ -147,7 +147,7 @@
       {% endif %}
       
       {% if request.user|has_higher_role:'admin' %} 
-      <li class="nav-heading" style="">Administración</li>
+      <li class="nav-heading">Administración</li>
 
       <li class="nav-item" style="">
         <a class="nav-link collapsed aside-btn" data-bs-target="#usuario-aside" data-bs-toggle="collapse" href="#">
@@ -158,6 +158,16 @@
           <li>
             <a href="{% url 'register_user' %}">
               <i class="bi bi-circle"></i><span>Crear nuevo usuario</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'edit_profile' user.pk %}">
+              <i class="bi bi-circle"></i><span>Editar Perfil Usuario</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'user_list' %}">
+              <i class="bi bi-circle"></i><span>Listado de Usuarios</span>
             </a>
           </li>
         </ul>

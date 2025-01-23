@@ -55,7 +55,7 @@ class CustomUserForm(UserCreationForm):
             current_role = obtener_rol_mas_alto(self.request.user)
             allowed_roles = get_allowed_roles(current_role)
             
-            # Crear choices con nombres display y excluir admin si no es superusuario
+            
             self.fields['rol_selector'].choices = [
                 (role, DISPLAY_NAMES.get(role, role.capitalize()))
                 for role in allowed_roles
@@ -105,7 +105,7 @@ class OrdenForm(forms.ModelForm):
     tlf_solicitado = forms.CharField(
         label='Teléfono Solicitado',
         max_length=12,
-        required=False  # Si no quieres que sea obligatorio
+        required=False
     )
     def clean_tlf_solicitado(self):
         tlf_solicitado = self.cleaned_data['tlf_solicitado']

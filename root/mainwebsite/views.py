@@ -953,6 +953,19 @@ def edit_profile(request, user_id=None):
     }
     return render(request, 'usuarios/editar_perfil.html', context)
 
+def user_list(request):
+    user_list = User.objects.select_related('profile').prefetch_related('groups').all().order_by('-date_joined')
+    paginator = Paginator(user_list, 25)  # 25 usuarios por página
+    page_number = request.GET.get('page')
+    users = paginator.get_page(page_number)
+    
+    context ={
+        'users': users,
+        'default_photo': 'static/img/profile-img.png'
+    }
+    
+    return render(request, 'usuarios/lista_usuarios.html', context)
+
 ######################################################################################
 ######################################################################################
 
@@ -1112,7 +1125,7 @@ def disconnect_all(request):
 
 #manejo de errores 404 custom
 def custom_404(request, exception):
-    return render(request, 'base/404.html', status=404)
+    return render(request, '404.html', status=404)
 
 
 def handler500(request, exception=None):
