@@ -4,8 +4,6 @@ import user_agents
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-
-
 #logica para enviar email a correo en formato texto y html
 #Regresa 1 si se envió y 0 si no se envio nada.
 def send_email(subject, from_email, to_emails, text_template, html_template, context):

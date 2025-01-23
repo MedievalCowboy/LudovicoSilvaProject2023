@@ -30,14 +30,9 @@
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
           <li class="dropdown-header">
             <h6>{{user}}</h6>
-            {% if user.is_staff %}
-            <!-- El usuario es administrador (staff) -->
+            
+            <span>({{ user|display_role }})</span>
 
-            <span>Administrador de sistema</span>
-            {% else %}
-            <span>{{request.user|higher_group}}</span>
-
-            {% endif %}
           </li>
           <li>
             <hr class="dropdown-divider">

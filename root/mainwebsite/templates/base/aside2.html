@@ -122,7 +122,7 @@
         </ul>
       </li> 
       <!-- End Components Nav -->
-      {% if request.user|has_group:"gerente" %}
+       {% if request.user|has_higher_role:'gerente' %} 
       <li class="nav-heading" style="">Gestión</li>
 
       <li class="nav-item" style="">
@@ -145,7 +145,8 @@
       </li>
 
       {% endif %}
-      {% if user.is_staff %}
+      
+      {% if request.user|has_higher_role:'admin' %} 
       <li class="nav-heading" style="">Administración</li>
 
       <li class="nav-item" style="">

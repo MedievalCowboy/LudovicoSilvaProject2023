@@ -25,8 +25,12 @@ from django.contrib.admin.models import LogEntry
 from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm
 from .filters import LoginHistoryFilter
+
+
 from .decorators import allowed_users, only_admin
 from .extras import obtener_rol_mas_alto, send_email
+
+from .security.decorators import role_required
 
 
 @allowed_users(allowed_roles=['gerente'])
@@ -947,7 +951,7 @@ def global_access_history(request):
     
 ## peticion para ver las sesiones de usuario activas al momento
 @login_required
-@allowed_users(allowed_roles=['gerente'])
+@role_required('ceo')
 def active_sessions_view(request):
     sessions = Session.objects.filter(expire_date__gt=timezone.now())
     
@@ -1029,3 +1033,6 @@ def disconnect_all(request):
 def custom_404(request, exception):
     return render(request, 'base/404.html', status=404)
 
+
+def handler500(request, exception=None):
+    return render(request, '500.html', status=500)

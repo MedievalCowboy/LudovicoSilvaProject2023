@@ -3,6 +3,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
+handler500 = 'mainwebsite.views.handler500'
 
 urlpatterns = [
 
@@ -85,5 +86,6 @@ urlpatterns = [
     path('workspace/administracion/desconectar-usuario/<str:session_key>/', views.disconnect_user, name='disconnect_user'),
     path('workspace/administracion/desconectar-todos-usuarios/', views.disconnect_all, name='disconnect_all'),
     
+    path('500/', views.handler500, name='error_500'),
 ]
 
