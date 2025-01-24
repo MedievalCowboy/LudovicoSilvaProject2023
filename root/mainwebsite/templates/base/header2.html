@@ -44,10 +44,12 @@
           </li>
 
           <li>
+            {% if user_profile %}
             <a class="dropdown-item d-flex align-items-center" href="{% url 'user_profile' user.id user.username %}">
               <i class="bi bi-person"></i>
               <span>Mi Perfil</span>
             </a>
+            {% endif %}
           </li>
           <li>
             <hr class="dropdown-divider">

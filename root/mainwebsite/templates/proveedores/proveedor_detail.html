@@ -1,5 +1,5 @@
 {% extends "base/base2.html" %}
-{% load static %}
+{% load static auth_extras %}
 
 
 
@@ -169,8 +169,9 @@ p {
                         </div>
                         <div class="task-tags mt-4">
                             <div class="bootstrap-tagsinput">
+                                {% if user|has_higher_role:'gerente' %}
                                 <a class="btn tag label label-info" href="{% url 'proveedor_modificar' proveedor.id_proveedor %}">Editar Información del Proveedor</a>
-
+                                {% endif %}
                             </div>
     
                         </div>

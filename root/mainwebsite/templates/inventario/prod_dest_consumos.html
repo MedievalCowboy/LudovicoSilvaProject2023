@@ -1,5 +1,5 @@
 {% extends "base/base2.html" %}
-{% load static %}
+{% load static auth_extras %}
 
 
 {% block styles %}
@@ -25,13 +25,11 @@
      <!-- Opciones -->
 <div class="row mb-3">
     <div class="col-md-6 d-flex align-items-center">
-        <div class="form-check" style="margin-right:20px;">
-            <input type="checkbox" class="form-check-input mr-2" id="seleccionar-todo">
-            <label class="form-check-label small" for="seleccionar-todo">Seleccionar Todo</label>
-        </div>
+        {% if user|has_higher_role:'gerente' %}
         <div class="mr-3">
             <a href="{% url 'prod_dest_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -53,15 +51,21 @@
             <tr>
                 <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ consumo.id_prod_dest }}"></td>
                 
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ consumo.id_destino}}</td>
-                <td class="text-center py-0 align-middle">{{ consumo.id_producto|default:"N/A" }}</td>
+                <td class="text-center py-0 align-middle" style="padding: 0 5px;"><a href="{% url 'destino_detail' consumo.id_destino.id_destino %}">{{consumo.id_destino.nombre_destino|default:"N/A"}}</a></td>
+                {% if consumo.id_producto %}
+                <td class="text-center py-0 align-middle"><a href="{% url 'producto_detail' consumo.id_producto.id_producto %}">{{ consumo.id_producto.nombre_producto|default:"N/A" }}</a></td>
+                {% else %}
+                qqqqq
+                {% endif %}
                 <td class="text-center py-0 align-middle">{{ consumo.consumo_prom_dia |default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle">{{ consumo.fecha_ult_sumin |default:"N/A" }}</td>
                 
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                    {% if user|has_higher_role:'gerente' %}
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'prod_dest_modificar' consumo.id_prod_dest %}"><i class="bi bi-pen"></i> Editar</a></button>
                     
                     <button class="btn btn-danger btn-sm eliminar" data-id="{{ consumo.id_prod_dest }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                    {% endif %}
                 </td>
                 
             </tr>

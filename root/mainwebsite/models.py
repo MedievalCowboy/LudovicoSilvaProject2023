@@ -177,7 +177,7 @@ class Registro_inventario(models.Model):
 class Prod_Dest(models.Model):
     id_prod_dest = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
-    id_producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
+    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     id_destino = models.ForeignKey(Destino, on_delete=models.CASCADE)
     consumo_prom_dia = models.DecimalField(max_digits=9, decimal_places=2)
     fecha_ult_sumin = models.DateField()

@@ -1,6 +1,6 @@
 {% extends "base/base2.html" %}
 
-{% load static %}
+{% load static auth_extras %}
 
 
 {% block styles %}
@@ -183,15 +183,18 @@ p {
                         <div class="task-tags mt-4">
                             <h5 class="">Opciones</h5>
                             <div class="bootstrap-tagsinput">
+                                {% if user|has_higher_role:'gerente' %}
                                 <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn tag label label-info" href="{% url 'orden_modificar' orden.id_orden %}">Editar Orden</a>
-                                
+                                {% endif %}
                                 <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn tag label label-info" href="{% url 'orden_prod_listar' orden.id_orden %}">Ir a listado de Productos de Orden</a>
+                                {% if user|has_higher_role:'gerente' %}
                                 <button style="border:none; margin:0; padding:0;" >
                                     <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-success btn-sm"  href="{% url 'orden_insertar2' orden.id_orden %}">Añadir Producto a la orden
                                     </a>
                                 </button>
 
                                 <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn tag label label-info" href="{% url 'send_orden_email' orden.id_orden %}">Notificar al Cliente</a>
+                                {% endif %}
                             </div>
     
                         </div>

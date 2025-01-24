@@ -1,5 +1,5 @@
 {% extends "base/base2.html" %}
-{% load static %}
+{% load static auth_extras %}
 
 
 {% block styles %}
@@ -31,10 +31,11 @@
      <!-- Opciones -->
 <div class="row mb-3">
     <div class="col-md-6 d-flex align-items-center">
-
+        {% if user|has_higher_role:'gerente' %}
         <div class="mr-3">
             <a href="{% url 'producto_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -83,9 +84,11 @@
                 <td class="text-center py-0 align-middle"><small><a href="{% url 'proveedor_detail' producto.id_proveedor.id_proveedor %}">{{ producto.id_proveedor.nombre_proveedor|default:"N/A" }}</a></small></td>
                 
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                    {% if user|has_higher_role:'gerente' %}
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'producto_modificar' producto.id_producto %}"><i class="bi bi-pen"></i> Editar</a></button>
                     
                     <button class="btn btn-danger btn-sm eliminar" data-id="{{ producto.id_producto }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                    {% endif %}
                 </td>
                 
             </tr>

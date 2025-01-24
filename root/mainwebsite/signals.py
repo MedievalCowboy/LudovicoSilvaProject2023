@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.fields.files import FieldFile
 
 from .models import Profile, LoginHistory, UserSession, AuditLog
 from .extras import get_client_ip, parse_user_agent
@@ -27,7 +28,7 @@ def track_model(sender, **kwargs):
                 instance._old_state = sender.objects.get(pk=instance.pk)
             except sender.DoesNotExist:
                 instance._old_state = None
-        else:  # Creación, no hay estado anterior
+        else:  # Creación si no hay estado anterior
             instance._old_state = None
     
     # Procesar después de guardar (post_save)
@@ -75,7 +76,7 @@ def _get_changes(instance, old_instance):
     if hasattr(instance, 'get_changes'):
         return instance.get_changes()
     
-    if not old_instance: 
+    if not old_instance:  # No hay estado anterior (creación)
         return {}
     
     changes = {}
@@ -99,11 +100,17 @@ def _get_changes(instance, old_instance):
             old_val = getattr(old_instance, field_name, None)
             new_val = getattr(instance, field_name, None)
             
+            # Manejar campos de archivo antes de la serialización
+            if isinstance(old_val, FieldFile):
+                old_val = old_val.name if old_val else None
+            if isinstance(new_val, FieldFile):
+                new_val = new_val.name if new_val else None
+            
             if field.is_relation:
                 old_val = old_val.pk if old_val else None
                 new_val = new_val.pk if new_val else None
             else:
-
+                # Aplicar serialización
                 old_val = _serialize_value(old_val)
                 new_val = _serialize_value(new_val)
             
@@ -113,7 +120,7 @@ def _get_changes(instance, old_instance):
                     'new': new_val
                 }
         except Exception as e:
-            continue  
+            continue  # Ignorar errores en campos problemáticos
     
     return changes
 
@@ -121,12 +128,14 @@ def _serialize_value(value):
     """Convierte valores complejos a tipos serializables para JSON."""
     if isinstance(value, (datetime.date, datetime.datetime)):
         return value.isoformat()
-    elif hasattr(value, 'pk'):  
+    elif hasattr(value, 'pk'):  # Para ForeignKey, etc.
         return value.pk
     elif isinstance(value, Decimal):
         return str(value)
     elif isinstance(value, float):
-        return float(value)  
+        return float(value)
+    elif isinstance(value, FieldFile):  # Manejo de campos File/Image <- para imaggenes
+        return value.name if value else None  # Devuelve el path relativo
     return value
 
 @receiver(post_save,sender=User)

@@ -22,11 +22,13 @@
               <i class="bi bi-circle"></i><span>Listado</span>
             </a>
           </li>
+          {% if user|has_higher_role:'gerente' %}
           <li>
             <a href="{% url 'orden_insertar' %}">
               <i class="bi bi-circle"></i><span>Crear nuevo</span>
             </a>
           </li>
+          {% endif %}
         </ul>
       </li><!-- End Forms Nav -->
 
@@ -62,11 +64,13 @@
               <i class="bi bi-circle"></i><span>Listado</span>
             </a>
           </li>
+          {% if user|has_higher_role:'gerente' %}
           <li>
             <a href="{% url 'producto_insertar' %}">
               <i class="bi bi-circle"></i><span>Crear</span>
             </a>
           </li>
+          {% endif %}
           <li>
             <a href="{% url 'proveedores' %}">
               <i class="bi bi-circle"></i><span>Proveedores</span>
@@ -88,11 +92,13 @@
               <i class="bi bi-circle"></i><span>Listado</span>
             </a>
           </li>
+          {% if user|has_higher_role:'gerente' %}
           <li>
             <a href="{% url 'cliente_insertar' %}">
               <i class="bi bi-circle"></i><span>Crear</span>
             </a>
           </li>
+          {% endif %}
           
         </ul>
       </li> 
@@ -108,11 +114,13 @@
               <i class="bi bi-circle"></i><span>Listado</span>
             </a>
           </li>
+          {% if user|has_higher_role:'gerente' %}
           <li>
             <a href="{% url 'destino_insertar' %}">
               <i class="bi bi-circle"></i><span>Crear</span>
             </a>
           </li>
+          {% endif %}
           <li>
             <a href="{% url 'prod_dest_lista' %}">
               <i class="bi bi-circle"></i><span>Consumo</span>

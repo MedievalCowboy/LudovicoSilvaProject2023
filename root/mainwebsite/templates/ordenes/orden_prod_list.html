@@ -1,5 +1,5 @@
 {% extends "base/base2.html" %}
-{% load static %}
+{% load static auth_extras %}
 
 {% block styles%}
 <style>
@@ -32,14 +32,11 @@
      <!-- Opciones -->
 <div class="row mb-3">
     <div class="col-md-6 d-flex align-items-center">
-        <div class="form-check" style="margin-right: 20px;" style="margin-right:5px;">
-            <input type="checkbox" class="form-check-input mr-2" id="seleccionar-todo">
-            <label class="form-check-label small" for="seleccionar-todo">Seleccionar Todo</label>
-        </div>
+        {% if user|has_higher_role:'gerente' %}
         <div class="mr-3" style="margin-right:5px;">
             <a href="{% url 'orden_insertar2' id_orden %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
         </div>
-
+        {% endif %}
     </div>
     
 </div>
@@ -48,7 +45,7 @@
     <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
         <thead class="thead-dark">
             <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
-                <th class="text-center"></th>
+       
     
                 <th class="text-center py-0">Producto</th>
                 <th class="text-center py-0">Cantidad</th>
@@ -60,7 +57,7 @@
         <tbody>
             {% for orden_prod in orden_prod_list %}
             <tr>
-                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ orden_prod.id_orden }}"></td>
+                
                 
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ orden_prod.producto }}</td>
                 <td class="text-center py-0 align-middle">{{ orden_prod.cantidad|default:"N/A" }}</td>
@@ -68,6 +65,7 @@
                 <td class="text-center py-0 align-middle">{{ orden_prod.empaque|default:"N/A" }}</td>
   
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                    {% if user|has_higher_role:'gerente' %}
                     <button style="border:none; margin:0; padding:0;" >
                         <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" 
                         class="btn btn-info btn-sm"  
@@ -77,6 +75,7 @@
                     </button>
                     
                     <button class="btn btn-danger btn-sm eliminar" data-id="{{ orden_prod.id_orden_prod }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                    {% endif %}
                 </td>
                 
             </tr>

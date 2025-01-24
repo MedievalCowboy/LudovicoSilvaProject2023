@@ -1,5 +1,5 @@
 {% extends "base/base2.html" %}
-{% load static %}
+{% load static auth_extras %}
 
 
 {% block styles %}
@@ -98,7 +98,6 @@
             <div class="col-md-3">
                 <div class="producto__imagen">
                     {% if producto.prod_image %}
-                    <!--<img src="{% static medicamento.image_url %}" alt="Imagen del Medicamento"> -->
                     <img src="{{ producto.prod_image.url }}">
                     {% else %}
                     <img src="{% static 'img/producto_default.jpg' %}" alt="Imagen del producto">
@@ -113,8 +112,9 @@
                     <p class="producto__descripcion">
                         {{producto.descripcion_prod|default:'Sin descripción.'}}
                     </p>
-
+                    {% if user|has_higher_role:'gerente' %}
                     <a style=" background-color: #84aebb5b; width:16rem; text-decoration-line:underline;" class="opacity-10 btn  h6 underline text-wrap" href="{% url 'producto_modificar' producto.id_producto %}">Editar este producto</a>
+                    {% endif %}
                     <table class="producto__tabla">
                         <tr>
                             <th>Cantidad disponible:</th>

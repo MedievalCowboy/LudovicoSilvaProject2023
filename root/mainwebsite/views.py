@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotFound, Http404, HttpResponse
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.models import Session
 from django.views.decorators.http import require_POST, require_http_methods
-from django.contrib.auth.forms import UserCreationForm
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User, Group
 from xhtml2pdf import pisa
-from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.contrib import messages
 from django.urls import reverse
@@ -17,9 +15,9 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.contenttypes.models import ContentType
+from django.utils.decorators import method_decorator
 import re
 import os
-import csv
 from django.utils import timezone
 from django.templatetags.static import static
 from django.contrib.admin.models import LogEntry
@@ -56,6 +54,7 @@ def portal_conocenos(request):
 ######################################################################################
 ######################################################################################
 @require_POST
+@login_required
 def set_theme(request):
     theme = request.POST.get('theme', 'red')
     if request.user.is_authenticated:
@@ -79,6 +78,7 @@ def ordenes(request):
     return render(request, 'ordenes/ordenes.html',{'ordenes':lista_ordenes, 'titulo_web':'Ordenes - SM200SYS'})
 
 @login_required
+@role_required('gerente')
 def send_orden_info_email(request, pk):
     if request.method == 'GET':
         orden = get_object_or_404(Orden, pk = pk)
@@ -107,6 +107,7 @@ def send_orden_info_email(request, pk):
     return redirect(url)
 
 @login_required
+@role_required('gerente')
 def orden_insertar(request):
     if request.method == 'POST':
         form = OrdenForm(request.POST)
@@ -136,6 +137,7 @@ def orden_insertar(request):
 
 
 @login_required
+@role_required('gerente')
 def orden_insertar_2(request, pk):
     if request.method == 'POST':
         form = OrdenProductoForm(request.POST, pk=pk)
@@ -156,6 +158,7 @@ def orden_insertar_2(request, pk):
 
 
 @login_required
+@role_required('gerente')
 def orden_modificar(request,pk):
     orden = get_object_or_404(Orden, pk=pk)
     if request.method == "POST":
@@ -173,7 +176,7 @@ def orden_modificar(request,pk):
     return render(request, 'base/base_modificar.html', context)
 
 #Esto esta conectado con ajax
-@login_required
+role_required('gerente')
 def orden_eliminar(request, pk):
     orden = get_object_or_404(Orden, pk=pk)
     orden_productos = Orden_Producto.objects.filter(id_orden=orden)
@@ -202,15 +205,15 @@ def link_callback(uri, _):
     Convierte URLs estáticas a rutas del sistema.
     Ej: '/static/img/logo.png' → '/ruta/proyecto/mainwebsite/static/img/logo.png'
     """
-    # Paso 1: Eliminar '/' inicial y convertir a ruta relativa
+    #Eliminar '/' inicial y convertir a ruta relativa
     uri = uri.lstrip('/')
     
-    # Paso 2: Verificar si es una URL estática
+    # Verificar si es una URL estática
     if uri.startswith('static/'):
-        # Desarrollo: Buscar en STATICFILES_DIRS
+        # Buscar en STATICFILES_DIRS
         if settings.DEBUG:
             path = os.path.join(settings.BASE_DIR, 'mainwebsite', 'static', uri.replace('static/', ''))
-        # Producción: Buscar en STATIC_ROOT
+        # Buscar en STATIC_ROOT
         else:
             path = os.path.join(settings.STATIC_ROOT, uri.replace('static/', ''))
         
@@ -219,9 +222,10 @@ def link_callback(uri, _):
             raise ValueError(f"Archivo estático no encontrado: {path}")
         return path
     
-    # Si no es estático, retornar la URI original (ej: URLs HTTP)
+    # Si no es estático, retornar la URI original 
     return uri
 
+role_required('empleado')
 def generar_pdf_orden(request, pk):
     # Obtener la orden con sus productos relacionados
     orden = Orden.objects.prefetch_related('orden_producto_set__producto').get(pk=pk)
@@ -278,6 +282,7 @@ def orden_prod_listar(request, pk):
 
 #Esto esta conectado con ajax
 @login_required
+@role_required('gerente')
 def orden_prod_eliminar(request, pk):
     orden_prod = get_object_or_404(Orden_Producto, pk=pk)
     if request.method == 'POST':
@@ -286,6 +291,7 @@ def orden_prod_eliminar(request, pk):
         messages.warning(request, "Se Eliminó la relación del producto con la orden exitosamente.")
         return JsonResponse(data)
 
+@role_required('gerente')
 def orden_prod_modificar(request, orden_pk, orprod_pk):
     orden_prod = get_object_or_404(Orden_Producto, pk=orprod_pk)
     orden = get_object_or_404(Orden,pk = orden_pk)
@@ -322,7 +328,7 @@ def inventario_lista(request):
                'titulo_web':'Inventario - SM200SYS'}
     return render(request, "inventario/inventario.html",context)
 
-@login_required
+@role_required('gerente')
 def inventario_insertar(request):
     if request.method == 'POST':
         form = InventarioForm(request.POST)
@@ -343,7 +349,7 @@ def inventario_insertar(request):
 
     return render(request, 'inventario/inventario_insertar.html', {'form': form, 'titulo_web':'Insertar Elemento en Inventario - SM200SYS'})
 
-@login_required
+@role_required('gerente')
 def inventario_modificar(request, pk):
     inv_element = get_object_or_404(Inventario, pk=pk)
 
@@ -364,7 +370,7 @@ def inventario_modificar(request, pk):
     return render(request, 'base/base_modificar.html', context)
 
 
-@login_required
+@role_required('gerente')
 def inventario_eliminar(request, pk):
     inv_element = get_object_or_404(Inventario, pk=pk)
     if request.method == 'POST':
@@ -402,7 +408,7 @@ def producto_detail(request, pk):
 
     return render(request, 'inventario/producto_detail.html', context)
 
-@login_required
+@role_required('gerente')
 def producto_insertar(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
@@ -425,6 +431,7 @@ def producto_insertar(request):
     return render(request, 'inventario/producto_insertar.html', {'form': form, 'titulo_web':'Insertar Producto - SM200SYS'})
 
 @login_required
+@role_required('gerente')
 def producto_modificar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
 
@@ -445,6 +452,7 @@ def producto_modificar(request, pk):
     return render(request, 'base/base_modificar.html', context)
 
 @login_required
+@role_required('gerente')
 def producto_eliminar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -478,6 +486,7 @@ def proveedor_detail(request, pk):
 
 
 @login_required
+@role_required('gerente')
 def proveedor_modificar(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
@@ -498,6 +507,7 @@ def proveedor_modificar(request, pk):
     return render(request, 'base/base_modificar.html', context)
 
 @login_required
+@role_required('gerente')
 def proveedor_insertar(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -519,6 +529,7 @@ def proveedor_insertar(request):
     return render(request, 'proveedores/proveedor_insertar.html', {'form': form, 'titulo_web':'Insertar Proveedor - SM200SYS'})
 
 @login_required
+@role_required('gerente')
 def proveedor_eliminar(request, pk):
     if request.method == 'POST':
         proveedor = get_object_or_404(Proveedor, pk=pk)
@@ -562,7 +573,7 @@ def cliente_detail(request, pk):
     return render(request, 'clientes/cliente_detail.html', context)
 
 
-
+@role_required('gerente')
 def cliente_insertar(request):
     if request.method == 'POST':
 
@@ -584,7 +595,7 @@ def cliente_insertar(request):
 
     return render(request, 'clientes/cliente_insertar.html', {'form': form, 'titulo_web':'Insertar Cliente - SM200SYS'})
 
-
+@role_required('gerente')
 def cliente_modificar(request, pk):
     clientes = get_object_or_404(Cliente, pk=pk)
 
@@ -604,6 +615,7 @@ def cliente_modificar(request, pk):
                'volver_a':'clientes'}
     return render(request, 'base/base_modificar.html', context)
 
+@role_required('gerente')
 def cliente_eliminar(request,pk):
     clientes = get_object_or_404(Cliente, pk=pk)
     if request.method == 'POST':
@@ -647,6 +659,7 @@ def almacen_detail(request, pk):
     return render(request, 'almacenes/almacen_detail.html', context)
 
 @login_required
+@role_required('gerente')
 def almacen_modificar(request, pk):
     almacen = get_object_or_404(Almacen, pk=pk)
 
@@ -667,6 +680,7 @@ def almacen_modificar(request, pk):
     return render(request, 'base/base_modificar.html', context)
 
 @login_required
+@role_required('gerente')
 def almacen_insertar(request):
     if request.method == 'POST':
         form = AlmacenForm(request.POST)
@@ -687,6 +701,7 @@ def almacen_insertar(request):
     return render(request, 'almacenes/almacen_insertar.html', {'form': form, 'titulo_web':'Insertar Almacen - SM200SYS'})
 
 @login_required
+@role_required('gerente')
 def almacen_eliminar(request, pk):
     if request.method == 'POST':
         almacen = get_object_or_404(Almacen, pk=pk)
@@ -727,6 +742,7 @@ def destino_detail(request, pk):
 
 
 @login_required
+@role_required('gerente')
 def destino_modificar(request, pk):
     destino = get_object_or_404(Destino, pk=pk)
 
@@ -747,6 +763,7 @@ def destino_modificar(request, pk):
     return render(request, 'base/base_modificar.html', context)
 
 @login_required
+@role_required('gerente')
 def destino_insertar(request):
     if request.method == 'POST':
         form = DestinoForm(request.POST)
@@ -768,6 +785,7 @@ def destino_insertar(request):
     return render(request, 'destinos/destino_insertar.html', {'form': form, 'titulo_web':'Insertar Destino - SM200SYS'})
 
 @login_required
+@role_required('gerente')
 def destino_eliminar(request, pk):
     if request.method == 'POST':
         destino = get_object_or_404(Destino, pk=pk)
@@ -788,7 +806,9 @@ def prod_dest_lista(request):
     
     return render(request,'inventario/prod_dest_consumos.html', context)
 
+## NOTA: FUNCION CREADA PERO NO USADA, RECOMENDADO REHACER LA LOGICA DE CONSUMO ANTES
 @login_required
+@role_required('admin')
 def prod_dest_det_dest(request, pk):
     destino = get_object_or_404(Destino, pk=pk)
     prod_dest_det_list = Prod_Dest.objects.filter(id_destino=destino)
@@ -800,6 +820,7 @@ def prod_dest_det_dest(request, pk):
     return render(request, 'inventario/prod_dest_det_dest.html', context)
 
 @login_required
+@role_required('gerente')
 def prod_dest_modificar(request,pk):
     prod_dest = get_object_or_404(Prod_Dest, pk=pk)
 
@@ -820,6 +841,7 @@ def prod_dest_modificar(request,pk):
     return render(request, 'inventario/prod_dest_modificar.html', context)
 
 @login_required
+@role_required('gerente')
 def prod_dest_insertar(request):
     if request.method == 'POST':
         form = ProdDestForm(request.POST)
@@ -842,6 +864,7 @@ def prod_dest_insertar(request):
     return render(request, 'inventario/prod_dest_insertar.html', {'form': form, 'titulo_web':'Insertar relación consumo Producto/Destino - SM200SYS'})
     
 @login_required
+@role_required('gerente')
 def prod_dest_eliminar(request, pk):
     if request.method == 'POST':
         prod_dest = get_object_or_404(Prod_Dest, pk=pk)
@@ -1126,7 +1149,7 @@ def disconnect_all(request):
     messages.success(request, f'{count} usuarios desconectados exitosamente')
     return redirect('active_sessions')
 
-
+@method_decorator(role_required('gerente'), name='dispatch')
 class AuditLogListView(ListView):
     model = AuditLog
     template_name = 'auth/activity_log_list.html'

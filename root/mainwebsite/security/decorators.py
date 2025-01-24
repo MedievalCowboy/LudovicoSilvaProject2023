@@ -1,18 +1,25 @@
 # security/decorators.py
 from django.shortcuts import redirect
 from django.conf import settings
+from django.http import HttpRequest
 from .utils import obtener_rol_mas_alto
 from .hierarchy import HIERARCHY
 
 def role_required(*required_roles):
     def decorator(view_func):
         def wrapper(request, *args, **kwargs):
-            if not request.user.is_authenticated:
+            if isinstance(request, HttpRequest):  # si el view s una función normal
+                user = request.user
+            else:  # si se trata de un view clase, cargado por método de clase
+                user = request.user if hasattr(request, 'user') else None
+                request = args[0]  # El request real es el primer argumento
+
+            if not user or not user.is_authenticated:
                 return redirect(f'{settings.LOGIN_URL}?next={request.path}')
             
-            user_role = obtener_rol_mas_alto(request.user)
+            user_role = obtener_rol_mas_alto(user)
             
-            if request.user.is_superuser:
+            if user.is_superuser:
                 return view_func(request, *args, **kwargs)
                 
             if not required_roles:
@@ -30,7 +37,7 @@ def role_required(*required_roles):
                 print(f"Error de roles: {e}")
                 return redirect('error_500')
 
-            print(f"Acceso denegado: {request.user} - {request.path}")
+            print(f"Acceso denegado: {user} - {request.path}")
             return redirect('error_500')
 
         return wrapper

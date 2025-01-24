@@ -1,6 +1,6 @@
 
 {% extends "base/base2.html" %}
-{% load static %}
+{% load static auth_extras %}
 
 {% block styles %}
 
@@ -96,13 +96,14 @@
                     
                     <div class="mt-3">
                       <h4>{{cliente.nombre_cliente}}</h4>
-                      
+                      {% if user|has_higher_role:'gerente' %}
                       <a style="padding-top: 2px;padding-bottom: 2px; padding-left: 4px;padding-right: 4px;" 
                       href="{% url 'cliente_modificar' cliente.id_cliente %}"
                       class="btn btn-info tag label label-info text-muted">
                       
                       <small>Editar Cliente</small>
                       </a>
+                      {% endif %}
 
                     </div>
                   </div>
