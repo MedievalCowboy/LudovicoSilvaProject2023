@@ -1,196 +1,251 @@
 {% load auth_extras %}
 {% load static %}
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar aside-custom-{{ current_theme.code_name|default:'red' }}">
-
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar aside-custom-{{ current_theme.code_name|default:'red' }}">
     <ul class="sidebar-nav" id="sidebar-nav">
+        <!-- Dashboard -->
+        <li class="nav-item">
+            <a class="nav-link collapsed aside-btn d-flex align-items-center" href="{% url 'ordenes' %}">
+                <i class="bi bi-grid fs-5 me-2"></i>
+                <span class="fw-medium">Inicio</span>
+            </a>
+        </li>
 
-      <li class="nav-item">
-        <a class="nav-link aside-btn" href="{% url 'ordenes' %}">
-          <i class="bi bi-grid"></i>
-          <span>Inicio</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
+        <!-- Órdenes -->
+        <li class="nav-item">
+            <a class="nav-link collapsed aside-btn d-flex align-items-center" data-bs-target="#ordenes-aside" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-receipt fs-5 me-2"></i>
+                <span class="fw-medium">Órdenes</span>
+                <i class="bi bi-chevron-down ms-auto transition-arrow"></i>
+            </a>
+            <ul id="ordenes-aside" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'ordenes' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Listado</span>
+                    </a>
+                </li>
+                {% if user|has_higher_role:'gerente' %}
+                <li>
+                    <a href="{% url 'orden_insertar' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Crear nuevo</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </li>
 
-      <li class="nav-item">
-        <a class="nav-link collapsed aside-btn" data-bs-target="#ordenes-aside" data-bs-toggle="collapse" href="#">
-          <i class=" bi bi-receipt"></i><span>Ordenes</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="ordenes-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'ordenes' %}">
-              <i class="bi bi-circle"></i><span>Listado</span>
+        <!-- Inventario -->
+        <li class="nav-item">
+            <a class="nav-link collapsed aside-btn d-flex align-items-center" data-bs-target="#inventario-aside" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-boxes fs-5 me-2"></i>
+                <span class="fw-medium">Inventario</span>
+                <i class="bi bi-chevron-down ms-auto transition-arrow"></i>
             </a>
-          </li>
-          {% if user|has_higher_role:'gerente' %}
-          <li>
-            <a href="{% url 'orden_insertar' %}">
-              <i class="bi bi-circle"></i><span>Crear nuevo</span>
-            </a>
-          </li>
-          {% endif %}
-        </ul>
-      </li><!-- End Forms Nav -->
+            <ul id="inventario-aside" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'inventario' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>General</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'almacenes' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Almacenes</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
-      <li class="nav-item">
-        <a class="nav-link collapsed aside-btn" data-bs-target="#inventario-aside" data-bs-toggle="collapse" href="#">
-         <i class="bi bi-boxes"></i> <span>Inventario</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="inventario-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'inventario' %}">
-              <i class="bi bi-circle"></i><span>General</span>
+        <!-- Productos -->
+        <li class="nav-item">
+            <a class="nav-link collapsed aside-btn d-flex align-items-center" data-bs-target="#productos-aside" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-box2 fs-5 me-2"></i>
+                <span class="fw-medium">Productos</span>
+                <i class="bi bi-chevron-down ms-auto transition-arrow"></i>
             </a>
-          </li>
-          <li>
-            <a href="{% url 'almacenes' %}">
-              <i class="bi bi-circle"></i><span>Almacenes</span>
-            </a>
-          </li>
+            <ul id="productos-aside" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'productos' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Listado</span>
+                    </a>
+                </li>
+                {% if user|has_higher_role:'gerente' %}
+                <li>
+                    <a href="{% url 'producto_insertar' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Crear</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{% url 'proveedores' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Proveedores</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
-        </ul>
-      </li>
-      
-      <!-- End Tables Nav -->
+        <!-- Clientes -->
+        <li class="nav-item">
+            <a class="nav-link collapsed aside-btn d-flex align-items-center" data-bs-target="#clientes-aside" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-briefcase-fill fs-5 me-2"></i>
+                <span class="fw-medium">Clientes</span>
+                <i class="bi bi-chevron-down ms-auto transition-arrow"></i>
+            </a>
+            <ul id="clientes-aside" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'clientes' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Listado</span>
+                    </a>
+                </li>
+                {% if user|has_higher_role:'gerente' %}
+                <li>
+                    <a href="{% url 'cliente_insertar' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Crear</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </li>
 
+        <!-- Destinos -->
+        <li class="nav-item">
+            <a class="nav-link collapsed aside-btn d-flex align-items-center" data-bs-target="#destinos-aside" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-truck fs-5 me-2"></i>
+                <span class="fw-medium">Destinos</span>
+                <i class="bi bi-chevron-down ms-auto transition-arrow"></i>
+            </a>
+            <ul id="destinos-aside" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'destinos' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Listado</span>
+                    </a>
+                </li>
+                {% if user|has_higher_role:'gerente' %}
+                <li>
+                    <a href="{% url 'destino_insertar' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Crear</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{% url 'prod_dest_lista' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Consumo</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
-      <li class="nav-item">
-        <a class="nav-link collapsed aside-btn" data-bs-target="#productos-aside" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-box2 "></i> <span>Productos </span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="productos-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'productos' %}">
-              <i class="bi bi-circle"></i><span>Listado</span>
-            </a>
-          </li>
-          {% if user|has_higher_role:'gerente' %}
-          <li>
-            <a href="{% url 'producto_insertar' %}">
-              <i class="bi bi-circle"></i><span>Crear</span>
-            </a>
-          </li>
-          {% endif %}
-          <li>
-            <a href="{% url 'proveedores' %}">
-              <i class="bi bi-circle"></i><span>Proveedores</span>
-            </a>
-          </li>
-          
-        </ul>
-      </li> 
+        {% if request.user|has_higher_role:'gerente' %}
+        <!-- Gestión -->
+        <li class="nav-heading">Gestión</li>
 
+        <li class="nav-item">
+            <a class="nav-link aside-btn d-flex align-items-center sidebar-nav-color2" href="{% url 'audit_log_list' %}">
+                <i class="bi bi-search fs-5 me-2"></i>
+                <span class="fw-medium">Movimientos en el Sistema</span>
+            </a>
+        </li>
 
+        <li class="nav-item">
+            <a class="nav-link aside-btn d-flex align-items-center sidebar-nav-color2" href="{% url 'active_sessions' %}">
+                <i class="bi bi-broadcast fs-5 me-2"></i>
+                <span class="fw-medium">Usuarios activos</span>
+            </a>
+        </li>
 
-       <li class="nav-item">
-        <a class="nav-link collapsed aside-btn" data-bs-target="#clientes-aside" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-briefcase-fill"></i><span>Clientes</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="clientes-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'clientes' %}">
-              <i class="bi bi-circle"></i><span>Listado</span>
+        <li class="nav-item">
+            <a class="nav-link aside-btn d-flex align-items-center sidebar-nav-color2" href="{% url 'global_access_history' %}">
+                <i class="bi bi-door-open fs-5 me-2"></i>
+                <span class="fw-medium">Registros de acceso</span>
             </a>
-          </li>
-          {% if user|has_higher_role:'gerente' %}
-          <li>
-            <a href="{% url 'cliente_insertar' %}">
-              <i class="bi bi-circle"></i><span>Crear</span>
-            </a>
-          </li>
-          {% endif %}
-          
-        </ul>
-      </li> 
-      <!-- End Components Nav -->
+        </li>
+        {% endif %}
 
-      <li class="nav-item">
-        <a class="nav-link collapsed aside-btn" data-bs-target="#destinos-aside" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-truck"></i><span>Destinos</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="destinos-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'destinos' %}">
-              <i class="bi bi-circle"></i><span>Listado</span>
-            </a>
-          </li>
-          {% if user|has_higher_role:'gerente' %}
-          <li>
-            <a href="{% url 'destino_insertar' %}">
-              <i class="bi bi-circle"></i><span>Crear</span>
-            </a>
-          </li>
-          {% endif %}
-          <li>
-            <a href="{% url 'prod_dest_lista' %}">
-              <i class="bi bi-circle"></i><span>Consumo</span>
-            </a>
-          </li>
-          
-        </ul>
-      </li> 
-      <!-- End Components Nav -->
-       {% if request.user|has_higher_role:'gerente' %} 
-      <li class="nav-heading" style="">Gestión</li>
+        {% if request.user|has_higher_role:'admin' %}
+        <!-- Administración -->
+        <li class="nav-heading">Administración</li>
 
-      <li class="nav-item" style="">
-        <a class="nav-link collapsed aside-btn" href="{% url 'audit_log_list' %}">
-          <i class="bi bi-search"></i>
-          <small><span>Movimientos en el Sistema</span></small>
-          <!--<span class="badge bg-secondary">WIP</span>-->
-        </a>
-      </li>
-      <li class="nav-item" style="">
-        <a class="nav-link collapsed aside-btn" href="{% url 'active_sessions' %}">
-          <i class="bi bi-broadcast"></i>
-          <small><span>Usuarios activos</span></small>
-        </a>
-      </li>
-      <li class="nav-item" style="">
-        <a class="nav-link collapsed aside-btn" href="{% url 'global_access_history' %}">
-          <i class="bi bi-door-open"></i>
-          <small><span>Registros de inicio de sesión</span></small>
-        </a>
-      </li>
-
-      {% endif %}
-      
-      {% if request.user|has_higher_role:'admin' %} 
-      <li class="nav-heading">Administración</li>
-
-      <li class="nav-item" style="">
-        <a class="nav-link collapsed aside-btn" data-bs-target="#usuario-aside" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-person"></i>
-          <small><span>Usuarios</span></small> <i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="usuario-aside" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'register_user' %}">
-              <i class="bi bi-circle"></i><span>Crear nuevo usuario</span>
+        <li class="nav-item ">
+            <a class="nav-link aside-btn d-flex align-items-center sidebar-nav-color2" data-bs-target="#usuario-aside" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-person fs-5 me-2"></i>
+                <span class="fw-medium">Usuarios</span>
+                <i class="bi bi-chevron-down ms-auto transition-arrow"></i>
             </a>
-          </li>
-          <li>
-            <a href="{% url 'edit_profile' user.pk %}">
-              <i class="bi bi-circle"></i><span>Editar Perfil Usuario</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'user_list' %}">
-              <i class="bi bi-circle"></i><span>Listado de Usuarios</span>
-            </a>
-          </li>
-        </ul>
-      </li>
-      
-      <li class="nav-item" style="">
-        <a class="nav-link collapsed aside-btn" href="{% url 'admin:index' %}">
-          <i class="bi bi-shield-shaded"></i>
-          <small><span>Panel Admin. Sistema</span></small>
-        </a>
-        
-      </li>
-      {% endif %}
+            <ul id="usuario-aside" class="nav-content collapse nav-content-color2" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'register_user' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Crear usuario</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'edit_profile' user.pk %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Editar perfil</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'user_list' %}" class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill me-2 text-xs"></i>
+                        <span>Listado de usuarios</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
+        <li class="nav-item">
+            <a class="nav-link aside-btn d-flex align-items-center sidebar-nav-color2" href="{% url 'admin:index' %}">
+                <i class="bi bi-shield-shaded fs-5 me-2"></i>
+                <span class="fw-medium">Panel Administrativo</span>
+            </a>
+        </li>
+        {% endif %}
     </ul>
+</aside><!-- End Sidebar-->
 
-  </aside><!-- End Sidebar-->
+<!-- Overlay para móviles -->
+<div class="sidebar-overlay"></div>
+
+<script>
+// JavaScript para manejar el sidebar en móviles
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    const toggleBtn = document.querySelector('.toggle-sidebar-btn');
+
+    // Toggle sidebar
+    if(toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+        });
+    }
+
+    // Cerrar sidebar al hacer click en el overlay
+    if(overlay) {
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.style.display = 'none';
+        });
+    }
+
+    // Cerrar sidebar al cambiar tamaño de pantalla
+    window.addEventListener('resize', () => {
+        if(window.innerWidth >= 1200) {
+            sidebar.classList.remove('active');
+            overlay.style.display = 'none';
+        }
+    });
+});
+</script>

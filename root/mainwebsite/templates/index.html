@@ -1,77 +1,188 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{% static 'img/sum4.png' %}" rel="icon">
     <title>Suministros Miranda 200 CA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="{% static 'thirdparty/bsicons/bs-icons-1.10.5/font/bootstrap-icons.css' %}">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #dc3545 0%, #a71e2d 100%);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-section {
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+        
+        /* Estilos corregidos para los círculos */
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(220, 53, 69, 0.1) !important;
+            margin: 0 auto 1rem !important;
+        }
+        .icon-wrapper.rounded-circle {
+            border-radius: 50% !important;
+        }
+    </style>
 </head>
 <body>
     {% include 'base/portalnavbar.html' %}
-  <!-- Page Content-->
-  <div class="container px-4 px-lg-5">
-      <!-- Heading Row-->
-      <div class="row gx-4 gx-lg-5 align-items-center my-5 text-bg-danger">
-          <div class="col-lg-7"><img class="img-fluid mb-lg-0" src="{% static 'img/working.PNG' %}" alt="working people image" /></div>
-          <div class="col-lg-5">
-              <h1 class="font-weight-light text-light "> SUMINISTROS MIRANDA 200 CA </h1> 
-              <p class="text-light ">Somos tus mejores aliados para el manejo, distribución y tratamiento de productos químicos en el oriente del país</p>
-        
-          </div>
-      </div>
-      <!-- Call to Action-->
-      <div class="card text-dark bg-danger-subtle my-5 py-4 text-center ">
-          <div class="card-body"><p class="text-dark m-0 ">Estamos ubicados en Av. Mariño, Calle Jacinto Lara, Zona Industrial, San José de Guanipa, Edo. Anzoátegui.</p></div>
-      </div>
-      <!-- Content Row-->
-      <div class="row gx-4 gx-lg-5 ">
-          <div class="col-md-4 mb-5">
-              <div class="card h-100">
-                  <div class="card-body">
-                      <h2 class="card-title">Misión</h2>
-                      <p class="card-text">Brindar a nuestros clientes soluciones integrales a la medida de sus necesidades que abarque proyectos de instalacion de calderas, 
-                        su puesta en marcha, operación de servicio, dosificacion, tratamientos quimicos con los mas altos estandares de calidad
-                      </p>
-                  </div>
     
-              </div>
-          </div>
-          <div class="col-md-4 mb-5 text-bg-danger">
-              <div class="card h-100">
-                  <div class="card-body">
-                      <h2 class="card-title">Visión</h2>
-                      <p class="card-text">Convertinos en referencia nacional en el suministro de soluciones integrales en cuanto a la instalación de calderas, su puesta en marcha, operación de servicio
-                        y tratamientos químicos y asimismo lograr expandirnos progresivamente al mercado internacional, contribuyendo de esta manera con el crecimiento de nuestros trabajadores y del país
-                      </p>
-                  </div>
-          
-              </div>
-          </div>
-          <div class="col-md-4 mb-5 ">
-              <div class="card h-100">
-                  <div class="card-body">
-                      <h2 class="card-title">Política</h2>
-                      <p class="card-text">Brindamos un servicio efectivo en proyectos de generacion de vapor mediante los procesos relacionados con las calderas y su uso en general, ganarnticando uan calidad
-                        diferenciadora que bisca siempre la satisfacción de nuestros clientes </p>
-                  </div>
-                
-              </div>
-          </div>
-      </div>
-  </div>
-  <!-- Footer-->
-  <footer class="py-5 bg-dark">
-    <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Suministros Miranda 200 C.A</p></div>
-  </footer>
-  <!-- Bootstrap core JS-->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-  <!-- Core theme JS
-  <script src="js/scripts.js"></script>
-      -->
+    <!-- Main Content -->
+    <main class="container px-lg-4">
+        <!-- Hero Section -->
+        <section class="hero-section shadow-lg my-4 p-4">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-5">
+                    <img class="img-fluid rounded-3" src="{% static 'img/working.png' %}" alt="Equipo especializado">
+                </div>
+                <div class="col-lg-7 text-center text-lg-start">
+                    <h1 class="display-5 fw-bold text-light mb-3">Suministros Miranda 200, C.A.</h1>
+                    <p class="lead text-light opacity-75 mb-4">Líderes en soluciones químicas para la industria petrolera venezolana</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Beneficios -->
+        <section class="my-5 py-4">
+            <div class="text-center mb-5">
+                <h2 class="display-6 fw-bold text-danger mb-3">Nuestras Ventajas</h2>
+                <p class="text-muted">Excelencia operacional comprobada</p>
+            </div>
+            <div class="row g-4">
+                <!-- Tarjeta Alta Calidad -->
+                <div class="col-md-4">
+                    <div class="feature-card card h-100 border-danger shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper rounded-circle">
+                                <i class="bi bi-award-fill fs-1 text-danger"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Alta Calidad</h3>
+                            <p class="text-muted mb-0">Productos certificados que cumplen estándares internacionales</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Logística Eficiente -->
+                <div class="col-md-4">
+                    <div class="feature-card card h-100 border-danger shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper rounded-circle">
+                                <i class="bi bi-speedometer2 fs-1 text-danger"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Logística Eficiente</h3>
+                            <p class="text-muted mb-0">Cobertura en todo el oriente venezolano con entregas rápidas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Confiabilidad -->
+                <div class="col-md-4">
+                    <div class="feature-card card h-100 border-danger shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper rounded-circle">
+                                <i class="bi bi-shield-check fs-1 text-danger"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Confiabilidad</h3>
+                            <p class="text-muted mb-0">+5 años de experiencia en el sector petrolero</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Producto Principal -->
+        <section class="product-section my-5 p-4 shadow-sm">
+            <div class="container px-4 px-lg-5">
+                <div class="featured-text text-center mb-4">
+                    <h2 class="text-danger fs-3">Producto Principal</h2>
+                </div>
+                <div class="row gx-0 mb-4 mb-lg-5 align-items-center">
+                    <div class="col-xl-7 col-lg-7">
+                        <img class="img-fluid mb-3 mb-lg-0 rounded-3" src="{% static 'img/quimica.jpg' %}" alt="Demulsificante">
+                    </div>
+                    <div class="col-xl-5 col-lg-5">
+                        <div class="p-4">
+                            <h4 class="text-danger">Demulsificante de Petróleo</h4>
+                            <p class="mb-0">Un demulsificante de petróleo es un compuesto químico diseñado para romper las emulsiones agua-en-petróleo o petróleo-en-agua que se forman durante la extracción, transporte y procesamiento del crudo. Estas emulsiones pueden interferir con las operaciones al dificultar la separación eficiente del petróleo y el agua, además de aumentar los costos de transporte y procesamiento.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="container mb-5 px-4 px-lg-5">
+                    <h4 class="text-danger fs-5">¿Cómo funciona?</h4>
+                    <p>Los demulsificantes actúan modificando las propiedades interfaciales entre las gotas de agua y el petróleo, facilitando su coalescencia (unión) y posterior separación:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right-circle-fill text-danger me-2"></i>
+                            <strong>Reducción de la tensión interfacial:</strong> Rompen la barrera química que estabiliza la emulsión
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right-circle-fill text-danger me-2"></i>
+                            <strong>Floculación:</strong> Agrupan las gotas de agua para formar capas separables
+                        </li>
+                        <li>
+                            <i class="bi bi-arrow-right-circle-fill text-danger me-2"></i>
+                            <strong>Desestabilización:</strong> Eliminan las películas protectoras de las gotas
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ubicación -->
+        <div class="card text-dark bg-danger-subtle my-4 py-1 text-center border-danger shadow">
+            <div class="card-body">
+                <h4 class="fs-5 text-danger">Nuestra Ubicación</h4>
+                <p class="m-0">Av. Mariño, Calle Jacinto Lara, Zona Industrial<br>San José de Guanipa, Edo. Anzoátegui</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 h-100 text-center text-lg-start my-auto">
+                    <ul class="list-inline mb-2">
+                        <li class="m-1 text-center list-inline-item"><p class="text-light small mb-4 mb-lg-0">&copy; Suministros Miranda 200, C.A.</p></li>
+                        <li class="list-inline-item">⋅</li>
+                        <li class="list-inline-item"> <a class="btn btn-dark" href="{% url 'conocenos' %}">Nosotros</a></li>
+                        <li class="list-inline-item">⋅</li>
+                        <li class="list-inline-item"> <a class="btn btn-dark" href="{% url 'politicas' %}">Politicas</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 h-100 text-center text-lg-end my-auto">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item me-4">
+                            <a href=https://wa.me/+584248401379><i class="text-danger bi bi-whatsapp fs-4"></i></a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="https://www.instagram.com/suministrosmiranda.ve?utm_source=qr&igsh=bzhhZG90OWh2NTR5"><i class="text-danger bi-instagram fs-4"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </body>
 </html>

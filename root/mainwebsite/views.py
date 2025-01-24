@@ -1032,7 +1032,8 @@ def login_user(request):
     
     context = {
         'form': form,
-        'next': request.GET.get('next', '')
+        'next': request.GET.get('next', ''),
+        'titulo_web':'Acceso al Sistema SuminMiranda200',
     }
     return render(request, 'auth/login.html', context)
 
