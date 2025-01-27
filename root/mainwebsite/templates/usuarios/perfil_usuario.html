@@ -5,169 +5,198 @@
 <style>
     body {
         margin-top: 20px;
-        color: #1a202c;
-        text-align: left;
-        background-color: #e2e8f0;    
+        background-color: #f8f9fa;
+        color: #333;
+        font-family: 'Segoe UI', system-ui, sans-serif;
     }
-    .main-body {
-        padding: 15px;
+
+    .profile-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
     }
-    .card {
-        box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-        position: relative;
+
+    .profile-header {
+        border-bottom: 2px solid #cc0000;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .profile-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .info-item {
         display: flex;
-        flex-direction: column;
-        min-width: 0;
-        word-wrap: break-word;
-        background-color: #fff;
-        background-clip: border-box;
-        border: 0 solid rgba(0,0,0,.125);
-        border-radius: .25rem;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
     }
-    .card-body {
-        flex: 1 1 auto;
-        min-height: 1px;
-        padding: 1rem;
+
+    .info-item:last-child {
+        border-bottom: none;
     }
-    .gutters-sm {
-        margin-right: -8px;
-        margin-left: -8px;
+
+    .info-label {
+        font-weight: 600;
+        color: #cc0000;
+        min-width: 160px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-    .gutters-sm>.col, .gutters-sm>[class*=col-] {
-        padding-right: 8px;
-        padding-left: 8px;
+
+    .user-avatar {
+        width: 150px;
+        height: 150px;
+        border: 3px solid #cc0000;
+        padding: 4px;
     }
-    .mb-3, .my-3 {
-        margin-bottom: 1rem!important;
+
+    .btn-editar {
+        background-color: #cc0000;
+        color: white !important;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none !important;
+        transition: all 0.3s ease;
     }
-    .bg-gray-300 {
-        background-color: #e2e8f0;
+
+    .btn-editar:hover {
+        background-color: #b30000;
+        transform: translateY(-1px);
     }
-    .h-100 {
-        height: 100%!important;
+
+    .role-badge {
+        background-color: #333;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
     }
-    .shadow-none {
-        box-shadow: none!important;
+
+    @media (max-width: 768px) {
+        .profile-container {
+            padding: 15px;
+        }
+        
+        .info-item {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .info-label {
+            margin-bottom: 5px;
+        }
+        
+        .user-avatar {
+            width: 120px;
+            height: 120px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="main-body">
-        <div class="row gutters-sm mt-3">
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex flex-column align-items-center text-center">
-                            {% if perfil.image and perfil.image.url %}
-                                <img src="{{ perfil.image.url }}" alt="Imagen de perfil" class="rounded-circle" width="150">
-                            {% else %}
-                                <img src="{% static 'img/profile-img.png' %}" alt="Imagen predeterminada" class="rounded-circle" width="150">
-                            {% endif %}
-                            
-                            <div class="mt-3">
-                                <h4>{{ profile_user.username }}</h4>
-                                {% if request.user == profile_user or is_admin %}
-                                <a href="{% url 'edit_profile' profile_user.id %}" 
-                                   class="btn btn-info btn-sm mt-2">
-                                    <i class="bi bi-pencil-square"></i> Editar Perfil
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="profile-container">
+    <div class="profile-header">
+        <h2>Perfil de Usuario</h2>
+    </div>
 
-            <div class="col-md-8">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <!-- Información Básica -->
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Nombres</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.nombres|default:"No especificado" }}
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Apellidos</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.apellidos|default:"No especificado" }}
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        <!-- Información de Contacto -->
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Email</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.email|default:"No especificado" }}
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Teléfonos</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.telefono|default:"-" }}
-                                {% if perfil.telefono2 %}
-                                <br>{{ perfil.telefono2 }}
-                                {% endif %}
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        <!-- Información Adicional -->
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Cédula</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.cedula|default:"No especificada" }}
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Dirección</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.direccion|default:"No especificada" }}
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Cargo</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.cargo|default:"No especificado" }}
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <h6 class="mb-0">Tema del Sistema</h6>
-                            </div>
-                            <div class="col-sm-8 text-secondary">
-                                {{ perfil.get_tema_sistema_display|default:"Predeterminado" }}
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <!-- Columna Izquierda - Avatar y Acciones -->
+        <div class="col-lg-4 mb-4">
+            <div class="profile-card text-center">
+                <div class="mb-4">
+                    {% if perfil.image and perfil.image.url %}
+                        <img src="{{ perfil.image.url }}" alt="Imagen de perfil" class="user-avatar rounded-circle">
+                    {% else %}
+                        <img src="{% static 'img/profile-img.png' %}" alt="Imagen predeterminada" class="user-avatar rounded-circle">
+                    {% endif %}
+                </div>
+                
+                <h3 class="mb-2">{{ profile_user.username }}</h3>
+                {% if perfil.cargo %}
+                <div class="role-badge mb-3">{{ perfil.cargo }}</div>
+                {% endif %}
+
+                {% if request.user == profile_user or is_admin %}
+                <a href="{% url 'edit_profile' profile_user.id %}" class="btn-editar">
+                    <i class="bi bi-pencil-square"></i> Editar Perfil
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Columna Derecha - Información -->
+        <div class="col-lg-8">
+            <div class="profile-card">
+                <div class="info-item">
+                    <span class="info-label">
+                        <i class="bi bi-person-badge"></i>
+                        Nombre Completo
+                    </span>
+                    <span class="text-secondary">
+                        {{ perfil.nombres|default:"-" }} {{ perfil.apellidos|default:"" }}
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">
+                        <i class="bi bi-envelope"></i>
+                        Correo Electrónico
+                    </span>
+                    <span class="text-secondary">
+                        {{ perfil.email|default:"-" }}
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">
+                        <i class="bi bi-telephone"></i>
+                        Contacto
+                    </span>
+                    <span class="text-secondary">
+                        {{ perfil.telefono|default:"-" }}
+                        {% if perfil.telefono2 %}
+                        <br>{{ perfil.telefono2 }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">
+                        <i class="bi bi-file-text"></i>
+                        Identificación
+                    </span>
+                    <span class="text-secondary">
+                        {{ perfil.cedula|default:"No especificada" }}
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">
+                        <i class="bi bi-geo-alt"></i>
+                        Dirección
+                    </span>
+                    <span class="text-secondary">
+                        {{ perfil.direccion|default:"-" }}
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">
+                        <i class="bi bi-palette"></i>
+                        Tema del Sistema
+                    </span>
+                    <span class="text-secondary">
+                        <span class="badge-rojo">{{ perfil.get_tema_sistema_display|default:"Predeterminado" }}</span>
+                    </span>
                 </div>
             </div>
         </div>

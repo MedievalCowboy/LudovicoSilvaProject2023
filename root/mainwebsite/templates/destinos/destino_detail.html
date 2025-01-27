@@ -1,157 +1,183 @@
-
 {% extends "base/base2.html" %}
 {% load static %}
 
 {% block styles %}
-
 <style>
-    body{
-    margin-top:20px;
-    color: #1a202c;
-    text-align: left;
-    background-color: #e2e8f0;    
-}
-.main-body {
-    padding: 15px;
-}
-.card {
-    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-}
+    body {
+        margin-top: 20px;
+        background-color: #f8f9fa;
+        color: #333;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
-.card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 0 solid rgba(0,0,0,.125);
-    border-radius: .25rem;
-}
+    .destino-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+    }
 
-.card-body {
-    flex: 1 1 auto;
-    min-height: 1px;
-    padding: 1rem;
-}
+    .destino-header {
+        border-bottom: 2px solid #cc0000;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
 
-.gutters-sm {
-    margin-right: -8px;
-    margin-left: -8px;
-}
+    .datos-destino {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
-.gutters-sm>.col, .gutters-sm>[class*=col-] {
-    padding-right: 8px;
-    padding-left: 8px;
-}
-.mb-3, .my-3 {
-    margin-bottom: 1rem!important;
-}
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
 
-.bg-gray-300 {
-    background-color: #e2e8f0;
-}
-.h-100 {
-    height: 100%!important;
-}
-.shadow-none {
-    box-shadow: none!important;
-}
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #cc0000;
+        min-width: 160px;
+    }
+
+    .ordenes-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .ordenes-table th {
+        background-color: #cc0000;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    .ordenes-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .ordenes-table tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .badge-rojo {
+        background-color: #cc0000;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+        .destino-container {
+            padding: 15px;
+        }
+        
+        .info-item {
+            flex-direction: column;
+        }
+        
+        .info-label {
+            margin-bottom: 5px;
+        }
+        
+        .ordenes-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
 </style>
-
 {% endblock %}
 
-{% block content %} <!-- block 1-->
-
-
-<div class="row mb-3">
-  <div class="col-md-6 d-flex align-items-center">
-       
-      <div class="mr-3" style="margin-right:5px; margin-top:20px;">
-          <a href="{% url 'destinos' %}" class="custom-btn custom-btn-sand btn-sm mb-3"><i class="bi bi-arrow-left-circle"></i> Ir al listado de destinos</a>
-      </div>
-  </div>
-  
-</div>
-
+{% block content %}
 <div class="container">
-    <div class="main-body">
-    
-          <!-- /Breadcrumb -->
-    
-          <div class="row gutters-sm mt-3">
-            
-
-            <div class="">
-              <div class="card mb-3">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <h6 class="mb-0">Nombre</h6>
-                    </div>
-                    <div class="col-sm-9 h3">
-                      {{destino.nombre_destino|default:'NONE'}}
-                    </div>
-                  </div>
-                  <hr>
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <h6 class="mb-0">Ciudad</h6>
-                    </div>
-                    <div class="col-sm-9 text-secondary">
-                     {{destino.ciudad|default:'NONE'}}
-                    </div>
-                  </div>
-                  <hr>
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <h6 class="mb-0">Creado en</h6>
-                    </div>
-                    <div class="col-sm-9 text-secondary">
-                      {{destino.creado_en|default:''}} 
-                      
-                    </div>
-                  </div>
-                  <hr>
-                
-                  <hr>
-                  
-                </div>
-              </div>
-
-              <div class="row gutters-sm">
-                
-                <h4 class="text-decoration-underline fs-2 text-center m-b-30">Ordenes enviadas a este destino</h4>
-                
-                {% if destino_ordenes %}
-                
-                <hr className="hr hr-blurry" />
-                    {% for orden in destino_ordenes %}
-                    <div>
-                        <div class="media">
-                           
-                            <div class="media-body">
-                                <h5 class="mt-0 ">(ID: {{orden.id_orden|default:'NONE'}}) - Número de Orden: {{orden.num_orden|default:'NONE'}} | Estado: {{orden.estado|default:'NONE'}}.</h5>
-                                <span style="float: inline-end;"><a href="{% url 'orden_detail' orden.id_orden %}"> Ver orden</a></span>
-                                <p class="font-13 fst-italic mb-0">{{orden.desc_requisicion|default:'Sin descripción dada.'}}</p>
-                                <small class="text-muted">Requisición: {{orden.fecha_requisicion|default:'NONE'}} | Emisión: {{orden.fecha_emision|default:'NONE'}} | Destino: {{orden.id_destino.nombre_destino|default:'NONE'}} </small>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <hr className="hr hr-blurry" />
-                    {% endfor %}
-                  {% else %}
-                  <p>De momento en este destino no hay ninguna orden registrada...</p>
-                  {% endif %}
-                </div>
-
-
+    <div class="row mb-3">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="mr-3" style="margin-right:5px; margin-top:20px;">
+                <a href="{% url 'destinos' %}" class="custom-btn custom-btn-sand btn-sm mb-3">
+                    <i class="bi bi-arrow-left-circle"></i> Ir al listado
+                </a>
             </div>
-          </div>
-
         </div>
     </div>
 
+    <div class="destino-container">
+        <div class="destino-header">
+            <h2>{{ destino.nombre_destino|default:'N/D' }}</h2>
+            <div class="d-flex align-items-center gap-3 mt-2">
+                <span class="badge-rojo">
+                    <i class="bi bi-geo-alt"></i> 
+                    {{ destino.ciudad|default:"N/A" }}
+                </span>
+                <span class="text-muted">Creado: {{ destino.creado_en }}</span>
+            </div>
+        </div>
+
+        <div class="datos-destino">
+            <div class="info-item">
+                <span class="info-label">Nombre del Destino:</span>
+                <span class="info-content">{{ destino.nombre_destino|default:'N/D' }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Ciudad:</span>
+                <span class="info-content">{{ destino.ciudad|default:'N/D' }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Fecha de Creación:</span>
+                <span class="info-content">{{ destino.creado_en }}</span>
+            </div>
+        </div>
+
+        <h4 class="text-decoration-underline fs-4 mb-4">Órdenes asociadas</h4>
+        
+        {% if destino_ordenes %}
+        <table class="ordenes-table">
+            <thead>
+                <tr>
+                    <th>N° Orden</th>
+                    <th>Estado</th>
+                    <th>Fecha Emisión</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orden in destino_ordenes %}
+                <tr>
+                    <td>#{{ orden.num_orden|default:'N/D' }}</td>
+                    <td>
+                        <span class="badge-rojo">
+                            {{ orden.estado|default:'N/D' }}
+                        </span>
+                    </td>
+                    <td>{{ orden.fecha_emision|date:"d/m/Y" }}</td>
+                    <td>${{ orden.get_total_general|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'orden_detail' orden.id_orden %}" class="text-rojo">
+                            <i class="bi bi-eye"></i> Ver detalle
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-secondary" role="alert">
+            No se encontraron órdenes asociadas a este destino.
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

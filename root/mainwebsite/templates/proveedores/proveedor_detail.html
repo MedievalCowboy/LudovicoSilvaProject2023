@@ -1,217 +1,211 @@
 {% extends "base/base2.html" %}
 {% load static auth_extras %}
 
-
-
-
 {% block styles %}
 <style>
-body{
-    margin-top:20px;
-    color: #1a202c;
-    text-align: left;
-    background-color: #e2e8f0;  
-}
-.card-box {
-    padding: 20px;
-    border-radius: 3px;
-    margin-bottom: 30px;
-    background-color: #fff;
-}
-.thumb-sm {
-    height: 36px;
-    width: 36px;
-}
+    body {
+        margin-top: 20px;
+        background-color: #f8f9fa;
+        color: #333;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
-.task-detail .task-dates li {
-    width: 50%;
-    float: left
-}
+    .proveedor-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+    }
 
-.task-detail .task-tags .bootstrap-tagsinput {
-    padding: 0;
-    border: none
-}
+    .proveedor-header {
+        border-bottom: 2px solid #cc0000;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
 
-.task-detail .assign-team a {
-    display: inline-block;
-    margin: 5px 5px 5px 0
-}
+    .datos-proveedor {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
-.task-detail .files-list .file-box {
-    display: inline-block;
-    vertical-align: middle;
-    width: 80px;
-    padding: 2px;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    background-clip: padding-box
-}
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
 
-.task-detail .files-list .file-box img {
-    line-height: 70px
-}
+    .info-item:last-child {
+        border-bottom: none;
+    }
 
-.task-detail .files-list .file-box p {
-    width: 100%;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap
-}
+    .info-label {
+        font-weight: 600;
+        color: #cc0000;
+        min-width: 160px;
+    }
 
-.add-new-plus {
-    height: 32px;
-    text-align: center;
-    width: 32px;
-    display: block;
-    line-height: 32px;
-    color: #98a6ad;
-    font-weight: 700;
-    background-color: #e3eaef;
-    border-radius: 50%
-}
+    .productos-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
 
-.project-sort-item .form-group {
-    margin-right: 30px
-}
+    .productos-table th {
+        background-color: #cc0000;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+    }
 
-.project-sort-item .form-group:last-of-type {
-    margin-right: 0
-}
+    .productos-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
 
-.project-box {
-    position: relative
-}
+    .productos-table tr:hover {
+        background-color: #f9f9f9;
+    }
 
-.project-box .badge {
-    position: absolute;
-    right: 20px
-}
+    .badge-rojo {
+        background-color: #cc0000;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
 
-.project-box h4 {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;
-    width: 100%;
-    overflow: hidden
-}
+    .btn-editar {
+        background-color: #cc0000;
+        color: white !important;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none !important;
+    }
 
-.project-box ul li {
-    padding-right: 30px
-}
+    .btn-editar:hover {
+        background-color: #b30000;
+    }
 
-.project-box .project-members a {
-    margin: 0 0 10px -12px;
-    display: inline-block;
-    border: 3px solid #fff;
-    border-radius: 50%;
-    -webkit-box-shadow: 0 0 24px 0 rgba(0, 0, 0, .06), 0 1px 0 0 rgba(0, 0, 0, .02);
-    box-shadow: 0 0 24px 0 rgba(0, 0, 0, .06), 0 1px 0 0 rgba(0, 0, 0, .02)
-}
-
-.project-box .project-members a:first-of-type {
-    margin-left: 0
-}
-
-.company-card .company-logo {
-    float: left;
-    height: 60px;
-    width: 60px;
-    border-radius: 3px
-}
-
-.company-card .company-detail {
-    margin: 0 0 50px 75px
-}
-.text-muted {
-    color: #98a6ad!important;
-}
-
-p {
-    line-height: 1.6;
-    font-size: 14px;
-}
-
-.bootstrap-tagsinput .label-info {
-    background-color: #02c0ce;
-    display: inline-block;
-    padding: 4px 8px;
-    font-size: 13px;
-    margin: 3px 1px;
-    border-radius: 3px;
-}
-
+    @media (max-width: 768px) {
+        .proveedor-container {
+            padding: 15px;
+        }
+        
+        .info-item {
+            flex-direction: column;
+        }
+        
+        .info-label {
+            margin-bottom: 5px;
+        }
+        
+        .productos-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
 </style>
-{% endblock%}
+{% endblock %}
 
-{% block content %} <!-- block 1-->
-
-
-<div class="row mb-3">
-    <div class="col-md-6 d-flex align-items-center">
-         
-        <div class="mr-3" style="margin-right:5px; margin-top:20px;">
-            <a href="{% url 'proveedores' %}" class="custom-btn custom-btn-sand btn-sm mb-3"><i class="bi bi-arrow-left-circle"></i> Ir al listado de proveedores</a>
+{% block content %}
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="mr-3" style="margin-right:5px; margin-top:20px;">
+                <a href="{% url 'proveedores' %}" class="custom-btn custom-btn-sand btn-sm mb-3">
+                    <i class="bi bi-arrow-left-circle"></i> Ir al listado
+                </a>
+            </div>
         </div>
     </div>
-    
-</div>
 
-<div class="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="card-box task-detail">
-
-                    
-                        <div><h4 class="text-decoration-underline m-b-20">Proveedor #{{proveedor.id_proveedor}}</h4>
-                        </div>
-                        <div class="task-tags mt-4">
-                            <div class="bootstrap-tagsinput">
-                                {% if user|has_higher_role:'gerente' %}
-                                <a class="btn tag label label-info" href="{% url 'proveedor_modificar' proveedor.id_proveedor %}">Editar Información del Proveedor</a>
-                                {% endif %}
-                            </div>
-    
-                        </div>
-                        <div class="border rounded">
-                            <p class="fw-bolder">Nombre: {{proveedor.nombre_proveedor}}.</p>
-                            <p class="fw-bolder">Correo: {{proveedor.correo}} 
-                            <p class="fw-bolder">Telefono: {{proveedor.tlf_proveedor}}.</p>
-                            <p class="fw-bolder text-break">Nota: {{proveedor.nota_proveedor}}.</p>
-                        </div>
-                    
-                    </div>
-                    
-                </div>
+    <div class="proveedor-container">
+        <div class="proveedor-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>{{ proveedor.nombre_proveedor|default:'N/D' }}</h2>
+                {% if user|has_higher_role:'gerente' %}
+                <a href="{% url 'proveedor_modificar' proveedor.id_proveedor %}" class="btn-editar">
+                    <i class="bi bi-pencil-square"></i> Editar Proveedor
+                </a>
+                {% endif %}
             </div>
-            <!-- end col -->
-            <div class="">
-                <div class="">
-                    <h4 class="text-decoration-underline fs-2 text-center m-b-30">Productos de este Proveedor</h4>
-                    <hr className="hr hr-blurry" />
-                    {% for producto in proveedor_productos %}
-                    <div>
-                        <div class="media">
-                           
-                            <div class="media-body">
-                                <h5 class="mt-0 ">(Cod: {{producto.cod_producto|default:'NONE'}}) - {{producto.nombre_producto|default:'Sin nombre definido.'}}.</h5>
-                                <span style="float: inline-end;"><a href="{% url 'producto_detail' producto.id_producto %}"> Ver producto</a></span>
-                                <p class="font-13 fst-italic mb-0"> {{producto.descripcion_prod|default:'Sin Descripción.'}}</p>
-                                <small class="text-muted">Cant: Min {{producto.cant_min|default:'NONE'}}, Max {{producto.ant_max|default:'NONE'}}</small>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <hr className="hr hr-blurry" />
-                    {% endfor %}
-                </div>
+            <div class="d-flex align-items-center gap-3 mt-2">
+                <span class="badge-rojo">
+                    <i class="bi bi-building"></i> 
+                    ID: {{ proveedor.id_proveedor|default:"N/A" }}
+                </span>
             </div>
-            <!-- end col -->
         </div>
-        <!-- end row -->
+
+        <div class="datos-proveedor">
+            <div class="info-item">
+                <span class="info-label">Nombre:</span>
+                <span class="info-content">{{ proveedor.nombre_proveedor|default:'N/D' }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Correo Electrónico:</span>
+                <span class="info-content">
+                    {% if proveedor.correo %}
+                    <a href="mailto:{{ proveedor.correo }}">{{ proveedor.correo }}</a>
+                    {% else %}
+                    N/D
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Teléfono:</span>
+                <span class="info-content">{{ proveedor.tlf_proveedor|default:'N/D' }}</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Notas:</span>
+                <span class="info-content">{{ proveedor.nota_proveedor|default:'Sin notas adicionales' }}</span>
+            </div>
+        </div>
+
+        <h4 class="text-decoration-underline fs-4 mb-4">Productos asociados</h4>
+        
+        {% if proveedor_productos %}
+        <table class="productos-table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre del Producto</th>
+                    <th>Descripción</th>
+                    <th>Stock Min/Max</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in proveedor_productos %}
+                <tr>
+                    <td>{{ producto.cod_producto|default:'N/D' }}</td>
+                    <td>{{ producto.nombre_producto|default:'N/D' }}</td>
+                    <td>{{ producto.descripcion_prod|default:'Sin descripción'|truncatechars:40 }}</td>
+                    <td>
+                        Mín: {{ producto.cant_min|default:'0' }}<br>
+                        Máx: {{ producto.cant_max|default:'0' }}
+                    </td>
+                    <td>
+                        <a href="{% url 'producto_detail' producto.id_producto %}" class="text-rojo">
+                            <i class="bi bi-eye"></i> Detalle
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-secondary" role="alert">
+            Este proveedor no tiene productos asociados.
+        </div>
+        {% endif %}
     </div>
-    <!-- container -->
 </div>
 {% endblock %}

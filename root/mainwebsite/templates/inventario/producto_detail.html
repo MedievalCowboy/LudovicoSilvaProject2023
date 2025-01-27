@@ -1,150 +1,192 @@
 {% extends "base/base2.html" %}
 {% load static auth_extras %}
 
-
 {% block styles %}
 <style>
-    body{
-        margin-top:20px;
-    color: #1a202c;
-    text-align: left;
-    background-color: #e2e8f0;    
+    body {
+        margin-top: 20px;
+        background-color: #f8f9fa;
+        color: #333;
+        font-family: 'Segoe UI', system-ui, sans-serif;
     }
+
     .producto {
-            max-width: 90%;
-            margin: 0 auto;
-            border: 1px solid #ccc;
+        max-width: 90%;
+        margin: 20px auto;
+        padding: 30px;
+        background: white;
+    }
+
+    .producto__imagen {
+        width: 100%;
+        height: 280px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #f8f8f8;
+        padding: 5px;
+    }
+
+    .producto__imagen img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .producto__titulo {
+        font-size: 28px;
+        font-weight: 700;
+        color: #cc0000;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #cc0000;
+        padding-bottom: 10px;
+    }
+
+    .producto__descripcion {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #444;
+        margin-bottom: 25px;
+    }
+
+    .producto__tabla {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .producto__tabla th {
+        background-color: #cc0000;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .producto__tabla td {
+        padding: 12px 15px;
+        background-color: #fff;
+        border-bottom: 2px solid #eee;
+        color: #333;
+    }
+
+    .producto__tabla tr:nth-child(even) td {
+        background-color: #f9f9f9;
+    }
+
+    .producto__tabla a {
+        color: #cc0000;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .producto {
             padding: 20px;
-            margin-top:20px;
+            margin: 15px;
         }
-
-        .producto__imagen {
-            width: 200px;
-            height: 200px;
-            margin-bottom: 20px;
-
-        }
-
-        .producto__imagen img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .producto__informacion {
-            display: flex;
-            flex-direction: column;
-        }
-
+        
         .producto__titulo {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 24px;
         }
-
-        .producto__descripcion {
-            text-align: justify;
+        
+        .producto__imagen {
+            height: 220px;
         }
-
-        .producto__precio {
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .producto__cantidad {
-            font-size: 16px;
-            margin-top: 10px;
-        }
-
-        .producto__tabla {
-            margin-top: 20px;
-        }
-
-        .producto__tabla tr {
-            border-bottom: 1px solid #ccc;
-        }
-
+        
         .producto__tabla th,
         .producto__tabla td {
-            padding: 5px;
-            vertical-align: middle;
+            padding: 10px;
+            font-size: 14px;
         }
+    }
 
-        .producto__tabla th {
-            font-weight: bold;
+    @media (max-width: 575px) {
+        .producto__imagen {
+            height: 180px;
         }
-
+        
+        .producto__titulo {
+            font-size: 22px;
+        }
+    }
 </style>
-    
-{% endblock%}
+{% endblock %}
 
 {% block content %}
-
-
-<div class="row mb-3">
-    <div class="col-md-6 d-flex align-items-center">
-         
-        <div class="mr-3" style="margin-right:5px; margin-top:20px;">
-            <a href="{% url 'productos' %}" class="custom-btn custom-btn-sand btn-sm mb-3"><i class="bi bi-arrow-left-circle"></i> Ir al listado de productos</a>
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="mr-3" style="margin-right:5px; margin-top:20px;">
+                <a href="{% url 'productos' %}" class="custom-btn custom-btn-sand btn-sm mb-3">
+                    <i class="bi bi-arrow-left-circle"></i> Ir al listado de productos
+                </a>
+            </div>
         </div>
     </div>
-    
-</div>
 
-<div class="container">
     <div class="producto">
         <div class="row">
             <div class="col-md-3">
                 <div class="producto__imagen">
                     {% if producto.prod_image %}
-                    <img src="{{ producto.prod_image.url }}">
+                        <img src="{{ producto.prod_image.url }}" alt="{{ producto.nombre_producto }}">
                     {% else %}
-                    <img src="{% static 'img/producto_default.jpg' %}" alt="Imagen del producto">
-                    
+                        <img src="{% static 'img/producto_default.jpg' %}" alt="Imagen por defecto">
                     {% endif %}
                 </div>
             </div>
 
             <div class="col-md-9">
-                <div class="producto__informacion">
-                    <h2 class="producto__titulo">{{producto.nombre_producto}}</h2>
-                    <p class="producto__descripcion">
-                        {{producto.descripcion_prod|default:'Sin descripción.'}}
-                    </p>
-                    {% if user|has_higher_role:'gerente' %}
-                    <a style=" background-color: #84aebb5b; width:16rem; text-decoration-line:underline;" class="opacity-10 btn  h6 underline text-wrap" href="{% url 'producto_modificar' producto.id_producto %}">Editar este producto</a>
-                    {% endif %}
-                    <table class="producto__tabla">
+                <h2 class="producto__titulo">{{ producto.nombre_producto }}</h2>
+                <p class="producto__descripcion">
+                    {{ producto.descripcion_prod|default:'Sin descripción técnica disponible.' }}
+                </p>
+
+                {% if user|has_higher_role:'gerente' %}
+                    <a href="{% url 'producto_modificar' producto.id_producto %}" 
+                       class="custom-btn custom-btn-red btn-sm mb-3">
+                        <i class="bi bi-pencil-square"></i> Editar Producto
+                    </a>
+                {% endif %}
+
+                <table class="producto__tabla">
+                    <tbody>
                         <tr>
-                            <th>Cantidad disponible:</th>
-                            {% if inventario %}
-                            <td>{{inventario.cant_disponible|default:'NONE'}} unidades.</td>
-                            {% else %}
-                            <td>Sin información de inventario.</td>
-                            {% endif %}
-                            <tr>
-                                <th>
-                                    Ultima actualización de inventario
-                                </th>
-                                <td>{{inventario.fecha_ult_mod_inv|default:'Sin información en inventario.'}}</td>
-                            </tr>
-                            
+                            <th>Cantidad disponible</th>
+                            <td>
+                                {% if inventario %}
+                                    {{ inventario.cant_disponible|default:'N/D' }} unidades
+                                {% else %}
+                                    Sin información de inventario
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr>
-                            <th> Cantidad Mín. - Máx. Recomendada:</th>
-                            <td>Mín.: {{producto.cant_min|default:'NONE'}} | Máx.: {{producto.cant_max|default:'NONE'}}.</td>
+                            <th>Última actualización</th>
+                            <td>{{ inventario.fecha_ult_mod_inv|default:'N/D' }}</td>
                         </tr>
                         <tr>
-                            <th>Proveedor: </th>
-                            <td><a href="{% url 'proveedor_detail' producto.id_proveedor.id_proveedor %}">{{producto.id_proveedor.nombre_proveedor}}</a></td>
+                            <th>Niveles recomendados de stock</th>
+                            <td>
+                                Mín: {{ producto.cant_min|default:'N/D' }} | 
+                                Máx: {{ producto.cant_max|default:'N/D' }}
+                            </td>
                         </tr>
                         <tr>
-                            <th>Notas adicionales:</th>
-                            <td>{{inventario.nota|default:'Sin notas adicionales.'}}</td>
+                            <th>Proveedor</th>
+                            <td>
+                                <a href="{% url 'proveedor_detail' producto.id_proveedor.id_proveedor %}">
+                                    {{ producto.id_proveedor.nombre_proveedor }}
+                                </a>
+                            </td>
                         </tr>
-                        </table>
-                </div>
+                        <tr>
+                            <th>Notas técnicas</th>
+                            <td>{{ inventario.nota|default:'No registrado' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
