@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
+from django.core.exceptions import ValidationError
 from mainwebsite.extras import TEMAS_SISTEMA, LOGIN_CHOICES, generar_nombre_imgen_cliente, generar_nombre_imgen_producto,generar_nombre_imgen_usuario
 
 
@@ -153,18 +154,32 @@ class Producto(models.Model):
         return(f"{self.cod_producto}-{self.nombre_producto}({self.cant_max};{self.cant_min})")
 
 class Inventario(models.Model):
+    TIPO_MOVIMIENTO_CHOICES = [
+        ('ENTRADA', 'Entrada'),
+        ('SALIDA', 'Salida'),
+        ('DEVOLUCION', 'Devolución'),
+        ('AJUSTE', 'Ajuste'),
+    ]
     id_inventario = models.AutoField(primary_key=True)
     creado_en = models.DateField(auto_now_add=True)
     precio_unit_ref = models.DecimalField(max_digits=9, decimal_places=3)
-    cant_disponible = models.PositiveIntegerField(default=0) 
-    cant_inicial = models.PositiveIntegerField(default=0)
-    fecha_ult_mod_inv = models.DateField(default=timezone.now)  # Se establece la fecha por defecto
+    cant_disponible = models.IntegerField(default=0)  # Cambiado a IntegerField
+    fecha_ult_mod_inv = models.DateField(default=timezone.now)
     producto = models.ForeignKey(Producto, on_delete=models.DO_NOTHING)
     nota = models.TextField(blank=True)
     id_almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True)
-
+    tipo_movimiento = models.CharField(
+        max_length=20,
+        choices=TIPO_MOVIMIENTO_CHOICES,
+        default='ENTRADA'
+    )
+    
+    def save(self, *args, **kwargs):
+        if self.cant_disponible < 0:
+            raise ValidationError("La cantidad disponible no puede ser negativa.")
+        super().save(*args, **kwargs)
     def __str__(self):
-        return f"{self.id_inventario} : {self.producto.nombre_producto}- ({self.cant_disponible})"
+        return f"{self.id_inventario} : {self.producto.nombre_producto} ({self.cant_disponible}) - {self.tipo_movimiento}"
 
 class Registro_inventario(models.Model):
     id_registro = models.AutoField(primary_key=True)

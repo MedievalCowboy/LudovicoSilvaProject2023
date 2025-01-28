@@ -1,17 +1,46 @@
 {% extends "base/base2.html" %}
-{% load crispy_forms_tags %} 
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block styles %}
 <style>
-    body{
-        margin-top:20px;
-    color: #1a202c;
-    text-align: left;
-    background-color: #e2e8f0 !important;    
+    body {
+        margin-top: 20px;
+        color: #1a202c;
+        text-align: left;
+        background-color: #e2e8f0 !important;
+    }
+
+    .alert {
+        padding: 10px;
+        border-radius: 4px;
+        margin: -10px 0 15px 0;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+    }
+
+    .available-quantity {
+        font-weight: bold;
+        color: #28a745;
+        margin-left: 5px;
+    }
+
+    .precio-reference {
+        color: #6c757d;
+        font-size: 0.9em;
+        margin-left: 10px;
     }
 </style>
-   
 {% endblock%}
 
 {% block content %}
@@ -19,19 +48,95 @@
 <div class="row mb-3">
     <div class="col-md-6 d-flex align-items-center">
         <div class="mr-3" style="margin-right:5px; margin-top:20px;">
-            <a href="{% url 'ordenes' %}" class="custom-btn custom-btn-sand btn-sm mb-3"><i class="bi bi-arrow-left-circle"></i> Volver al listado de ordenes</a>
+            <a href="{% url 'ordenes' %}" class="custom-btn custom-btn-sand btn-sm mb-3"><i
+                    class="bi bi-arrow-left-circle"></i> Volver al listado de ordenes</a>
         </div>
     </div>
-    
 </div>
+
 <div class="container p-4">
-<h1>Añadir producto a la orden</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button class="custom-btn custom-btn-green btn-sm" type="submit" name="guardar_y_regresar" value="True"><i class="bi bi-plus-square"></i> Guardar y Regresar</button>
-    <button class="custom-btn custom-btn-green btn-sm" type="submit" name="guardar_y_crear_otro" value="True"><i class="bi bi-plus-square"></i> Guardar y Crear Otro</button>
-    <a class="custom-btn custom-btn-granada btn-sm" href="{% url 'ordenes' %}"><i class="bi bi-x-square"></i> Cancelar </a>
-</form>
+    <h1>Añadir producto a la orden</h1>
+    <form method="post" id="orden-producto-form">
+        {% csrf_token %}
+
+        <div id="stock-message" class="alert" style="display:none;"></div>
+
+        <div class="form-group">
+            {{ form.producto|as_crispy_field }}
+        </div>
+
+        <div class="form-group">
+            {{ form.cantidad|as_crispy_field }}
+            <small class="form-text text-muted">
+                Disponible: <span id="cantidad-disponible" class="available-quantity">0</span>
+            </small>
+        </div>
+
+        <div class="form-group">
+            <div class="d-flex align-items-center">
+                {{ form.precio_unit|as_crispy_field }}
+                <span id="precio-reference" class="precio-reference"></span>
+            </div>
+        </div>
+
+        {{ form.empaque|as_crispy_field }}
+        {{ form.id_orden|as_crispy_field }}
+
+        <div class="mt-4">
+            <button class="custom-btn custom-btn-green btn-sm" type="submit" name="guardar_y_regresar" value="True">
+                <i class="bi bi-plus-square"></i> Guardar y Regresar
+            </button>
+            <button class="custom-btn custom-btn-green btn-sm" type="submit" name="guardar_y_crear_otro" value="True">
+                <i class="bi bi-plus-square"></i> Guardar y Crear Otro
+            </button>
+            <a class="custom-btn custom-btn-granada btn-sm" href="{% url 'ordenes' %}">
+                <i class="bi bi-x-square"></i> Cancelar
+            </a>
+        </div>
+    </form>
 </div>
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const productoSelect = $('#id_producto');
+        const stockMessage = $('#stock-message');
+        const cantidadDisponible = $('#cantidad-disponible');
+        const precioReference = $('#precio-reference');
+
+        function actualizarStock() {
+            const productoId = productoSelect.val();
+            if (productoId) {
+                $.ajax({
+                    url: '{% url "get_stock_producto" %}',
+                    data: { 'producto_id': productoId },
+                    success: function (data) {
+                        // Actualizar stock
+                        if (data.stock === 0) {
+                            stockMessage.removeClass('alert-success').addClass('alert-warning')
+                                .html('⚠️ Este producto no tiene stock en el inventario').show();
+                        } else {
+                            stockMessage.removeClass('alert-warning').addClass('alert-success')
+                                .html('✅ Stock disponible: ' + data.stock).show();
+                        }
+                        cantidadDisponible.text(data.stock);
+
+                        // Actualizar referencia de precio
+                        if (data.precio_ref) {
+                            precioReference.html('Precio de Referencia: $' + parseFloat(data.precio_ref).toFixed(3));
+                        } else {
+                            precioReference.html('Referencia: 0.000');
+                        }
+                    }
+                });
+            }
+        }
+
+        productoSelect.change(actualizarStock);
+        actualizarStock();
+    });
+</script>
+{% endblock %}
+
 {% endblock %}

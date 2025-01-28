@@ -115,52 +115,63 @@ class OrdenForm(forms.ModelForm):
 
 
 class OrdenProductoForm(forms.ModelForm):
+    EMPAQUE_CHOICES = [
+        ('Caja', 'Caja'),
+        ('Bolsa', 'Bolsa'),
+        ('Bulto', 'Bulto'),
+        ('Tambor', 'Tambor'),
+        ('Granel', 'Granel'),
+        ('Palet', 'Palet'),
+        ('Bidón', 'Bidón'),
+        ('Saco', 'Saco'),
+    ]
+    
+    empaque = forms.ChoiceField(
+        choices=EMPAQUE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = Orden_Producto
         fields = ["id_orden", "producto", "cantidad", "precio_unit", "empaque"]
         
     def __init__(self, *args, **kwargs):
         pk = kwargs.pop('pk', None)
-        super(OrdenProductoForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if pk:
             self.fields['id_orden'].initial = pk
-
-        # Establecer el campo 'id_orden' como no editable
         self.fields['id_orden'].disabled = True
 
 
 class InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario
-        fields = ['producto','precio_unit_ref','cant_inicial','cant_disponible', 'id_almacen', 'nota']
-    
-    
-        
+        fields = ['producto', 'precio_unit_ref', 'cant_disponible', 'id_almacen', 'nota', 'tipo_movimiento']
+        widgets = {
+            'tipo_movimiento': forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(InventarioForm, self).__init__(*args, **kwargs)
+        self.fields['tipo_movimiento'].initial = 'ENTRADA'
+        if 'instance' in kwargs:
+            self.fields['tipo_movimiento'].widget = forms.HiddenInput()
+
     def clean(self):
         cleaned_data = super().clean()
-        cant_inicial = cleaned_data.get('cant_inicial')
         cant_disponible = cleaned_data.get('cant_disponible')
         producto = cleaned_data.get('producto')
 
-        if self.instance.pk and cant_disponible > cant_inicial:
-            raise forms.ValidationError("La cantidad disponible no puede ser mayor que la inicial.")
-
-        if cant_inicial < producto.cant_min or cant_inicial > producto.cant_max:
-            raise forms.ValidationError("La cantidad inicial debe estar dentro de los límites max-min del producto.")
+        if cant_disponible is not None and producto:
+            if cant_disponible < producto.cant_min or cant_disponible > producto.cant_max:
+                raise forms.ValidationError("La cantidad debe estar dentro de los límites max-min del producto.")
 
     def save(self, commit=True):
-        instance = super(InventarioForm, self).save(commit=False)
+        instance = super().save(commit=False)
         instance.fecha_ult_mod_inv = timezone.now()
-        if not self.instance.pk:
-            instance.cant_disponible = instance.cant_inicial
         if commit:
             instance.save()
         return instance
-    
-    def __init__(self, *args, **kwargs):
-        super(InventarioForm, self).__init__(*args, **kwargs)
-        if not self.instance.pk:
-            self.fields.pop('cant_disponible',None)
 
 
 

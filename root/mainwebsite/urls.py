@@ -39,7 +39,7 @@ urlpatterns = [
     path('workspace/orden_prod/listar/<int:pk>', views.orden_prod_listar, name="orden_prod_listar"),
     path('workspace/orden_prod/eliminar/<int:pk>', views.orden_prod_eliminar, name="orden_prod_eliminar"),
     path('workspace/orden_prod/modificar/<int:orden_pk>/<int:orprod_pk>', views.orden_prod_modificar, name="orden_prod_modificar"),
-
+    path('workspace/orden_prod/get-stock-producto/', views.get_stock_producto, name='get_stock_producto'),
 
     path('workspace/proveedores/', views.proveedores, name='proveedores'),
     path('workspace/proveedor/<int:pk>', views.proveedor_detail, name="proveedor_detail"),
@@ -58,7 +58,7 @@ urlpatterns = [
     path('workspace/inventario/insertar', views.inventario_insertar, name="inventario_insertar"),
     path('workspace/inventario/modificar/<int:pk>', views.inventario_modificar, name="inventario_modificar"),
     path('workspace/inventario/eliminar/<int:pk>', views.inventario_eliminar, name="inventario_eliminar"),
-
+    path('workspace/inventario/api/producto/', views.producto_detail_api, name='producto_api'),
     path('workspace/productos/', views.producto_lista, name='productos'),
     path('workspace/producto/<int:pk>', views.producto_detail, name="producto_detail"),
     path('workspace/producto/insertar', views.producto_insertar, name="producto_insertar"),

@@ -135,27 +135,108 @@ def orden_insertar(request):
         form = OrdenForm()
     return render(request, 'ordenes/orden_insertar.html', {'form': form, 'titulo_web':'Insertar Orden - SM200SYS'})
 
-
+#NOTA: ESTO ES LO QUE AÑADE UN PRODUCTO A UNA ORDEN
 @login_required
 @role_required('gerente')
 def orden_insertar_2(request, pk):
     if request.method == 'POST':
         form = OrdenProductoForm(request.POST, pk=pk)
-        if request.POST.get("guardar_y_regresar") and form.is_valid():
-            print("orden_insertar_2 CASO 1")
-            form.save()
-            messages.success(request, "Se registró el producto a la orden exitosamente.")
-            return redirect('ordenes') 
-        elif request.POST.get("guardar_y_crear_otro") and form.is_valid():
-            print("orden_insertar_2 CASO 2")
-            form.save()
-            # Limpia el formulario para crear otro
-            messages.success(request, "Se registró el producto a la orden exitosamente.")
-            form = OrdenProductoForm(pk=pk)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    orden_producto = form.save(commit=False)
+                    producto = orden_producto.producto
+                    cantidad = orden_producto.cantidad
+                    orden = Orden.objects.get(pk=pk)
+
+                    # Calcular stock disponible
+                    stock_entradas = Inventario.objects.filter(
+                        producto=producto,
+                        tipo_movimiento__in=['ENTRADA', 'DEVOLUCION']
+                    ).aggregate(total=Sum('cant_disponible'))['total'] or 0
+
+                    stock_salidas = Inventario.objects.filter(
+                        producto=producto,
+                        tipo_movimiento='SALIDA'
+                    ).aggregate(total=Sum('cant_disponible'))['total'] or 0
+
+                    total_disponible = stock_entradas - stock_salidas
+
+                    if total_disponible < cantidad:
+                        form.add_error('cantidad', f'Stock insuficiente. Disponible: {total_disponible}')
+                        return render(request, 'ordenes/orden_insertar2.html', {
+                            'form': form, 
+                            'titulo_web': 'Insertar Orden - SM200SYS'
+                        })
+
+                    # Crear registro de salida
+                    ultimo_inventario = Inventario.objects.filter(
+                        producto=producto
+                    ).order_by('-fecha_ult_mod_inv').first()
+
+                    Inventario.objects.create(
+                        producto=producto,
+                        precio_unit_ref=ultimo_inventario.precio_unit_ref if ultimo_inventario else 0,
+                        cant_disponible=cantidad,
+                        #cant_inicial=cantidad,
+                        fecha_ult_mod_inv=timezone.now(),
+                        nota=f"Salida por orden #{orden.num_orden}",
+                        tipo_movimiento='SALIDA',
+                        id_almacen=ultimo_inventario.id_almacen if ultimo_inventario else None
+                    )
+
+                    # Guardar el producto en la orden
+                    orden_producto.save()
+
+                    messages.success(request, "Producto añadido e inventario actualizado.")
+                    
+                    # Redirección
+                    if request.POST.get("guardar_y_regresar"):
+                        return redirect('ordenes')
+                    elif request.POST.get("guardar_y_crear_otro"):
+                        form = OrdenProductoForm(pk=pk)
+                        
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+                #logger.error(f"Error en orden_insertar_2: {str(e)}")
+                
     else:
         form = OrdenProductoForm(pk=pk)
-    return render(request, 'ordenes/orden_insertar2.html', {'form': form, 'titulo_web': 'Insertar Orden - SM200SYS'})
+    
+    return render(request, 'ordenes/orden_insertar2.html', {
+        'form': form, 
+        'titulo_web': 'Insertar Orden - SM200SYS'
+    })
 
+
+def get_stock_producto(request):
+    producto_id = request.GET.get('producto_id')
+    try:
+        # Calcular stock disponible (ENTRADA/DEVOLUCION - SALIDA)
+        stock_entradas = Inventario.objects.filter(
+            producto_id=producto_id,
+            tipo_movimiento__in=['ENTRADA', 'DEVOLUCION']
+        ).aggregate(total=Sum('cant_disponible'))['total'] or 0
+
+        stock_salidas = Inventario.objects.filter(
+            producto_id=producto_id,
+            tipo_movimiento='SALIDA'
+        ).aggregate(total=Sum('cant_disponible'))['total'] or 0
+
+        total_disponible = stock_entradas - stock_salidas
+        
+        # Obtener último precio de referencia (excluyendo SALIDA)
+        ultimo_precio = Inventario.objects.filter(
+            producto_id=producto_id,
+            tipo_movimiento__in=['ENTRADA', 'DEVOLUCION']
+        ).order_by('-fecha_ult_mod_inv').values('precio_unit_ref').first()
+        
+        return JsonResponse({
+            'stock': total_disponible,
+            'precio_ref': ultimo_precio['precio_unit_ref'] if ultimo_precio else 0
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 @login_required
 @role_required('gerente')
@@ -180,12 +261,26 @@ role_required('gerente')
 def orden_eliminar(request, pk):
     orden = get_object_or_404(Orden, pk=pk)
     orden_productos = Orden_Producto.objects.filter(id_orden=orden)
+    
     if request.method == 'POST':
-        orden_productos.delete()
-        orden.delete()
-        data = {'mensaje': 'Orden eliminada exitosamente.'}
-        messages.warning(request, "Se Eliminó la orden exitosamente.")
-        return JsonResponse(data)
+        try:
+            with transaction.atomic():
+                for orden_producto in orden_productos:
+                    restaurar_inventario(
+                        producto=orden_producto.producto,
+                        cantidad=orden_producto.cantidad,
+                        motivo=f"Devolución por eliminación de orden #{orden.num_orden}"
+                    )
+                
+                orden_productos.delete()
+                orden.delete()
+                
+                data = {'mensaje': 'Orden eliminada exitosamente.'}
+                messages.warning(request, "Se Eliminó la orden exitosamente.")
+                return JsonResponse(data)
+                
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
 
 
 
@@ -285,12 +380,25 @@ def orden_prod_listar(request, pk):
 @role_required('gerente')
 def orden_prod_eliminar(request, pk):
     orden_prod = get_object_or_404(Orden_Producto, pk=pk)
+    
     if request.method == 'POST':
-        orden_prod.delete()
-        data = {'mensaje': 'Orden eliminada exitosamente.'}
-        messages.warning(request, "Se Eliminó la relación del producto con la orden exitosamente.")
-        return JsonResponse(data)
-
+        try:
+            with transaction.atomic():
+                restaurar_inventario(
+                    producto=orden_prod.producto,
+                    cantidad=orden_prod.cantidad,
+                    motivo=f"Devolución por eliminación de producto de orden #{orden_prod.id_orden.num_orden}"
+                )
+                
+                orden_prod.delete()
+                
+                data = {'mensaje': 'Producto de orden eliminado exitosamente.'}
+                messages.warning(request, "Se Eliminó la relación del producto con la orden exitosamente.")
+                return JsonResponse(data)
+                
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
 @role_required('gerente')
 def orden_prod_modificar(request, orden_pk, orprod_pk):
     orden_prod = get_object_or_404(Orden_Producto, pk=orprod_pk)
@@ -315,6 +423,23 @@ def orden_prod_modificar(request, orden_pk, orprod_pk):
     
     return render(request, 'ordenes/orden_prod_mod.html',context)
 
+@role_required('gerente')
+def restaurar_inventario(producto, cantidad, motivo="Devolución por eliminación de orden"):
+    """
+    Crea un nuevo registro de inventario para la devolución
+    """
+    ultimo_inventario = Inventario.objects.filter(producto=producto).order_by('-fecha_ult_mod_inv').first()
+    
+    Inventario.objects.create(
+        producto=producto,
+        precio_unit_ref=ultimo_inventario.precio_unit_ref if ultimo_inventario else 0,
+        cant_disponible=cantidad,
+        #cant_inicial=cantidad,
+        fecha_ult_mod_inv=timezone.now(),
+        nota=motivo,
+        tipo_movimiento='DEVOLUCION',
+        id_almacen=ultimo_inventario.id_almacen if ultimo_inventario else None
+    )
 
 ######################################################################################
 ######################################################################################
@@ -332,22 +457,42 @@ def inventario_lista(request):
 def inventario_insertar(request):
     if request.method == 'POST':
         form = InventarioForm(request.POST)
-        if request.POST.get('guardar_y_regresar' )  and form.is_valid() :
+        if form.is_valid():  # Primero verificar validez del formulario
             inv_element = form.save(commit=False)
+            inv_element.tipo_movimiento = 'ENTRADA'  # Forzar el tipo de movimiento
             inv_element.save()
-            messages.success(request, "El inventario se añadío exitosamente.")
-            return redirect('inventario')
-        
-        if request.POST.get('guardar_y_crear_otro') and form.is_valid():
-            inv_element = form.save(commit=False)
-            inv_element.save()
-            messages.success(request, "El inventario se añadío exitosamente.")
-            form = InventarioForm()
             
+            messages.success(request, "El inventario se añadió exitosamente.")
+            
+            # Determinar acción posterior
+            if 'guardar_y_regresar' in request.POST:
+                return redirect('inventario')
+            elif 'guardar_y_crear_otro' in request.POST:
+                return redirect('inventario_insertar')  # Redirección para limpiar el formulario
+            
+        else:
+            messages.error(request, "Corrige los errores en el formulario.")
     else:
         form = InventarioForm()
 
-    return render(request, 'inventario/inventario_insertar.html', {'form': form, 'titulo_web':'Insertar Elemento en Inventario - SM200SYS'})
+    return render(request, 'inventario/inventario_insertar.html', {
+        'form': form,
+        'titulo_web': 'Insertar Elemento en Inventario - SM200SYS'
+    })
+
+
+def producto_detail_api(request):
+    producto_id = request.GET.get('producto_id')
+    try:
+        producto = Producto.objects.get(pk=producto_id)
+        data = {
+            'cant_min': producto.cant_min,
+            'cant_max': producto.cant_max
+        }
+
+        return JsonResponse(data)
+    except Producto.DoesNotExist:
+        return JsonResponse({'error': 'Producto no encontrado'}, status=404)
 
 @role_required('gerente')
 def inventario_modificar(request, pk):

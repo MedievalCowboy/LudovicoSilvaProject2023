@@ -1,87 +1,113 @@
 {% extends "base/base2.html" %}
 {% load static auth_extras %}
 
-
 {% block styles %}
 <style>
-    body{
-        margin-top:20px;
-    color: #1a202c;
-    text-align: left;
-    background-color: #e2e8f0 !important;    
+    body {
+        margin-top: 20px;
+        color: #1a202c;
+        text-align: left;
+        background-color: #e2e8f0 !important;    
+    }
+    .negative-amount {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .positive-amount {
+        color: #28a745;
+    }
+    .devolucion-amount {
+        color: #007bff;
     }
 </style>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
-{% endblock%}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+{% endblock %}
 
-
-
-
-
-{% block content %} <!-- block 1-->
-
+{% block content %}
 <div class="container container-sm">
     <h1>Inventario</h1>
 
-     <!-- Opciones -->
-<div class="row mb-3">
-    <div class="col-md-6 d-flex align-items-center">
-        {% if user|has_higher_role:'gerente' %}
-        <div class="mr-3">
-            <a href="{% url 'inventario_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
+    <!-- Opciones -->
+    <div class="row mb-3">
+        <div class="col-md-6 d-flex align-items-center">
+            {% if user|has_higher_role:'gerente' %}
+            <div class="mr-3">
+                <a href="{% url 'inventario_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3">
+                    <i class="bi bi-plus-square"></i> Crear Nuevo
+                </a>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
+    </div>
+
+    <div style="overflow-x: auto; white-space: nowrap;">
+        <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
+            <thead class="thead-dark">
+                <tr class="px-0">
+                    <th class="text-center py-0">ID</th>
+                    <th class="text-center py-0">Producto</th>
+                    <th class="text-center py-0">Movimiento</th>
+                    <th class="text-center py-0">Precio U. Ref.</th>
+                    <th class="text-center py-0">Disponible</th>
+                    <th class="text-center py-0">Almacen</th>
+                    <th class="text-center py-0">Creado</th>
+                    
+                    <th class="text-center py-0">OPCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inventario_elemento in inventario %}
+                <tr>
+                    <td class="text-center py-0 align-middle">{{ inventario_elemento.id_inventario }}</td>
+                    <td class="text-center py-0 align-middle">
+                        <small>
+                            <a href="{% url 'producto_detail' inventario_elemento.producto.id_producto %}">
+                                {{ inventario_elemento.producto.nombre_producto|default:"N/A" }}
+                            </a>
+                        </small>
+                    </td>
+                    <td class="text-center py-0 align-middle">
+                        {% if inventario_elemento.tipo_movimiento == 'SALIDA' %}
+                            <span class="badge bg-danger">{{ inventario_elemento.tipo_movimiento }}</span>
+                        {% elif inventario_elemento.tipo_movimiento == 'ENTRADA' %}
+                            <span class="badge bg-success">{{ inventario_elemento.tipo_movimiento }}</span>
+                        {% elif inventario_elemento.tipo_movimiento == 'DEVOLUCION' %}
+                            <span class="badge bg-primary">{{ inventario_elemento.tipo_movimiento }}</span>
+                        {% else %}
+                            {{ inventario_elemento.tipo_movimiento|default:"N/A" }}
+                        {% endif %}
+                    </td>
+                    <td class="text-center py-0 align-middle">${{ inventario_elemento.precio_unit_ref|floatformat:2 }}</td>
+                    <td class="text-center py-0 align-middle 
+                        {% if inventario_elemento.tipo_movimiento == 'SALIDA' %}negative-amount
+                        {% elif inventario_elemento.tipo_movimiento == 'DEVOLUCION' %}devolucion-amount
+                        {% else %}positive-amount{% endif %}">
+                        {% if inventario_elemento.tipo_movimiento == 'SALIDA' %}-{% endif %}
+                        {{ inventario_elemento.cant_disponible }}
+                    </td>
+                    <td class="text-center py-0 align-middle">
+                        <small><a href="{% url 'almacen_detail' inventario_elemento.id_almacen.id_almacen %}">{{ inventario_elemento.id_almacen.nombre_almacen|default:"N/A" }}</a></small>
+                    </td>
+                    <td class="text-center py-0 align-middle">{{ inventario_elemento.creado_en|date:"d/m/Y" }}</td>
+         
+                    <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                        {% if user|has_higher_role:'gerente' %}
+                        <a style="border:none; margin:0; padding:0;"  class="btn btn-info btn-sm" href="{% url 'inventario_modificar' inventario_elemento.id_inventario %}">
+                            <i class="bi bi-pen"></i> Editar
+                        </a>
+                        
+                        <button style="border:none; margin:0; padding:0;"  class="btn btn-danger btn-sm eliminar" data-id="{{ inventario_elemento.id_inventario }}">
+                           <small> <i class="bi bi-trash"></i> Eliminar</small>
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-
-<div style="overflow-x: auto; white-space: nowrap;">
-    <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
-        <thead class="thead-dark">
-            <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
-
-                <th class="text-center py-0">ID</th>
-                <th class="text-center py-0">Producto</th>
-                <th class="text-center py-0">Precio U. Ref.</th>
-                <th class="text-center py-0">Disponible</th>
-                <th class="text-center py-0">Cant. inicial</th>
-                <th class="text-center py-0">Almacen</th>
-                <th class="text-center py-0">Creado</th>
-                <th class="text-center py-0">Ultima mod.</th>
-                <th class="text-center py-0">OPCIONES</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for inventario_elemento in inventario %}
-            <tr>
-               
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ inventario_elemento.id_inventario }}</td>
-                <td class="text-center py-0 align-middle"><small><a href="{% url 'producto_detail' inventario_elemento.producto.id_producto %}">{{ inventario_elemento.producto.nombre_producto|default:"N/A" }}</a></small></td>
-                <td class="text-center py-0 align-middle">{{ inventario_elemento.precio_unit_ref|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ inventario_elemento.cant_disponible|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ inventario_elemento.cant_inicial|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle"><small><a href="#">{{ inventario_elemento.id_almacen.nombre_almacen|default:"N/A" }}</a></small></td>
-                <td class="text-center py-0 align-middle">{{ inventario_elemento.creado_en|default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ inventario_elemento.fecha_ult_mod_inv|default:"N/A" }}</td>
-                
-                <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
-                    {% if user|has_higher_role:'gerente' %}
-                    <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'inventario_modificar' inventario_elemento.id_inventario %}"><i class="bi bi-pen"></i> Editar</a></button>
-                    
-                    <button class="btn btn-danger btn-sm eliminar" data-id="{{ inventario_elemento.id_inventario }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
-                    {% endif %}
-                </td>
-                
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-
-
-</div>
-
 
 
 <!-- Modal de Confirmación de Eliminación -->
