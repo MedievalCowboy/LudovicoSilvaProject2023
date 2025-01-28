@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Reporte{% endblock %}</title>
+    <style>
+        /* Estilos base que heredarán todos los reportes */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; color: #2c3e50; }
+        
+       
+        /* HEADER*/
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2c3e50;
+            table-layout: fixed;
+        }
+
+        .header-table td {
+            vertical-align: middle;
+            padding: 5px 0;
+        }
+
+        .logo-cell {
+            width: 20%;
+            text-align: left;
+        }
+
+        .logo {
+            width: 100px; /* Tamaño original del logo */
+            height: auto;
+        }
+
+        .empresa-cell {
+            width: 60%;
+            text-align: center;
+            padding: 0 15px !important;
+        }
+
+        .empresa-nombre {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .contacto-cell {
+            width: 20%;
+            text-align: right;
+            padding-right: 10px;
+            font-size: 10px;
+        }
+        .titulo-reporte { text-align: center; margin: 20px 0; font-size: 24px; }
+        
+        .seccion-orden { 
+            margin-bottom: 30px; 
+            page-break-inside: avoid;
+        }
+        .page-break { page-break-after: always; }
+        
+        /* ... (incluir todos los estilos comunes del PDF anterior) ... */
+    </style>
+    {% block custom_css %}{% endblock %}
+</head>
+<body>
+    <!-- HEADER-->
+    <table class="header-table">
+        <tr>
+            <td class="logo-cell">
+                <img src="{% static 'img/sum3.png' %}" class="logo">
+            </td>
+            <td class="empresa-cell">
+                <h1 class="empresa-nombre">{{titulo_reporte}}</h1>
+            </td>
+            <td class="contacto-cell">
+                <p>{{ empresa.direccion }}</p>
+                <p>{{ empresa.telefono }}</p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Contenido específico -->
+    {% block content %}{% endblock %}
+
+    <!-- Pie de página común -->
+    <footer class="footer">
+        <p>{{ empresa.nombre }} - {{ empresa.direccion }}</p>
+        <p>Teléfono: {{ empresa.telefono }} | Email: {{ empresa.email }}</p>
+    </footer>
+</body>
+</html>

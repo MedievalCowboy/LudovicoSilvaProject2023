@@ -10,7 +10,8 @@ from xhtml2pdf import pisa
 from django.db import transaction
 from django.contrib import messages
 from django.urls import reverse
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Prefetch
+
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
@@ -208,7 +209,7 @@ def orden_insertar_2(request, pk):
         'titulo_web': 'Insertar Orden - SM200SYS'
     })
 
-
+@login_required
 def get_stock_producto(request):
     producto_id = request.GET.get('producto_id')
     try:
@@ -357,6 +358,68 @@ def generar_pdf_orden(request, pk):
         return HttpResponse('Error al generar el PDF')
     return response
 
+def generar_reporte_pdf(request, queryset, template_name, context, filename):
+    #Función genérica para generar reportes PDF
+    #Parámetros:
+    #request: HttpRequest
+    #queryset: QuerySet con los datos
+    #template_name: Ruta de la plantilla HTML
+    #context: Diccionario con contexto adicional
+    #filename: Nombre del archivo a descargar
+    
+    # Configuración base del contexto
+    base_context = {
+        'empresa': {
+            'nombre': 'Suministros Miranda 200 C.A.',
+            'direccion': 'Av. Principal 123, Ciudad',
+            'telefono': '0412-1234567',
+            'email': 'soporte@empresa.com',
+        },
+        'fecha_reporte': timezone.now().strftime("%d/%m/%Y %H:%M")
+    }
+    base_context.update(context)
+    
+    # Renderizar HTML
+    html_string = render_to_string(template_name, base_context)
+    
+    # Crear respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'filename="{filename}.pdf"'
+    
+    # Generar PDF
+    pisa_status = pisa.CreatePDF(
+        html_string, 
+        dest=response,
+        encoding='UTF-8',
+        link_callback=link_callback
+    )
+    
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF')
+    return response
+
+
+@role_required('empleado')
+def reporte_ordenes_pdf(request):
+    ordenes = Orden.objects.prefetch_related(
+        Prefetch(
+            'orden_producto_set',
+            queryset=Orden_Producto.objects.select_related('producto'),
+            to_attr='productos_relacionados'
+        )
+    ).annotate(num_productos=Count('orden_producto')).order_by('-fecha_emision')
+
+    return generar_reporte_pdf(
+        request=request,
+        queryset=ordenes,
+        template_name='ordenes/reporte_completo_pdf.html',
+        context={
+            'titulo_reporte': 'Reporte Consolidado de Órdenes',
+            'ordenes': ordenes,
+            'mostrar_detalles_completos': True
+        },
+        filename='reporte_ordenes'
+    )
 
 ######################################################################################
 ######################################################################################

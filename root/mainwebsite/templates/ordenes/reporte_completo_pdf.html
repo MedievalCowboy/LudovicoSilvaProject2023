@@ -1,0 +1,85 @@
+{% extends "base/base_pdf.html" %}
+
+{% block title %}{{ titulo_reporte }}{% endblock %}
+
+{% block custom_css %}
+<style>
+    /* Ajustes específicos para reporte de órdenes */
+    body {
+        font-size: 10px;
+        padding: 15px;
+    }
+
+    .seccion-orden {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        padding: 8px;
+        /*page-break-inside: avoid; */
+    }
+
+    .productos-table {
+        font-size: 9px !important;
+        margin: 8px 0;
+    }
+
+    .productos-table th,
+    .productos-table td {
+        padding: 9px !important;
+    }
+
+    .encabezado-orden {
+        margin-bottom: 8px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .datos-orden td {
+        padding: 2px 8px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- <h2 class="titulo-reporte" style="font-size: 14px;">{{ titulo_reporte }}</h2>
+-->
+{% for orden in ordenes %}
+<!-- NOTA: PARA QUE SEA UNA ORDEN POR HOJA AÑADIR LO SIGUIENTE A CLASE
+ {% if not forloop.last %}page-break{% endif %}
+-->
+<div class="seccion-orden ">
+    <!-- Encabezado de la orden -->
+    <div class="encabezado-orden">
+        <table width="100%">
+            <tr>
+                <td style="padding-left:2px; padding-top:2px;" width="30%">
+                    <strong>N° Orden:</strong> {{ orden.num_orden }}<br>
+                    <strong>Lote:</strong> {{ orden.num_lote }}
+                </td>
+                <td width="40%" style="text-align: center;">
+                    <strong>Cliente:</strong> {{ orden.id_cliente.nombre_cliente }}<br>
+                    <strong>Destino:</strong> {{ orden.id_destino.nombre_destino }}
+                </td>
+                <td width="30%" style="text-align: right; padding-right:2px;">
+                    <strong>Estado:</strong> {{ orden.estado }}<br>
+                    <strong>Emisión:</strong> {{ orden.fecha_emision|date:"d/m/Y" }}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="padding-top: 5px;">
+                    <strong>Requisición:</strong> {{ orden.desc_requisicion }}<br>
+                    <strong>Solicitado por:</strong> {{ orden.solicitado }} ({{ orden.tlf_solicitado }})<br>
+                    <strong>Total productos en orden:</strong> {{ orden.num_productos }} 
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="padding-top: 5px;">
+                    <strong>Total General: </strong>
+                    <span style="font-weight: 800;">${{ orden.get_total_general|floatformat:2 }}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+</div>
+{% endfor %}
+{% endblock %}
