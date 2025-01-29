@@ -91,9 +91,10 @@ def send_orden_info_email(request, pk):
             
             context = {'orden':orden,'orden_productos':orden_productos, 'contact_email':settings.EMAIL_HOST_USER , 'contact_tlf':'04265922250'}
             try:
-                logo_path = static('img/sum3.png')
-                logo_abs_path = f"{get_current_site(request)}{logo_path}"
-                context['logo_path'] = logo_abs_path
+                #logo_path = static('img/sum3.png')
+                #logo_abs_path = f"{get_current_site(request)}{logo_path}"
+                #context['logo_path'] = logo_abs_path
+                pass
             except Exception as e:
                 pass
             email_from = settings.EMAIL_HOST_USER
