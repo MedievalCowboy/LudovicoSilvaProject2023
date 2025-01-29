@@ -11,7 +11,7 @@ from django.db import transaction
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Count, Sum, Prefetch
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
@@ -78,35 +78,66 @@ def ordenes(request):
     lista_ordenes = Orden.objects.annotate(num_productos=Count('orden_producto'))
     return render(request, 'ordenes/ordenes.html',{'ordenes':lista_ordenes, 'titulo_web':'Ordenes - SM200SYS'})
 
+
+
 @login_required
 @role_required('gerente')
 def send_orden_info_email(request, pk):
-    if request.method == 'GET':
-        orden = get_object_or_404(Orden, pk = pk)
-        orden_productos = Orden_Producto.objects.filter(id_orden=orden)
-        if re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', orden.id_cliente.correo):
-            email_subject = f"Notificación de Orden #{orden.num_orden} - Suministros Miranda 200 C.A."
-            text_template = "emails/order_email.txt"
-            html_template = "emails/order_email.html"
-            
-            context = {'orden':orden,'orden_productos':orden_productos, 'contact_email':settings.EMAIL_HOST_USER , 'contact_tlf':'04265922250'}
+    try:
+        orden = get_object_or_404(Orden, pk=pk)
+        
+        if request.method == 'GET':
+            # Validar email del cliente
+            cliente_email = orden.id_cliente.correo
+            if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', cliente_email):
+                messages.warning(request, "El cliente no tiene un email válido registrado.")
+                return redirect('orden_detail', pk=pk)
+
+            # Obtener productos de la orden
             try:
-                #logo_path = static('img/sum3.png')
-                #logo_abs_path = f"{get_current_site(request)}{logo_path}"
-                #context['logo_path'] = logo_abs_path
-                pass
+                orden_productos = Orden_Producto.objects.filter(id_orden=orden)
+            except ObjectDoesNotExist:
+                orden_productos = []
+
+            # Configurar plantillas y contexto
+            context = {
+                'orden': orden,
+                'orden_productos': orden_productos,
+                'contact_email': settings.EMAIL_HOST_USER,
+                'contact_tlf': '04265922250',
+                # 'logo_path': static('img/sum3.png')  # Descomentar si necesitas la imagen
+            }
+
+            # Intentar enviar el correo
+            try:
+                email_subject = f"Notificación de Orden #{orden.num_orden} - Suministros Miranda 200 C.A."
+                text_template = "emails/order_email.txt"
+                html_template = "emails/order_email.html"
+                
+                # Enviar usando la función helper
+                email_sent = send_email(
+                    subject=email_subject,
+                    from_email=settings.EMAIL_HOST_USER,
+                    to_emails=[cliente_email],
+                    text_template=text_template,
+                    html_template=html_template,
+                    context=context
+                )
+
+                if email_sent == 1:
+                    messages.success(request, "¡Correo enviado exitosamente al cliente!")
+                else:
+                    messages.error(request, "Falló el envío del correo. Por favor intente nuevamente.")
+
             except Exception as e:
-                pass
-            email_from = settings.EMAIL_HOST_USER
-            email_to = [orden.id_cliente.correo]
-            if send_email(email_subject, email_from, email_to, text_template, html_template, context) == 1:
-                messages.success(request, "Se envió un correo al cliente con la información de la orden.")
-            else:
-                print("ocurrio un error inesperado al tratar de enviar el email...")
-        else:
-            messages.warning(request, "Error al tratar de enviar email al cliente. El cliente no dispone de un email valido.")
-    url = reverse('orden_detail', kwargs={'pk': pk})    
-    return redirect(url)
+                print(f"ERROR al enviar correo: {str(e)}")
+                messages.error(request, f"Error interno: {str(e)}. Contacte al administrador.")
+
+    except Exception as general_error:
+        print(f"ERROR GENERAL: {str(general_error)}")
+        messages.error(request, "Ocurrió un error inesperado al procesar la solicitud.")
+
+    return redirect('orden_detail', pk=pk)
 
 @login_required
 @role_required('gerente')
