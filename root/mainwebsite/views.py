@@ -26,7 +26,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.views.generic import ListView
-from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession, AuditLog
+from .models import Almacen, Orden, Proveedor, Orden_Producto, Inventario, Producto, Destino, Prod_Dest, Cliente, Profile, LoginHistory, UserSession, AuditLog, ProductoDestino
 from .forms import OrdenForm, OrdenProductoForm, InventarioForm, ProductoForm, ProveedorForm, DestinoForm, ProdDestForm, AlmacenForm, ClientesForm, CustomUserForm, ProfileForm
 from .filters import LoginHistoryFilter
 
@@ -34,7 +34,7 @@ from .extras import send_email
 
 from .security.utils import obtener_rol_mas_alto, puede_asignar_rol
 from .security.hierarchy import HIERARCHY, get_allowed_roles, DISPLAY_NAMES
-from .security.decorators import role_required, only_admin
+from .security.decorators import role_required
 
 
 @role_required('gerente')
@@ -265,6 +265,7 @@ def orden_eliminar(request, pk):
     
     if request.method == 'POST':
         try:
+            print("esto pasa?")
             with transaction.atomic():
                 for orden_producto in orden_productos:
                     restaurar_inventario(
@@ -432,6 +433,7 @@ def orden_prod_listar(request, pk):
 
 
     context={'id_orden':orden.id_orden,
+             'orden':orden,
              'num_orden': orden.num_orden, 
              'orden_prod_list': orden_prod_elements,
              'titulo_web':'Productos en la orden '+ str(orden.num_orden)  ,}
@@ -443,15 +445,24 @@ def orden_prod_listar(request, pk):
 @role_required('gerente')
 def orden_prod_eliminar(request, pk):
     orden_prod = get_object_or_404(Orden_Producto, pk=pk)
-    
+
     if request.method == 'POST':
         try:
+
             with transaction.atomic():
+                if not orden_prod.producto:
+                    raise ValueError("El producto asociado a esta orden no existe.")
+
+                print(orden_prod.producto.nombre_producto)
+                print(orden_prod.cantidad)
+                print(orden_prod.id_orden.num_orden)
+                print("se imprime hasta acá sin problema")
                 restaurar_inventario(
                     producto=orden_prod.producto,
                     cantidad=orden_prod.cantidad,
                     motivo=f"Devolución por eliminación de producto de orden #{orden_prod.id_orden.num_orden}"
                 )
+                print("No llega acá")
                 
                 orden_prod.delete()
                 
@@ -486,11 +497,13 @@ def orden_prod_modificar(request, orden_pk, orprod_pk):
     
     return render(request, 'ordenes/orden_prod_mod.html',context)
 
-@role_required('gerente')
+
 def restaurar_inventario(producto, cantidad, motivo="Devolución por eliminación de orden"):
+    print("LLEGAMOS ACAAAA? No, nisiquiera empieza la función parecé")
     """
     Crea un nuevo registro de inventario para la devolución
     """
+
     ultimo_inventario = Inventario.objects.filter(producto=producto).order_by('-fecha_ult_mod_inv').first()
     
     Inventario.objects.create(
@@ -566,7 +579,7 @@ def inventario_modificar(request, pk):
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el elemento de inventario con exito.")
-            return redirect('inventario')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+            return redirect('inventario')  
 
     else:
         form = InventarioForm(instance=inv_element)
@@ -648,7 +661,7 @@ def producto_modificar(request, pk):
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el producto exitosamente.")
-            return redirect('productos')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+            return redirect('productos') 
 
     else:
         form = ProductoForm(instance=producto)
@@ -703,7 +716,7 @@ def proveedor_modificar(request, pk):
         if form.is_valid():
             form.save()
             messages.info(request, "Se modificó el proveedor exitosamente.")
-            return redirect('proveedores')  # Reemplaza 'lista_ordenes' con la URL de la vista que muestra la lista de órdenes.
+            return redirect('proveedores')
 
     else:
         form = ProveedorForm(instance=proveedor)
@@ -1007,12 +1020,12 @@ def destino_eliminar(request, pk):
 
 @login_required
 def prod_dest_lista(request):
-    prod_dest_list = Prod_Dest.objects.all()
-
-    context = {'consumos':prod_dest_list,
+    ProductoDestino_list = ProductoDestino.objects.all()
+    context = {'reposiciones':ProductoDestino_list,
                'titulo_web':'Consumo general de Productos/Destinos - SM200SYS'}
     
     return render(request,'inventario/prod_dest_consumos.html', context)
+
 
 ## NOTA: FUNCION CREADA PERO NO USADA, RECOMENDADO REHACER LA LOGICA DE CONSUMO ANTES
 @login_required
@@ -1143,7 +1156,7 @@ def render_profile(request, user, is_admin=False):
         'profile_user': user,
         'perfil': perfil,
         'titulo_web': f'Perfil de {user.username}',
-        'is_admin': is_admin  # Pasar variable al template
+        'is_admin': is_admin
     }
     return render(request, 'usuarios/perfil_usuario.html', context)
 
@@ -1225,7 +1238,6 @@ def login_user(request):
                     next_url = request.POST.get('next', reverse('ordenes'))
                     return redirect(next_url)
             
-            # Manejo de errores mejorado
             messages.error(request, "Credenciales inválidas. Por favor intente nuevamente.")
         
         except ValidationError as e:
@@ -1233,7 +1245,7 @@ def login_user(request):
         
         except Exception as e:
             messages.error(request, "Error inesperado en el inicio de sesión")
-            # Registrar el error (logging)
+            
     
     else:
         form = AuthenticationForm()

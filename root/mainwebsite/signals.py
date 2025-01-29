@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.files import FieldFile
 
-from .models import Profile, LoginHistory, UserSession, AuditLog
+from .models import Profile, LoginHistory, UserSession, AuditLog, ProductoDestino, Orden_Producto
 from .extras import get_client_ip, parse_user_agent
 from .middleware import get_current_request
 
@@ -137,6 +137,41 @@ def _serialize_value(value):
     elif isinstance(value, FieldFile):  # Manejo de campos File/Image <- para imaggenes
         return value.name if value else None  # Devuelve el path relativo
     return value
+
+
+@receiver([post_save, post_delete], sender=Orden_Producto)
+def actualizar_reposiciones(sender, instance, **kwargs):
+    """
+    Actualiza la última reposición cuando se modifica una relación Orden-Producto
+    """
+    orden = instance.id_orden
+    producto = instance.producto
+    
+    # Verificar si la orden tiene los datos necesarios
+    if orden.fecha_entrega and orden.id_destino and producto:
+        # Obtener la última fecha de entrega para este producto-destino
+        ultima_entrega = Orden_Producto.objects.filter(
+            producto=producto,
+            id_orden__id_destino=orden.id_destino,
+            id_orden__fecha_entrega__isnull=False
+        ).order_by('-id_orden__fecha_entrega').first()
+
+        if ultima_entrega:
+            # Actualizar o crear el registro de reposición
+            ProductoDestino.objects.update_or_create(
+                producto=producto,
+                destino=orden.id_destino,
+                defaults={
+                    'ultima_reposicion': ultima_entrega.id_orden.fecha_entrega,
+                    'frecuencia_reposicion': 30  # Valor por defecto o cálculo personalizado
+                }
+            )
+        else:
+            # Eliminar el registro si ya no hay órdenes relacionadas
+            ProductoDestino.objects.filter(
+                producto=producto,
+                destino=orden.id_destino
+            ).delete()
 
 @receiver(post_save,sender=User)
 def create_profile(sender, instance, created, **kwargs):

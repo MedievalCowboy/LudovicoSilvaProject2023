@@ -237,7 +237,25 @@ class Orden_Producto(models.Model):
     def get_total(self):
         return self.cantidad * self.precio_unit
     
-    
+class ProductoDestino(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    destino = models.ForeignKey(Destino, on_delete=models.CASCADE)
+    ultima_reposicion = models.DateField(null=True, blank=True)
+    frecuencia_reposicion = models.PositiveIntegerField(default=30, help_text="Días entre reposiciones")
+
+    class Meta:
+        unique_together = ('producto', 'destino')
+
+    @property
+    def dias_para_reposicion(self):
+        if not self.ultima_reposicion:
+            return 0
+            
+        fecha_proxima = self.ultima_reposicion + timezone.timedelta(days=self.frecuencia_reposicion)
+        hoy = timezone.now().date()
+        return max((fecha_proxima - hoy).days, 0)
+
+
 MODELS_TO_AUDIT = [
     Profile,
     Cliente,

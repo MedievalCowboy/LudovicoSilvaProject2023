@@ -1,3 +1,5 @@
+
+#Diccionario de nivel de roles
 HIERARCHY = {
     'admin': 100,
     'ceo': 80,
@@ -5,7 +7,7 @@ HIERARCHY = {
     'empleado': 10
 }
 
-# Diccionario de nombres amigables
+# Diccionario de nombres de roles
 DISPLAY_NAMES = {
     'admin': 'Administrador del Sistema',
     'ceo': 'Director General (CEO)',

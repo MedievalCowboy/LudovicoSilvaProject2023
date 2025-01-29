@@ -176,8 +176,6 @@ class InventarioForm(forms.ModelForm):
 
 
 class ProductoForm(forms.ModelForm):
-    
-
     prod_image = forms.ImageField(label='Imagen del producto', required=False)
     nombre_producto = forms.CharField(label='Nombre del producto')
     cod_producto = forms.CharField(label="Codigo del producto")
@@ -185,7 +183,6 @@ class ProductoForm(forms.ModelForm):
         cleaned_data = super().clean()
         cant_min = cleaned_data.get('cant_min')
         cant_max = cleaned_data.get('cant_max')
-
 
         if cant_max <= cant_min:
             raise forms.ValidationError("La cantidad máxima debe ser mayor que la cantidad mínima.")

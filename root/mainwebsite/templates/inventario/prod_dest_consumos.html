@@ -1,120 +1,110 @@
 {% extends "base/base2.html" %}
-{% load static auth_extras %}
-
+{% load static auth_extras custom_filters %}
 
 {% block styles %}
 <style>
-    body{
-        margin-top:20px;
-    color: #1a202c;
-    text-align: left;
-    background-color: #e2e8f0 !important;    
+    body {
+        background-color: #f8f9fa !important;
     }
 </style>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 {% endblock %}
 
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Programación de Reposiciones de Productos en Destinos</h2>
 
+    </div>
 
-{% block content %} <!-- block 1-->
-
-<div class="container container-sm">
-    <h1>Consumo general de Productos por Destino</h1>
-
-     <!-- Opciones -->
-<div class="row mb-3">
-    <div class="col-md-6 d-flex align-items-center">
-        {% if user|has_higher_role:'gerente' %}
-        <div class="mr-3">
-            <a href="{% url 'prod_dest_insertar' %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
-        </div>
-        {% endif %}
+    <div class="table-responsive rounded-3 shadow-sm">
+        <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Producto</th>
+                    <th>Destino</th>
+                    <th>Última Reposición</th>
+                    <th>Frecuencia</th>
+                    <th>Días Restantes</th>
+                    <th>Próxima Reposición</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reposiciones %}
+                <tr class="{% if r.dias_para_reposicion <= 2 %}table-warning{% endif %}">
+                    <td class="fw-medium">
+                        {% if r.producto %}
+                        <a href="{% url 'producto_detail' r.producto.id_producto %}">{{ r.producto.nombre_producto|default:'N/A' }}</a>
+                        {% else %}
+                        <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.destino %}
+                        <a href="{% url 'destino_detail' r.destino.id_destino %}">{{ r.destino.nombre_destino|default:'N/A' }}</a>
+                        {% else %}
+                        <span class="text-muted">N/A</span>
+                        {% endif %}
+                        
+                    </td>
+                    <td>
+                        {% if r.ultima_reposicion %}
+                            <span class="badge bg-secondary">{{ r.ultima_reposicion }}</span>
+                        {% else %}
+                            <span class="text-muted fst-italic">Nunca</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">
+                            {{ r.frecuencia_reposicion }} días
+                        </span>
+                    </td>
+                    <td>
+                        {% if r.dias_para_reposicion <= 2 %}
+                            <i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>
+                        {% endif %}
+                        {{ r.dias_para_reposicion }}
+                    </td>
+                    <td>
+                        {% if r.ultima_reposicion %}
+                            <span class="badge bg-success">
+                                {{ r.ultima_reposicion|add_days:r.frecuencia_reposicion|date:"d/m/Y" }}
+                            </span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        <i class="bi bi-database-exclamation me-2"></i>No hay registros de reposición
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-
-<div style="overflow-x: auto; white-space: nowrap;">
-    <table class="table table-striped table-bordered table-sm p-0" id="miTabla">
-        <thead class="thead-dark">
-            <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
-                <th class="text-center"></th>
-    
-                <th class="text-center py-0">DESTINO</th>
-                <th class="text-center py-0">PRODUCTO</th>
-                <th class="text-center py-0">CONSUMO (L)</th>
-                <th class="text-center py-0">ULT. SUMIN.</th>
-                <th class="text-center py-0">OPCIONES</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for consumo in consumos %}
-            <tr>
-                <td class="text-center"><input type="checkbox" class="seleccionar-elemento" data-id="{{ consumo.id_prod_dest }}"></td>
-                
-                <td class="text-center py-0 align-middle" style="padding: 0 5px;"><a href="{% url 'destino_detail' consumo.id_destino.id_destino %}">{{consumo.id_destino.nombre_destino|default:"N/A"}}</a></td>
-                {% if consumo.id_producto %}
-                <td class="text-center py-0 align-middle"><a href="{% url 'producto_detail' consumo.id_producto.id_producto %}">{{ consumo.id_producto.nombre_producto|default:"N/A" }}</a></td>
-                {% else %}
-                qqqqq
-                {% endif %}
-                <td class="text-center py-0 align-middle">{{ consumo.consumo_prom_dia |default:"N/A" }}</td>
-                <td class="text-center py-0 align-middle">{{ consumo.fecha_ult_sumin |default:"N/A" }}</td>
-                
-                <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
-                    {% if user|has_higher_role:'gerente' %}
-                    <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'prod_dest_modificar' consumo.id_prod_dest %}"><i class="bi bi-pen"></i> Editar</a></button>
-                    
-                    <button class="btn btn-danger btn-sm eliminar" data-id="{{ consumo.id_prod_dest }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
-                    {% endif %}
-                </td>
-                
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-
-
-</div>
-
-
-
-<!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="confirmarEliminarModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Confirmar Eliminación</h4>
-                <button type="button" class="close" style="border:none;" data-bs-dismiss="modal">&times;</button> <!-- Agrega este botón -->
-            </div>
-            <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar esta relación entre producto y destino definitivamente?</p>
-                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-square"></i>  Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmar-eliminar"><i class="bi bi-check-square"></i> Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-{% endblock content %} <!-- FIN block 1-->
+{% endblock %}
 
 {% block scripts %}
-
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
-<!-- Librería JS de HTML5 export (botones de exportación) -->
-<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
 
 
-<script src="{% static 'js/prod_dest.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('table').DataTable({
+            dom: 'Bfrtip',
+
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+            },
+            order: [[4, 'asc']],
+            pageLength: 25
+        });
+    });
+</script>
 {% endblock %}

@@ -33,9 +33,11 @@
 <div class="row mb-3">
     <div class="col-md-6 d-flex align-items-center">
         {% if user|has_higher_role:'gerente' %}
+        {% if user|has_higher_role:'ceo' or orden.estado != 'Finalizado' %}
         <div class="mr-3" style="margin-right:5px;">
             <a href="{% url 'orden_insertar2' id_orden %}" id="crear-nuevo" class="custom-btn custom-btn-green btn-sm mb-3"><i class="bi bi-plus-square"></i> Crear Nuevo</a>
         </div>
+        {% endif %}
         {% endif %}
     </div>
     
@@ -46,7 +48,7 @@
         <thead class="thead-dark">
             <tr class="px-0" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;">
        
-    
+                <th class="text-center py-0">ID</th>
                 <th class="text-center py-0">Producto</th>
                 <th class="text-center py-0">Cantidad</th>
                 <th class="text-center py-0">Precio U.</th>
@@ -58,7 +60,7 @@
             {% for orden_prod in orden_prod_list %}
             <tr>
                 
-                
+                <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ orden_prod.id_orden_prod }}</td>
                 <td class="text-center py-0 align-middle" style="padding: 0 5px;">{{ orden_prod.producto }}</td>
                 <td class="text-center py-0 align-middle">{{ orden_prod.cantidad|default:"N/A" }}</td>
                 <td class="text-center py-0 align-middle">{{ orden_prod.precio_unit|default:"N/A" }}</td>
@@ -66,6 +68,7 @@
   
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
                     {% if user|has_higher_role:'gerente' %}
+                    {% if user|has_higher_role:'ceo' or orden.estado != 'Finalizado' %}
                     <button style="border:none; margin:0; padding:0;" >
                         <a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" 
                         class="btn btn-info btn-sm"  
@@ -75,6 +78,7 @@
                     </button>
                     
                     <button class="btn btn-danger btn-sm eliminar" data-id="{{ orden_prod.id_orden_prod }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                    {% endif %}
                     {% endif %}
                 </td>
                 
@@ -121,9 +125,7 @@
 <!-- Librería JS de HTML5 export (botones de exportación) -->
 <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+
 
 
 <script src="{% static 'js/orden_prod.js' %}"></script>

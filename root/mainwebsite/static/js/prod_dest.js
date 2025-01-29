@@ -14,7 +14,7 @@ $(document).ready(function() {
             text: '<i class="bi bi-file-excel"></i> Exportar a Excel',
             className: 'btn btn-success',
             exportOptions: {
-                columns: [1, 2, 3, 4] // Especifica las columnas a exportar (excluye la columna de opciones)
+                columns: [1, 2, 3, 4] 
             },
             
         },

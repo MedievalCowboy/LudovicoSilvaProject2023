@@ -104,14 +104,19 @@
                         </a>
                     </button>
                     {% if user|has_higher_role:'gerente' %}
-                    <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-success btn-sm"  href="{% url 'orden_insertar2' orden.id_orden %}">&plus;</a></button>
+                    {% if user|has_higher_role:'ceo' or orden.estado != 'Finalizado' %}
+                        <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-success btn-sm"  href="{% url 'orden_insertar2' orden.id_orden %}">&plus;</a></button>
+                    {% endif  %}
                     {% endif %}
                 </td>
                 <td class="text-center py-0 align-middle" style="white-space: nowrap; padding: 5px;">
+                    
                     {% if user|has_higher_role:'gerente' %}
+                    {% if user|has_higher_role:'ceo' or orden.estado != 'Finalizado' %}
                     <button style="border:none; margin:0; padding:0;" ><a style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-info btn-sm"  href="{% url 'orden_modificar' orden.id_orden %}"><i class="bi bi-pen"></i> Editar</a></button>
                     
                     <button class="btn btn-danger btn-sm eliminar" data-id="{{ orden.id_orden }}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;"><i class="bi bi-trash"></i> Eliminar</button>
+                    {% endif %}
                     {% endif %}
                     <button style="border:none; margin:0; padding:0;" >
                         <a href="{% url 'orden_pdf' pk=orden.id_orden %}" style="padding-top: 0;padding-bottom: 0; margin: 0; font-size: 12px;" class="btn btn-warning btn-sm">
@@ -163,9 +168,8 @@
 <!-- Librería JS de HTML5 export (botones de exportación) -->
 <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+
 
 
 <script src="{% static 'js/ordenes.js' %}"></script>
