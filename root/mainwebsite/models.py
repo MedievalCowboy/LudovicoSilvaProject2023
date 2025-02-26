@@ -223,6 +223,18 @@ class Orden(models.Model):
     
     def __str__(self):
         return(f"id:{self.id_orden}-numOrden:{self.num_orden}-desc:{self.desc_requisicion}")
+    
+    def save(self, *args, **kwargs):
+        if not self.num_factura: 
+            anio_emision = self.fecha_emision.year if self.fecha_emision else 'AAAA' 
+            num_orden_str = str(self.num_orden).zfill(8)
+            self.num_factura = f"F01-{anio_emision}{num_orden_str}"
+
+            if Orden.objects.filter(num_factura=self.num_factura).exists():
+                raise ValidationError(f"El número de factura {self.num_factura} ya existe. No se puede guardar la orden.")
+
+
+        super().save(*args, **kwargs)
 
 class Orden_Producto(models.Model):
     id_orden_prod = models.AutoField(primary_key=True)

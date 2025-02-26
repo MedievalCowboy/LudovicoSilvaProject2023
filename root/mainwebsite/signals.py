@@ -14,9 +14,6 @@ from .middleware import get_current_request
 import datetime
 from decimal import Decimal
 
-
-
-
 def track_model(sender, **kwargs):
     """Registra señales para cualquier modelo a auditar"""
     
@@ -80,6 +77,7 @@ def _get_changes(instance, old_instance):
         return {}
     
     changes = {}
+    changes['instance_id'] = instance.pk
     default_exclusions = {'id', 'creado_en', 'ultima_modificacion'}
     model_exclusions = set()
     

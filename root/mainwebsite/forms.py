@@ -65,7 +65,7 @@ class CustomUserForm(UserCreationForm):
         # Estilos para todos los campos
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
-            field.help_text = ''  # Eliminar textos de ayuda por defecto
+            field.help_text = '' 
 
 class OrdenForm(forms.ModelForm):
 
@@ -78,10 +78,23 @@ class OrdenForm(forms.ModelForm):
 
     class Meta:
         model = Orden
-        fields = '__all__'
-        exclude = ('id_usuario',)
-        
-       # Personalización de campos de fecha
+        fields = [
+            'num_orden',
+            'id_cliente',
+            'id_destino',
+            'estado',
+            'desc_requisicion',
+            'fecha_requisicion',
+            'fecha_emision',
+            'fecha_entrega',
+            'num_factura',
+            'solicitado',
+            'tlf_solicitado',
+            'num_lote',
+        ] # Lista de campos en el orden deseado
+        exclude = ('id_usuario', 'fecha_ult_mod', 'creado_en', 'num_factura') 
+
+        # Personalización de campos de fecha
     fecha_emision = forms.DateField(
         label='Fecha de Emisión',
         input_formats=['%Y-%m-%d'],
@@ -100,18 +113,85 @@ class OrdenForm(forms.ModelForm):
         input_formats=['%Y-%m-%d'],
         widget=forms.DateInput(format='%Y-%m-%d',attrs={'class':'form-control','type': 'date', }),
     )
-    estado = forms.ChoiceField(choices=ESTADO_CHOICES, label='Estado')
+    estado = forms.ChoiceField(choices=ESTADO_CHOICES, label='Estado de la Orden', widget=forms.Select(attrs={'class': 'form-control'})) # Label personalizado para Estado
 
     tlf_solicitado = forms.CharField(
-        label='Teléfono Solicitado',
+        label='Teléfono del Solicitante',
         max_length=12,
-        required=False
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+    num_orden = forms.IntegerField(
+        label='Número de Orden', 
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+    #num_factura = forms.CharField(
+    #    label='Número de Factura',
+    #    max_length=20,
+    #    help_text="Formato de factura: F01-YYYYNUMORDEN (Ej: F01-2025000001)", 
+    #    widget=forms.TextInput(attrs={'class': 'form-control'})
+    #)
+    desc_requisicion = forms.CharField(
+        label='Descripción de la Requisición', 
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    solicitado = forms.CharField(
+        label='Nombre del Solicitante', 
+        max_length=25,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    num_lote = forms.CharField(
+        label='Número de Lote', 
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    id_cliente = forms.ModelChoiceField(
+        queryset=Orden.id_cliente.field.related_model.objects.all(),
+        label='Cliente', 
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    id_destino = forms.ModelChoiceField(
+        queryset=Orden.id_destino.field.related_model.objects.all(),
+        label='Destino de la Orden', 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+
     def clean_tlf_solicitado(self):
-        tlf_solicitado = self.cleaned_data['tlf_solicitado']
-        if not re.match(r'^\d{11}$', tlf_solicitado):
+        tlf_solicitado = self.cleaned_data.get('tlf_solicitado')
+        if tlf_solicitado and not re.match(r'^\d{11}$', tlf_solicitado):
             raise forms.ValidationError('Ingrese un número de teléfono válido en formato local (11 dígitos).')
         return tlf_solicitado
+
+    def clean_num_factura(self):
+        num_factura = self.cleaned_data.get('num_factura')
+        if num_factura: # Solo validar si se ha ingresado un valor
+            if not re.match(r'^[A-Za-z0-9]{3}-\d{8}$', num_factura):
+                raise forms.ValidationError(f'Ingrese un número de factura válido con el formato: F01-YYYYNUMORDEN (Ej: F01-2025000001). Formato esperado: XXX-YYYYNNNNNNNN')
+        return num_factura
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha_emision = cleaned_data.get('fecha_emision')
+        fecha_requisicion = cleaned_data.get('fecha_requisicion')
+        fecha_entrega = cleaned_data.get('fecha_entrega')
+
+        if fecha_requisicion and fecha_emision and fecha_emision < fecha_requisicion:
+            self.add_error('fecha_emision', 'La Fecha de Emisión debe ser posterior a la Fecha de Requisición.')
+
+        if fecha_requisicion and fecha_entrega and fecha_entrega <= fecha_requisicion:
+            self.add_error('fecha_entrega', 'La Fecha de Entrega debe ser posterior a la Fecha de Requisición.')
+
+        if fecha_emision and fecha_entrega and fecha_entrega <= fecha_emision:
+            self.add_error('fecha_entrega', 'La Fecha de Entrega debe ser posterior a la Fecha de Emisión.')
+
+        if fecha_requisicion and fecha_entrega and fecha_requisicion >= fecha_entrega: 
+            self.add_error('fecha_requisicion', 'La Fecha de Requisición debe ser anterior a la Fecha de Entrega.')
+
+
+        return cleaned_data
 
 
 class OrdenProductoForm(forms.ModelForm):

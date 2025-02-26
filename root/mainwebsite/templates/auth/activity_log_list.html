@@ -120,12 +120,17 @@
                     
                     <!-- Cambios -->
                     <td class="small">
+                        {% if log.changes.instance_id %}
+                        <span><span class="fw-bold">Id afectada:</span> {{log.changes.instance_id}}</span>
+                        {% endif %}
                         {% for campo, valores in log.changes.items %}
+                        {% if campo != "instance_id" %}
                         <div class="mb-1">
                             <span class="fw-bold">{{ campo|title }}:</span>
                             <span class="text-danger">{{ valores.old|default:"-" }}</span> → 
                             <span class="text-success">{{ valores.new|default:"-" }}</span>
                         </div>
+                        {% endif %}
                         {% endfor %}
                     </td>
                     
