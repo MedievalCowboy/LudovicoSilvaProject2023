@@ -1,0 +1,18 @@
+A nivel de backend, en este proyecto se usó Django. Este cuenta con su propio
+ORM para las bases de datos, por lo que si se descarga el proyecto, 
+los requisitos de este y se ejecutan los comandos para migración
+no hace falta tener un archivo .sql para subirlo debido a que el Sistema lo hará por su cuenta
+
+COMANDOS (en la carpeta del proyecto /LudovicoSilvaProject2023/root/, donde esta el archivo manage.py):
+python manage.py makemigrations
+python manage.py migrate
+python manage.py creatersuperuser
+(seguir los pasos que te salgan del ultimo comando)
+
+Con la secuencia de comandos anterior Django creará la base de datos segun los modelos existentes,
+realizará las respectivas migraciones y además con el ultimo comando creas un super user.
+
+
+NOTA FINAL:
+Igual en el CD se encontrará una copia .sql de la base de datos del proyecto en caso de querer
+cargarlo manualmente.
